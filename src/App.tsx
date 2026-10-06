@@ -7,23 +7,31 @@ import { JobRevealPage } from './pages/JobRevealPage'
 import { GamePage } from './pages/GamePage'
 import { ResultPage } from './pages/ResultPage'
 import { CareerPage } from './pages/CareerPage'
+import { WelcomePage } from './pages/WelcomePage'
+import { CharacterCreatorPage } from './pages/CharacterCreatorPage'
+import { ProfilePage } from './pages/ProfilePage'
 import { getDailyJobId, getLocalDateKey } from './services/dailyChallenge'
 import { useProgressStore } from './store/progressStore'
 import { usePwaInstall } from './hooks/usePwaInstall'
 import type { AchievementId, GameResult } from './types/game'
 import './App.css'
+import './profile.css'
 
-type AppScreen = 'home' | 'reveal' | 'game' | 'result' | 'career'
+type AppScreen = 'home' | 'reveal' | 'game' | 'result' | 'career' | 'profile' | 'creator'
 
 function App() {
   const [screen, setScreen] = useState<AppScreen>('home')
   const [result, setResult] = useState<GameResult | null>(null)
   const [achievementQueue, setAchievementQueue] = useState<AchievementId[]>([])
+  const [pendingName, setPendingName] = useState('')
   const pwaInstall = usePwaInstall()
 
   const currentJobId = useProgressStore((state) => state.currentJobId)
   const selectJob = useProgressStore((state) => state.selectJob)
   const completeGame = useProgressStore((state) => state.completeGame)
+  const profile = useProgressStore((state) => state.profile)
+  const createProfile = useProgressStore((state) => state.createProfile)
+  const updateAppearance = useProgressStore((state) => state.updateAppearance)
 
   const currentJob = useMemo(
     () => (currentJobId ? jobsById[currentJobId] : null),
@@ -59,7 +67,26 @@ function App() {
   ) : null
 
   let page: ReactNode
-  if (screen === 'reveal' && currentJob) {
+  if (!profile.playerName && !pendingName) {
+    page = <WelcomePage onContinue={setPendingName} />
+  } else if (!profile.playerName || screen === 'creator') {
+    page = <CharacterCreatorPage
+      playerName={profile.playerName || pendingName}
+      initialAppearance={profile.appearance}
+      editing={Boolean(profile.playerName)}
+      onBack={() => profile.playerName ? setScreen('profile') : setPendingName('')}
+      onSave={(appearance) => {
+        if (profile.playerName) {
+          updateAppearance(appearance)
+          setScreen('profile')
+        } else if (createProfile(pendingName, appearance)) {
+          setPendingName('')
+          setScreen('home')
+        }
+      }} />
+  } else if (screen === 'profile') {
+    page = <ProfilePage onHome={() => setScreen('home')} onCareer={() => setScreen('career')} onEdit={() => setScreen('creator')} />
+  } else if (screen === 'reveal' && currentJob) {
     page = <JobRevealPage job={currentJob} onPlay={() => setScreen('game')} />
   } else if (screen === 'game' && currentJob) {
     page = <GamePage job={currentJob} onComplete={handleGameComplete} />
@@ -73,7 +100,7 @@ function App() {
       />
     )
   } else if (screen === 'career') {
-    page = <CareerPage onBack={() => setScreen('home')} />
+    page = <CareerPage onBack={() => setScreen('home')} onProfile={() => setScreen('profile')} />
   } else {
     const localDateKey = getLocalDateKey()
     page = (
@@ -84,6 +111,7 @@ function App() {
         showIosInstallHint={pwaInstall.showIosHint}
         onStart={handleStartDaily}
         onCareer={() => setScreen('career')}
+        onProfile={() => setScreen('profile')}
         onInstall={pwaInstall.install}
       />
     )

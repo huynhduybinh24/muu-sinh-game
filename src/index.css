@@ -1,19 +1,35 @@
 :root {
+  --background: #e8ecf5;
+  --surface: #fffdf8;
+  --primary: #db4938;
+  --accent: #f5c64c;
+  --text: #292d46;
+  --muted: #666b81;
+  --success: #26724e;
+  --danger: #b42a36;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --radius-sm: 12px;
+  --radius-lg: 24px;
+  --shadow-soft: 0 8px 24px rgb(49 56 93 / 8%);
   font-family: Inter, ui-rounded, "Segoe UI", system-ui, -apple-system, sans-serif;
-  color: #20211d;
-  background: #eee9dc;
+  color: var(--text);
+  background: var(--background);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  --ink: #20211d;
-  --ink-soft: #57594f;
-  --ink-muted: #77796e;
-  --red: #df382b;
+  --ink: var(--text);
+  --ink-soft: #545971;
+  --ink-muted: var(--muted);
+  --red: var(--primary);
   --red-soft: #ffe4df;
-  --yellow: #f5c842;
+  --yellow: var(--accent);
   --yellow-soft: #fff1b3;
   --cream: #f6f1e4;
-  --line: #ded9ca;
+  --line: #e3e5ee;
   --radius-md: 18px;
 }
 
@@ -25,7 +41,7 @@ html {
   min-width: 320px;
   min-height: 100%;
   overflow-x: hidden;
-  background: #eee9dc;
+  background: var(--background);
 }
 
 body {
@@ -40,7 +56,8 @@ a {
   -webkit-tap-highlight-color: transparent;
 }
 
-button:focus-visible {
+button:focus-visible,
+input:focus-visible {
   outline: 3px solid #2670ff;
   outline-offset: 3px;
 }

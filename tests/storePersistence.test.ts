@@ -22,7 +22,7 @@ describe('Zustand persistence', () => {
       soundEnabled: false, completedTutorials: ['shipper'], totalGamesPlayed: 1,
     })
     const stored = JSON.parse(localStorage.getItem(storageKey) ?? '{}') as { version: number }
-    expect(stored.version).toBe(2)
+    expect(stored.version).toBe(3)
   })
 
   it('persists daily completion, career statistics, tutorials, and sound together', async () => {

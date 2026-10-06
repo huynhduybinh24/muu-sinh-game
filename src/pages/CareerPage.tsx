@@ -1,4 +1,5 @@
 import { ScreenShell } from '../components/ScreenShell'
+import { BottomNav } from '../components/BottomNav'
 import { achievements } from '../data/achievements'
 import { jobs } from '../data/jobs'
 import { formatMoney } from '../services/formatters'
@@ -6,6 +7,7 @@ import { useProgressStore } from '../store/progressStore'
 
 interface CareerPageProps {
   onBack: () => void
+  onProfile: () => void
 }
 
 function formatUnlockDate(value: string): string {
@@ -13,7 +15,7 @@ function formatUnlockDate(value: string): string {
   return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString('vi-VN')
 }
 
-export function CareerPage({ onBack }: CareerPageProps) {
+export function CareerPage({ onBack, onProfile }: CareerPageProps) {
   const progress = useProgressStore()
   const unlockedById = new Map(
     progress.achievements.map((achievement) => [achievement.id, achievement]),
@@ -24,9 +26,12 @@ export function CareerPage({ onBack }: CareerPageProps) {
       header={<span className="day-pill">Sự nghiệp</span>}
       contentClassName="career-content"
       footer={
+        <>
         <button className="secondary-button" type="button" onClick={onBack}>
           ← VỀ TRANG CHỦ
         </button>
+        <BottomNav active="career" onHome={onBack} onCareer={() => undefined} onProfile={onProfile} />
+        </>
       }
     >
       <section className="career-section" aria-labelledby="career-jobs-title">

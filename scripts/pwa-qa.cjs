@@ -6,6 +6,7 @@ const fs = require('node:fs/promises')
 const os = require('node:os')
 const path = require('node:path')
 const http = require('node:http')
+const { completeProfile, verifyProfileFlows } = require('./profile-qa.cjs')
 
 const origin = process.env.PWA_QA_URL || 'http://127.0.0.1:4173'
 const sizes = [
@@ -52,6 +53,7 @@ async function verifyUpdate(browser, artifacts) {
     const page = await context.newPage()
     await page.goto(updateOrigin)
     await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller))
+    await completeProfile(page, 'Thợ cập nhật')
     await page.getByRole('button', { name: 'Tắt âm thanh' }).click()
     const progress = await readProgress(page)
     version = 2
@@ -75,6 +77,9 @@ async function verifyUpdate(browser, artifacts) {
       Object.defineProperty(navigator, 'standalone', { value: true })
     })
     await installedPage.goto(updateOrigin)
+    await installedPage.locator('.home-player').waitFor()
+    await assertLayout(installedPage, 'Standalone Home')
+    await installedPage.screenshot({ path: path.join(artifacts, 'standalone-home.png') })
     await installedPage.evaluate(() => {
       const prompt = new Event('beforeinstallprompt', { cancelable: true })
       Object.assign(prompt, {
@@ -164,6 +169,7 @@ async function main() {
       assert.equal(bytes.readUInt32BE(20), size)
     }
     console.log('PASS: production manifest, icon dimensions, and service-worker control')
+    await verifyProfileFlows(browser, page, origin, artifacts, assertLayout)
 
     if (await page.getByRole('button', { name: 'Tắt âm thanh' }).count()) {
       await page.getByRole('button', { name: 'Tắt âm thanh' }).click()
@@ -191,7 +197,7 @@ async function main() {
       await page.setViewportSize(sizes[index])
       await page.clock.setFixedTime(new Date(`2026-10-0${6 + index}T05:00:00Z`))
       // Re-enter Home so the daily date is read again without touching app storage.
-      await page.getByRole('button', { name: 'XEM SỰ NGHIỆP' }).click()
+      await page.getByRole('button', { name: 'SỰ NGHIỆP', exact: true }).click()
       await page.getByRole('heading', { name: 'SỰ NGHIỆP', exact: true }).waitFor()
       await assertLayout(page, 'Career')
       await page.screenshot({ path: path.join(artifacts, `career-${sizes[index].width}.png`) })

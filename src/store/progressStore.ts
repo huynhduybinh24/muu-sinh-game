@@ -3,6 +3,8 @@ import { persist } from 'zustand/middleware'
 import { achievementsById } from '../data/achievements'
 import { applyGameCompletion } from '../services/progression'
 import { getLocalDateKey } from '../services/dailyChallenge'
+import { getPlayerNameError, normalizePlayerName, readAppearance, readPlayerProfile } from '../services/playerProfile'
+import type { PlayerAppearance } from '../types/profile'
 import type {
   AchievementId,
   AchievementUnlock,
@@ -22,6 +24,7 @@ const emptyJobStats = (): Record<JobId, JobCareerStats> => ({
 })
 
 const initialProgress: PlayerProgress = {
+  profile: readPlayerProfile(undefined),
   money: 0,
   reputation: 0,
   energy: 100,
@@ -44,6 +47,8 @@ const initialPreferences: PlayerPreferences = {
 }
 
 interface ProgressStore extends PlayerProgress, PlayerPreferences {
+  createProfile: (name: string, appearance: PlayerAppearance) => boolean
+  updateAppearance: (appearance: PlayerAppearance) => void
   selectJob: (jobId: JobId) => void
   completeGame: (result: GameResult, localDateKey?: string) => AchievementUnlock[]
   setSoundEnabled: (enabled: boolean) => void
@@ -112,6 +117,7 @@ export function migratePersistedProgress(value: unknown): PersistedProgress {
   return {
     ...initialProgress,
     ...initialPreferences,
+    profile: readPlayerProfile(source.profile),
     money,
     reputation: safeNumber(source.reputation, initialProgress.reputation),
     energy: safeNumber(source.energy, initialProgress.energy),
@@ -140,6 +146,20 @@ export const useProgressStore = create<ProgressStore>()(
     (set) => ({
       ...initialProgress,
       ...initialPreferences,
+      createProfile: (name, appearance) => {
+        if (getPlayerNameError(name)) return false
+        set((state) => ({
+          profile: {
+            playerName: normalizePlayerName(name),
+            createdAt: state.profile.createdAt || new Date().toISOString(),
+            appearance: readAppearance(appearance),
+          },
+        }))
+        return true
+      },
+      updateAppearance: (appearance) => set((state) => ({
+        profile: { ...state.profile, appearance: readAppearance(appearance) },
+      })),
       selectJob: (jobId) =>
         set((state) => ({
           previousJobId: state.currentJobId ?? state.previousJobId,
@@ -170,13 +190,14 @@ export const useProgressStore = create<ProgressStore>()(
     }),
     {
       name: 'muu-sinh-player-progress',
-      version: 2,
+      version: 3,
       migrate: (persistedState) => migratePersistedProgress(persistedState),
       merge: (persistedState, currentState) => ({
         ...currentState,
         ...migratePersistedProgress(persistedState),
       }),
       partialize: (state): PersistedProgress => ({
+        profile: state.profile,
         money: state.money,
         reputation: state.reputation,
         energy: state.energy,

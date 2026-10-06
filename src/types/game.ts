@@ -1,4 +1,5 @@
 import type { JobId } from './job'
+import type { PlayerProfile } from './profile'
 
 export type AchievementId =
   | 'first-day'
@@ -41,6 +42,7 @@ export interface GameResult {
 }
 
 export interface PlayerProgress {
+  profile: PlayerProfile
   money: number
   reputation: number
   energy: number

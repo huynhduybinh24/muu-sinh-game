@@ -3,6 +3,15 @@
 React/TypeScript handles UI and persisted Zustand progress; Phaser 3 owns the
 three mini-games. Vite builds the app and its PWA service worker.
 
+## Player profile
+
+First launch asks for a 2–20 character name, then opens the original layered-SVG
+character creator. Home, Profile, and the creator share one avatar component and
+typed appearance configuration. Appearance edits never change career progress.
+Save version 3 adds `profile` to the existing storage key; older saves keep all
+progress/settings and go through setup once. Level is display-only (one level
+per ten completed games). Profiles stay on this device, without accounts or sync.
+
 ## Development
 
 ```bash
