@@ -65,3 +65,19 @@ three mobile sizes, and updates. It closes its preview/browser when finished and
 writes screenshots/downloads to a temporary directory. Missing prerequisites or
 failed checks exit non-zero. `npm run qa:static` validates built assets without a
 browser. Scene routing is covered by the production smoke flow.
+
+## Cloudflare Pages
+
+Connect the repository to Cloudflare Pages and enter:
+
+- Framework preset: **React (Vite)**.
+- Project root: repository root (leave the root directory field empty).
+- Production branch: **main**.
+- Build command: **npm run build**.
+- Build output directory: **dist**.
+
+Before pushing, run `npm run release:check` and `npm run qa:pwa` with the browser
+QA prerequisites above. Once Git integration is connected, pushes to `main`
+trigger new production deployments. No runtime server or application environment
+variables are needed. Vite's default root base (`/`) matches `https://<project>.pages.dev/`;
+navigation is in React state, so no additional SPA redirects are required.

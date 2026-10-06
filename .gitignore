@@ -34,5 +34,11 @@ playwright-report
 test-results
 
 # PWA QA temporary files
-.pwa-*-profile/
+.pwa-*-profile*/
 pwa-online-dom.txt
+muu-sinh-pwa-qa-*/
+qa-artifacts/
+
+# Windows junk
+Thumbs.db
+Desktop.ini
