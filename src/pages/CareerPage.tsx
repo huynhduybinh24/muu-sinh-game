@@ -4,6 +4,7 @@ import { achievements } from '../data/achievements'
 import { jobs } from '../data/jobs'
 import { formatMoney } from '../services/formatters'
 import { useProgressStore } from '../store/progressStore'
+import { GameIcon } from '../components/GameIcon'
 
 interface CareerPageProps {
   onBack: () => void
@@ -47,7 +48,7 @@ export function CareerPage({ onBack, onProfile }: CareerPageProps) {
             const stats = progress.jobStats[job.id]
             return (
               <article className="career-job-card" key={job.id}>
-                <span className="career-job-icon" aria-hidden="true">{job.icon}</span>
+                <span className="career-job-icon" aria-hidden="true"><GameIcon name={job.id} size={42} /></span>
                 <div>
                   <h2>{job.name}</h2>
                   {stats.timesPlayed === 0 ? (

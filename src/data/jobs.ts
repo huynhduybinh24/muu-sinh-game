@@ -28,6 +28,21 @@ export const jobs: readonly Job[] = [
     sceneKey: 'ShipperScene',
     icon: '🛵',
   },
+  {
+    id: 'noodle', name: 'Bán hủ tiếu',
+    description: 'Hủ tiếu nóng hổi, đúng món đúng vị! Đừng để khách chờ nguội tô.',
+    difficulty: 'Hơi cực', duration: 45, sceneKey: 'NoodleScene', icon: '🍜',
+  },
+  {
+    id: 'barber', name: 'Cắt tóc',
+    description: 'Canh mẫu tóc, kéo thật chuẩn. Khách đẹp trai là tiệm đông ngay!',
+    difficulty: 'Hơi cực', duration: 45, sceneKey: 'BarberScene', icon: '💈',
+  },
+  {
+    id: 'carwash', name: 'Rửa xe',
+    description: 'Chà sạch bụi phố, trả xe sáng bóng. Càng nhanh càng nhiều khách!',
+    difficulty: 'Dễ thở', duration: 45, sceneKey: 'CarwashScene', icon: '🚗',
+  },
 ]
 
 export const jobsById = Object.fromEntries(

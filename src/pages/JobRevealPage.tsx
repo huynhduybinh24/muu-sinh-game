@@ -1,6 +1,7 @@
 import { ScreenShell } from '../components/ScreenShell'
 import { playAudioCue, primeAudio } from '../services/audioFeedback'
 import type { Job } from '../types/job'
+import { GameIcon } from '../components/GameIcon'
 
 interface JobRevealPageProps {
   job: Job
@@ -27,7 +28,7 @@ export function JobRevealPage({ job, onPlay }: JobRevealPageProps) {
       <p className="eyebrow">Mỗi ngày 1 nghề</p>
       <article className="job-card">
         <div className="job-icon" aria-hidden="true">
-          {job.icon}
+          <GameIcon name={job.id} size={102} />
         </div>
         <h1 className="job-name">{job.name}</h1>
         <p className="job-description">{job.description}</p>

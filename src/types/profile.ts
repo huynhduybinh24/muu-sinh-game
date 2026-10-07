@@ -1,8 +1,8 @@
 export type Gender = 'male' | 'female'
 export type SkinToneId = 'peach' | 'warm' | 'tan' | 'deep'
 export type HairId = 'crop' | 'swoop' | 'bob' | 'bun' | 'curls' | 'long'
-export type ShirtId = 'coral' | 'mint' | 'blue' | 'sunshine' | 'lavender' | 'cream'
-export type PantsId = 'denim' | 'navy' | 'sand' | 'forest'
+export type ShirtId = 'coral' | 'mint' | 'blue' | 'sunshine' | 'lavender' | 'cream' | 'cherry' | 'charcoal' | 'ocean' | 'rose'
+export type PantsId = 'denim' | 'navy' | 'sand' | 'forest' | 'charcoal' | 'plum'
 
 export interface PlayerAppearance {
   gender: Gender

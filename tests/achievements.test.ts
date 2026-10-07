@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { getNewAchievementUnlocks } from '../src/data/achievements'
 import type { AchievementId, PlayerProgress } from '../src/types/game'
 import { freshProgress } from './fixtures'
+import { jobs } from '../src/data/jobs'
 
 const unlockedAt = '2026-10-06T05:00:00.000Z'
 interface ThresholdCase {
@@ -20,6 +21,9 @@ const thresholds: ThresholdCase[] = [
   { id: 'sugarcane-10', threshold: 10, qualify: (progress, value) => { progress.jobStats.sugarcane.timesPlayed = value } },
   { id: 'construction-10', threshold: 10, qualify: (progress, value) => { progress.jobStats.construction.timesPlayed = value } },
   { id: 'shipper-10', threshold: 10, qualify: (progress, value) => { progress.jobStats.shipper.timesPlayed = value } },
+  { id: 'noodle-10', threshold: 10, qualify: (progress, value) => { progress.jobStats.noodle.timesPlayed = value } },
+  { id: 'barber-10', threshold: 10, qualify: (progress, value) => { progress.jobStats.barber.timesPlayed = value } },
+  { id: 'carwash-10', threshold: 10, qualify: (progress, value) => { progress.jobStats.carwash.timesPlayed = value } },
 ]
 
 describe('achievement thresholds', () => {
@@ -35,11 +39,15 @@ describe('achievement thresholds', () => {
     expect(getNewAchievementUnlocks(progress, unlockedAt).map((achievement) => achievement.id)).not.toContain(id)
   })
 
-  it('requires all three distinct jobs for the collection achievement', () => {
+  it('requires all available distinct jobs for the collection achievement', () => {
     const progress = freshProgress()
     progress.completedJobs = ['sugarcane', 'construction']
     expect(getNewAchievementUnlocks(progress, unlockedAt)).toEqual([])
     progress.completedJobs.push('shipper')
+    expect(getNewAchievementUnlocks(progress, unlockedAt)).toEqual([])
+    progress.completedJobs = jobs.slice(0, -1).map((job) => job.id)
+    expect(getNewAchievementUnlocks(progress, unlockedAt)).toEqual([])
+    progress.completedJobs.push(jobs[jobs.length - 1].id)
     expect(getNewAchievementUnlocks(progress, unlockedAt)).toEqual([{ id: 'all-jobs', unlockedAt }])
     progress.achievements = [{ id: 'all-jobs', unlockedAt }]
     expect(getNewAchievementUnlocks(progress, unlockedAt)).toEqual([])

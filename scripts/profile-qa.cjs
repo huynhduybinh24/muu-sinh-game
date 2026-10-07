@@ -3,10 +3,18 @@ const path = require('node:path')
 
 const sizes = [{ width: 360, height: 800 }, { width: 390, height: 844 }, { width: 412, height: 915 }]
 const optionGroups = [
-  ['Giới tính', 2], ['Màu da', 4], ['Kiểu tóc', 6], ['Áo', 6], ['Quần', 4],
+  ['Giới tính', 2], ['Màu da', 4], ['Kiểu tóc', 2], ['Áo', 2], ['Quần', 2],
 ]
 const readSave = (page) => page.evaluate(() => JSON.parse(localStorage.getItem('muu-sinh-player-progress')))
 const withoutProfile = ({ profile: _profile, ...progress }) => progress
+const withoutEconomy = ({ ownedItemIds: _items, totalMoneySpent: _spent, xp: _xp,
+  dailyMissions: _missions, totalDailyMissionsClaimed: _claims, dailyRewardStreak: _streak,
+  dailyRewardCycleDay: _day, lastDailyRewardDate: _date, ...progress }) => progress
+
+async function dismissReward(page) {
+  const close = page.getByRole('button', { name: 'Đóng quà hôm nay', exact: true })
+  if (await close.count()) await close.click()
+}
 
 async function completeProfile(page, name) {
   await page.getByLabel('Bạn tên gì?', { exact: true }).fill(name)
@@ -14,6 +22,7 @@ async function completeProfile(page, name) {
   await page.getByRole('heading', { name: 'TẠO NHÂN VẬT', exact: true }).waitFor()
   await page.getByRole('button', { name: 'HOÀN TẤT ✓', exact: true }).click()
   await page.locator('.home-player').waitFor()
+  await dismissReward(page)
 }
 
 async function captureSizes(page, label, artifacts, assertLayout) {
@@ -58,9 +67,11 @@ async function verifyProfileFlows(browser, page, origin, artifacts, assertLayout
   }
   await page.getByRole('button', { name: 'HOÀN TẤT ✓', exact: true }).click()
   await page.locator('.home-player').waitFor()
+  await dismissReward(page)
   assert.equal(await page.locator('.home-player h2').innerText(), 'Nguyễn Ánh')
   const created = (await readSave(page)).state
-  assert.equal((await readSave(page)).version, 3)
+  assert.equal((await readSave(page)).version, 5)
+  assert.equal(created.ownedItemIds.length, 6)
   assert.ok(Number.isFinite(Date.parse(created.profile.createdAt)))
   await captureSizes(page, 'home', artifacts, assertLayout)
   await page.getByRole('button', { name: 'HỒ SƠ', exact: true }).click()
@@ -79,6 +90,7 @@ async function verifyProfileFlows(browser, page, origin, artifacts, assertLayout
   assert.equal(edited.profile.createdAt, created.profile.createdAt)
   await page.reload()
   await page.locator('.home-player').waitFor()
+  await dismissReward(page)
   assert.equal(await page.getByLabel('Bạn tên gì?', { exact: true }).count(), 0)
   assert.deepEqual((await readSave(page)).state, edited)
   await page.emulateMedia({ reducedMotion: 'reduce' })
@@ -88,7 +100,7 @@ async function verifyProfileFlows(browser, page, origin, artifacts, assertLayout
 
   const legacyContext = await browser.newContext({ viewport: sizes[0], hasTouch: true, isMobile: true })
   try {
-    const legacy = withoutProfile(created)
+    const legacy = withoutEconomy(withoutProfile(created))
     Object.assign(legacy, {
       money: 450000, reputation: 30, energy: 40, currentStreak: 3, bestStreak: 8,
       totalGamesPlayed: 18, totalDaysWorked: 12, totalMoneyEarned: 900000,
@@ -105,19 +117,20 @@ async function verifyProfileFlows(browser, page, origin, artifacts, assertLayout
     }, legacy)
     await legacyPage.goto(origin)
     await legacyPage.getByLabel('Bạn tên gì?', { exact: true }).waitFor()
-    assert.deepEqual(withoutProfile((await readSave(legacyPage)).state), legacy)
+    assert.deepEqual(withoutEconomy(withoutProfile((await readSave(legacyPage)).state)), legacy)
     await completeProfile(legacyPage, 'Anh Thợ')
-    assert.deepEqual(withoutProfile((await readSave(legacyPage)).state), legacy, 'Onboarding reset existing progression')
+    assert.deepEqual(withoutEconomy(withoutProfile((await readSave(legacyPage)).state)), legacy, 'Onboarding reset existing progression')
     await legacyPage.getByRole('button', { name: 'HỒ SƠ', exact: true }).click()
     assert.deepEqual(await legacyPage.locator('.profile-stats .stat-value').allInnerTexts(), ['18', '12', '8 ngày', '900.000đ'])
     assert.equal(await legacyPage.locator('.level-badge').innerText(), 'CẤP 2')
     await legacyPage.reload()
     await legacyPage.locator('.home-player').waitFor()
-    assert.deepEqual(withoutProfile((await readSave(legacyPage)).state), legacy)
+    await dismissReward(legacyPage)
+    assert.deepEqual(withoutEconomy(withoutProfile((await readSave(legacyPage)).state)), legacy)
     console.log('PASS: real version-2 save migrates without progress loss; populated Profile stats and refresh')
   } finally {
     await legacyContext.close()
   }
 }
 
-module.exports = { completeProfile, verifyProfileFlows }
+module.exports = { completeProfile, verifyProfileFlows, dismissReward }

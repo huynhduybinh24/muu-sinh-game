@@ -1,0 +1,31 @@
+.save-data-panel { border: 1px solid #fff; border-radius: var(--radius-md); background: var(--surface); box-shadow: var(--shadow-soft); }
+.save-data-panel summary { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 54px; padding: 9px 12px; cursor: pointer; list-style: none; }
+.save-data-panel summary::-webkit-details-marker { display: none; }
+.save-data-panel summary strong { display: block; font-size: .68rem; letter-spacing: .04em; }
+.save-data-panel summary small { display: block; margin-top: 4px; color: var(--muted); font-size: .61rem; }
+.save-data-panel summary:focus-visible { outline: 3px solid #2670ff; outline-offset: 3px; border-radius: inherit; }
+.save-data-content { padding: 0 12px 14px; }
+.save-data-content p, .save-data-content > small { font-size: .72rem; line-height: 1.5; color: var(--muted); }
+.save-actions { display: grid; gap: 10px; }
+.save-actions .secondary-button { min-height: 44px; padding: 12px; font-size: .72rem; }
+.save-file-input { display: none; }
+.save-status { min-height: 18px; overflow-wrap: anywhere; }
+.reset-data-link { width: 100%; min-height: 44px; margin-block: 4px 10px; padding: 8px; border: 1px solid #e8c2c0; border-radius: 12px; font: inherit; font-size: .69rem; font-weight: 850; color: var(--danger); background: #fff2ef; cursor: pointer; }
+.save-dialog { width: min(calc(100% - 32px), 390px); max-height: calc(100svh - 48px); overflow-y: auto; padding: 22px; border: 1px solid #fff; border-radius: 24px; color: var(--text); background: linear-gradient(145deg, #fffdf4, #f2f4ed); box-shadow: 0 20px 80px #29233445; }
+.save-dialog::backdrop { background: #29233480; }
+.save-dialog h2 { margin: 0 0 18px; font-size: 1.2rem; line-height: 1.3; }
+.restore-summary { display: grid; gap: 12px; margin: 0; }
+.restore-summary > div { display: grid; grid-template-columns: 108px minmax(0, 1fr); gap: 8px; font-size: .78rem; }
+.restore-summary dt { color: var(--muted); }
+.restore-summary dd { margin: 0; font-weight: 850; overflow-wrap: anywhere; }
+.save-warning { padding: 12px; margin: 18px 0; color: #934a43; border-radius: 12px; background: #fce8dc; font-size: .76rem; line-height: 1.5; }
+.save-dialog-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.save-dialog-actions button { min-height: 48px; padding: 12px 6px; font-size: .73rem; }
+.reset-confirm-label { display: grid; gap: 8px; margin-bottom: 18px; font-size: .8rem; }
+.reset-confirm-label input { width: 100%; min-height: 48px; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font: inherit; }
+.danger-button { border: 0; border-radius: 15px; color: #fff; background: #b93941; font: inherit; font-weight: 900; cursor: pointer; }
+.danger-button:disabled { cursor: default; color: #888; background: #e4e4df; }
+@media (max-height: 950px) {
+  .profile-content { gap: 12px; padding-top: 12px; }
+  .profile-identity { padding: 12px; grid-template-columns: 105px minmax(0, 1fr); }
+}

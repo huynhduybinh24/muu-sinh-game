@@ -3,6 +3,7 @@ import { tutorials } from '../data/tutorials'
 import { playAudioCue, primeAudio } from '../services/audioFeedback'
 import { useProgressStore } from '../store/progressStore'
 import type { Job } from '../types/job'
+import { GameIcon } from './GameIcon'
 
 type StartPhase = 'tutorial' | 'intro' | 'countdown'
 
@@ -59,7 +60,7 @@ export function GameStartOverlay({ job, onReady }: GameStartOverlayProps) {
   if (phase === 'tutorial') {
     return (
       <div className="game-start-overlay tutorial-overlay" role="dialog" aria-modal="true">
-        <span className="tutorial-icon" aria-hidden="true">{job.icon}</span>
+        <span className="tutorial-icon" aria-hidden="true"><GameIcon name={job.id} size={64} /></span>
         <p className="eyebrow">Hướng dẫn nhanh</p>
         <h2>{tutorial.title}</h2>
         <ol>
@@ -83,7 +84,7 @@ export function GameStartOverlay({ job, onReady }: GameStartOverlayProps) {
   if (phase === 'intro') {
     return (
       <div className="game-start-overlay intro-overlay">
-        <span aria-hidden="true">{job.icon}</span>
+        <span aria-hidden="true"><GameIcon name={job.id} size={82} /></span>
         <h2>{tutorial.title}</h2>
         <p>{tutorial.objective}</p>
       </div>
@@ -92,7 +93,7 @@ export function GameStartOverlay({ job, onReady }: GameStartOverlayProps) {
 
   return (
     <div className="game-start-overlay countdown-overlay" aria-live="assertive">
-      <strong>{countdownSteps[countdownIndex]}</strong>
+      <strong key={countdownIndex}>{countdownSteps[countdownIndex]}</strong>
     </div>
   )
 }

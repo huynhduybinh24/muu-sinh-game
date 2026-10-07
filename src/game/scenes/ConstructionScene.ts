@@ -1,4 +1,6 @@
 import Phaser from 'phaser'
+import { getPhaserAvatarData, type PhaserAvatarData } from '../avatar/avatarData'
+import { createPhaserAvatar, type PhaserAvatar } from '../avatar/createPhaserAvatar'
 import { showFloatingFeedback, showTimeUpOverlay } from '../gameFeedback'
 import {
   CONSTRUCTION_CONFIG,
@@ -10,6 +12,8 @@ import { createGameResult } from '../../services/resultCalculator'
 import { playAudioCue } from '../../services/audioFeedback'
 import type { GameResult } from '../../types/game'
 import type { Job } from '../../types/job'
+import { createEnvironment, hudPanel } from '../visual/environment'
+import { getSceneFx } from '../visual/feedbackFx'
 
 interface SettledBrick {
   shape: Phaser.GameObjects.Rectangle
@@ -36,6 +40,8 @@ const BRICK_COLORS = [COLORS.orange, COLORS.red, 0xd9822b, 0xb84a38] as const
 export class ConstructionScene extends Phaser.Scene {
   private readonly job: Job
   private readonly onComplete: (result: GameResult) => void
+  private readonly avatarData: PhaserAvatarData
+  private avatar: PhaserAvatar | null = null
   private score = 0
   private combo = 0
   private successfulBricks = 0
@@ -45,6 +51,7 @@ export class ConstructionScene extends Phaser.Scene {
   private hasFinished = false
   private currentBrick: Phaser.GameObjects.Rectangle | null = null
   private settledBricks: SettledBrick[] = []
+  private brickArt = new Map<Phaser.GameObjects.Rectangle, Phaser.GameObjects.Graphics>()
   private timerText!: Phaser.GameObjects.Text
   private scoreText!: Phaser.GameObjects.Text
   private comboText!: Phaser.GameObjects.Text
@@ -52,18 +59,23 @@ export class ConstructionScene extends Phaser.Scene {
   private feedbackText!: Phaser.GameObjects.Text
   private instructionText!: Phaser.GameObjects.Text
 
-  constructor(job: Job, onComplete: (result: GameResult) => void) {
+  constructor(job: Job, onComplete: (result: GameResult) => void, avatarData = getPhaserAvatarData()) {
     super({ key: job.sceneKey })
     this.job = job
     this.onComplete = onComplete
+    this.avatarData = avatarData
     this.remainingGameMs = job.duration * 1_000
   }
 
   create(): void {
     this.cameras.main.setBackgroundColor(COLORS.sky)
+    createEnvironment(this, this.job.id)
+    getSceneFx(this)
     this.createHud()
     this.createConstructionSite()
     this.createBase()
+    // Below the platform: never obstructs the moving brick or the tower.
+    this.avatar = createPhaserAvatar(this, this.avatarData, { x: 319, y: 643, scale: 0.4 })
 
     this.input.on('pointerdown', this.dropBrick, this)
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.cleanup, this)
@@ -89,7 +101,7 @@ export class ConstructionScene extends Phaser.Scene {
   }
 
   private createHud(): void {
-    this.add.rectangle(180, 42, 360, 84, COLORS.ink)
+    hudPanel(this, this.job.id)
     this.add
       .text(180, 19, '🧱 PHỤ HỒ', this.textStyle(21, '#f6c945', 'bold'))
       .setOrigin(0.5)
@@ -109,14 +121,9 @@ export class ConstructionScene extends Phaser.Scene {
   }
 
   private createConstructionSite(): void {
-    this.add.circle(306, 127, 28, COLORS.sun).setAlpha(0.9)
-    this.add.rectangle(180, 603, 360, 94, COLORS.sand)
-    this.add.rectangle(180, 584, 330, 18, COLORS.concrete).setStrokeStyle(2, COLORS.ink)
-
-    this.add.rectangle(24, 344, 5, 470, COLORS.blue)
-    this.add.rectangle(78, 114, 112, 5, COLORS.blue)
-    this.add.rectangle(24, 115, 7, 34, COLORS.blue)
-    this.add.line(0, 80, 116, 18, 116, 92, COLORS.ink, 0.35).setOrigin(0)
+    const ground = this.add.graphics()
+    ground.fillStyle(0x576877).fillRoundedRect(15, 577, 330, 16, 5)
+    ground.fillStyle(0xbec9c5).fillRoundedRect(15, 574, 330, 8, 4)
 
     this.instructionText = this.add
       .text(180, 105, 'CHẠM ĐỂ THẢ GẠCH', this.textStyle(15, '#20211d', 'bold'))
@@ -177,22 +184,19 @@ export class ConstructionScene extends Phaser.Scene {
   ): Phaser.GameObjects.Rectangle {
     const brick = this.add
       .rectangle(x, y, width, CONSTRUCTION_CONFIG.brickHeight, color)
-      .setStrokeStyle(2, COLORS.ink)
+      .setStrokeStyle()
       .setDepth(5)
 
-    this.add
-      .line(
-        x,
-        y,
-        -width / 6,
-        -CONSTRUCTION_CONFIG.brickHeight / 2,
-        -width / 6,
-        CONSTRUCTION_CONFIG.brickHeight / 2,
-        COLORS.ink,
-        0.22,
-      )
-      .setDepth(6)
-      .setData('brickDecoration', brick)
+    const h = CONSTRUCTION_CONFIG.brickHeight
+    const art = this.add.graphics().setPosition(x, y).setDepth(6)
+    art.fillStyle(color).fillRoundedRect(-width / 2, -h / 2, width, h, 4)
+    art.fillStyle(0xffffff, 0.24).fillRoundedRect(-width / 2 + 2, -h / 2 + 2, width - 4, 4, 2)
+    art.fillStyle(0x613c3b, 0.25).fillRect(-width / 2 + 2, h / 2 - 5, width - 4, 4)
+    art.lineStyle(1, 0x553e41, 0.4).strokeRoundedRect(-width / 2, -h / 2, width, h, 4)
+    art.lineStyle(1, 0x553e41, 0.35).lineBetween(-width / 6, -h / 2 + 5, -width / 6, h / 2 - 4)
+    art.lineBetween(width / 6, -h / 2 + 5, width / 6, h / 2 - 4)
+    brick.setAlpha(0)
+    this.brickArt.set(brick, art)
 
     return brick
   }
@@ -225,6 +229,7 @@ export class ConstructionScene extends Phaser.Scene {
     if (this.hasFinished || this.phase !== 'moving' || !this.currentBrick) return
 
     this.phase = 'dropping'
+    this.avatar?.setState('work')
     playAudioCue('click')
     this.instructionText.setVisible(false)
 
@@ -263,6 +268,13 @@ export class ConstructionScene extends Phaser.Scene {
     placement: PlacementResult,
   ): void {
     this.successfulBricks += 1
+    getSceneFx(this).burst(brick.x, brick.y + CONSTRUCTION_CONFIG.brickHeight / 2, 0xe5d5b3, 'dust')
+    if (placement.grade === 'perfect') {
+      getSceneFx(this).burst(brick.x, brick.y - 8, 0xffdf8e)
+      getSceneFx(this).shake()
+    }
+    this.avatar?.setState('idle')
+    if (placement.grade === 'perfect') this.avatar?.setState('success')
     this.combo = placement.grade === 'perfect' ? this.combo + 1 : 0
     const comboBonus = placement.grade === 'perfect' ? getComboBonus(this.combo) : 0
     this.score += placement.points + comboBonus
@@ -282,7 +294,11 @@ export class ConstructionScene extends Phaser.Scene {
     placement: PlacementResult,
   ): void {
     this.score = Math.max(0, this.score + placement.points)
+    this.avatar?.setState('idle')
+    this.avatar?.setState('fail')
     this.combo = 0
+    getSceneFx(this).burst(Phaser.Math.Clamp(brick.x, 25, 335), 572, 0xd5ad80, 'dust')
+    getSceneFx(this).shake()
     this.currentBrick = null
     this.destroyBrick(brick)
     playAudioCue('error')
@@ -318,7 +334,9 @@ export class ConstructionScene extends Phaser.Scene {
 
   private updateHud(): void {
     this.scoreText.setText(`⭐ ${this.score}`)
+    getSceneFx(this).pulse(this.scoreText)
     this.comboText.setText(`🔥 x${this.combo}`)
+    if (this.combo > 1) getSceneFx(this).pulse(this.comboText)
     this.bricksText.setText(`🧱 ${this.successfulBricks}`)
   }
 
@@ -334,26 +352,20 @@ export class ConstructionScene extends Phaser.Scene {
   }
 
   private syncBrickDecoration(brick: Phaser.GameObjects.Rectangle): void {
-    this.children.list.forEach((child) => {
-      if (child instanceof Phaser.GameObjects.Line && child.getData('brickDecoration') === brick) {
-        child.setPosition(brick.x, brick.y).setAngle(brick.angle)
-      }
-    })
+    this.brickArt.get(brick)?.setPosition(brick.x, brick.y).setAngle(brick.angle)
   }
 
   private destroyBrick(brick: Phaser.GameObjects.Rectangle): void {
-    this.children.list
-      .filter(
-        (child): child is Phaser.GameObjects.Line =>
-          child instanceof Phaser.GameObjects.Line && child.getData('brickDecoration') === brick,
-      )
-      .forEach((line) => line.destroy())
+    this.brickArt.get(brick)?.destroy()
+    this.brickArt.delete(brick)
     brick.destroy()
   }
 
   private finishGame(): void {
     if (this.hasFinished) return
     this.hasFinished = true
+    this.avatar?.destroy()
+    this.avatar = null
     this.phase = 'finished'
     this.input.off('pointerdown', this.dropBrick, this)
     this.time.removeAllEvents()
@@ -368,11 +380,14 @@ export class ConstructionScene extends Phaser.Scene {
   }
 
   private cleanup(): void {
+    this.avatar?.destroy()
+    this.avatar = null
     this.input.off('pointerdown', this.dropBrick, this)
     this.time.removeAllEvents()
     this.tweens.killAll()
     this.currentBrick = null
     this.settledBricks = []
+    this.brickArt.clear()
   }
 
   private textStyle(

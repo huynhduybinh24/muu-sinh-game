@@ -37,12 +37,18 @@ export const avatarOptions: AvatarOptions = {
     { id: 'sunshine', label: 'Vàng nắng', color: '#f3c44f' },
     { id: 'lavender', label: 'Tím mơ', color: '#a58bd4' },
     { id: 'cream', label: 'Kem sữa', color: '#f4e6cb' },
+    { id: 'cherry', label: 'Đỏ anh đào', color: '#c74456' },
+    { id: 'charcoal', label: 'Đen cá tính', color: '#404455' },
+    { id: 'ocean', label: 'Xanh đại dương', color: '#278b9f' },
+    { id: 'rose', label: 'Hồng ánh mai', color: '#e6a1b7' },
   ],
   pantsId: [
     { id: 'denim', label: 'Jeans xanh', color: '#587baf' },
     { id: 'navy', label: 'Xanh đậm', color: '#3c4769' },
     { id: 'sand', label: 'Màu cát', color: '#bc9b73' },
     { id: 'forest', label: 'Xanh rừng', color: '#557967' },
+    { id: 'charcoal', label: 'Xám thanh lịch', color: '#565769' },
+    { id: 'plum', label: 'Tím mận', color: '#775a83' },
   ],
 }
 

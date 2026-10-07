@@ -1,4 +1,4 @@
-import type { GameResult } from '../types/game'
+import type { GameResult, GameResultMetadata } from '../types/game'
 import type { JobId } from '../types/job'
 
 export interface ShareCardTheme {
@@ -6,11 +6,14 @@ export interface ShareCardTheme {
   accentSoft: string
   dark: string
   statLabel: string
-  metadataKey: 'customersServed' | 'successfulBricks' | 'deliveries'
+  metadataKey: keyof GameResultMetadata
   fallbackSymbol: string
 }
 
 export const shareCardThemes: Record<JobId, ShareCardTheme> = {
+  noodle: { accent: '#be7130', accentSoft: '#fff0ca', dark: '#603711', statLabel: 'Khách phục vụ', metadataKey: 'customersServed', fallbackSymbol: 'HỦ TIẾU' },
+  barber: { accent: '#8258a6', accentSoft: '#eee0fa', dark: '#382252', statLabel: 'Khách cắt tóc', metadataKey: 'customersServed', fallbackSymbol: 'KÉO' },
+  carwash: { accent: '#168e98', accentSoft: '#d6f6f7', dark: '#10474d', statLabel: 'Xe đã rửa', metadataKey: 'vehiclesWashed', fallbackSymbol: 'XE SẠCH' },
   sugarcane: {
     accent: '#3b8d4d',
     accentSoft: '#dff1c8',
@@ -42,6 +45,7 @@ export function getViralStat(result: GameResult): { label: string; value: number
   const storedValue = result.metadata?.[theme.metadataKey]
   return {
     label: theme.statLabel,
-    value: storedValue ?? Math.max(0, Math.floor(result.score / 100)),
+    value: typeof storedValue === 'number' && Number.isFinite(storedValue) && storedValue >= 0
+      ? Math.floor(storedValue) : Math.max(0, Math.floor(result.score / 100)),
   }
 }

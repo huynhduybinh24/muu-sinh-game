@@ -12,8 +12,8 @@ describe('daily challenge', () => {
     ['2026-10-06', 'shipper'],
     ['2026-10-07', 'sugarcane'],
     ['2026-10-08', 'construction'],
-  ])('keeps the deterministic job for %s', (date, expectedJob) => {
-    expect(getDailyJobId(date)).toBe(expectedJob)
+  ])('keeps the deterministic job for %s with the original catalog', (date, expectedJob) => {
+    expect(getDailyJobId(date, jobs.slice(0, 3))).toBe(expectedJob)
     expect(getDailyJobId(date)).toBe(getDailyJobId(date))
   })
 

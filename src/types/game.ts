@@ -1,5 +1,7 @@
 import type { JobId } from './job'
 import type { PlayerProfile } from './profile'
+import type { ItemId } from './shop'
+import type { DailyMissions } from './daily'
 
 export type AchievementId =
   | 'first-day'
@@ -13,6 +15,15 @@ export type AchievementId =
   | 'sugarcane-10'
   | 'construction-10'
   | 'shipper-10'
+  | 'noodle-10'
+  | 'barber-10'
+  | 'carwash-10'
+  | 'fashion-5'
+  | 'wardrobe-10'
+  | 'shopping-500k'
+  | 'missions-day'
+  | 'missions-30'
+  | 'reward-7'
 
 export interface AchievementUnlock {
   id: AchievementId
@@ -30,6 +41,8 @@ export interface GameResultMetadata {
   customersServed?: number
   successfulBricks?: number
   deliveries?: number
+  perfectHaircuts?: number
+  vehiclesWashed?: number
 }
 
 export interface GameResult {
@@ -55,6 +68,14 @@ export interface PlayerProgress {
   totalDaysWorked: number
   totalGamesPlayed: number
   totalMoneyEarned: number
+  totalMoneySpent: number
+  ownedItemIds: ItemId[]
+  xp: number
+  dailyMissions: DailyMissions | null
+  totalDailyMissionsClaimed: number
+  dailyRewardStreak: number
+  dailyRewardCycleDay: number
+  lastDailyRewardDate: string | null
   jobStats: Record<JobId, JobCareerStats>
   achievements: AchievementUnlock[]
 }

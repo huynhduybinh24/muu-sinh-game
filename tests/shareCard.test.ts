@@ -12,6 +12,9 @@ describe('share card helpers', () => {
     ['sugarcane', 'customersServed', 'Khách phục vụ'],
     ['construction', 'successfulBricks', 'Gạch thành công'],
     ['shipper', 'deliveries', 'Đơn giao thành công'],
+    ['noodle', 'customersServed', 'Khách phục vụ'],
+    ['barber', 'customersServed', 'Khách cắt tóc'],
+    ['carwash', 'vehiclesWashed', 'Xe đã rửa'],
   ] as const)('%s uses correct typed metadata and label', (jobId, key, label) => {
     expect(shareCardThemes[jobId].metadataKey).toBe(key)
     const result = createGameResult(jobId, 2350, { [key]: 9 })
@@ -20,7 +23,7 @@ describe('share card helpers', () => {
   })
 
   it('provides distinct centralized accents and keeps all job names/icons', () => {
-    expect(new Set(Object.values(shareCardThemes).map((theme) => theme.accent)).size).toBe(3)
+    expect(new Set(Object.values(shareCardThemes).map((theme) => theme.accent)).size).toBe(6)
     Object.values(jobsById).forEach((job) => {
       expect(job.name).not.toBe('')
       expect(job.icon).not.toBe('')

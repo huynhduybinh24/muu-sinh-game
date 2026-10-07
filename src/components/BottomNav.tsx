@@ -1,4 +1,6 @@
-export type DashboardTab = 'home' | 'career' | 'profile'
+import { GameIcon } from './GameIcon'
+
+export type DashboardTab = 'home' | 'career' | 'profile' | 'shop' | 'wardrobe' | 'missions'
 
 interface BottomNavProps {
   active: DashboardTab
@@ -17,7 +19,7 @@ export function BottomNav({ active, onHome, onCareer, onProfile }: BottomNavProp
     <nav className="bottom-nav" aria-label="Điều hướng chính">
       {tabs.map((tab) => (
         <button key={tab.id} type="button" aria-current={active === tab.id ? 'page' : undefined} onClick={tab.onClick}>
-          <span aria-hidden="true">{tab.icon}</span>{tab.label}
+          <span aria-hidden="true"><GameIcon name={tab.id} size={26} /></span>{tab.label}
         </button>
       ))}
     </nav>

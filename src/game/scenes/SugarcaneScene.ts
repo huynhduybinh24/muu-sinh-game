@@ -1,4 +1,6 @@
 import Phaser from 'phaser'
+import { getPhaserAvatarData, type PhaserAvatarData } from '../avatar/avatarData'
+import { createPhaserAvatar, type PhaserAvatar } from '../avatar/createPhaserAvatar'
 import { showFloatingFeedback, showTimeUpOverlay } from '../gameFeedback'
 import {
   CUSTOMER_PATIENCE_RANGE,
@@ -15,6 +17,10 @@ import { createGameResult } from '../../services/resultCalculator'
 import { playAudioCue } from '../../services/audioFeedback'
 import type { GameResult } from '../../types/game'
 import type { Job } from '../../types/job'
+import { createEnvironment, hudPanel, panel, decorateButton, updateButtonArt } from '../visual/environment'
+import { createCustomer, type CustomerVisual } from '../visual/customer'
+import { getSceneFx } from '../visual/feedbackFx'
+import { reducedMotion } from '../visual/sceneTheme'
 
 const COLORS = {
   ink: 0x20211d,
@@ -28,11 +34,11 @@ const COLORS = {
   muted: 0x8a815f,
 } as const
 
-const CUSTOMER_FACES = ['🙂', '😎', '🤓', '😊'] as const
-
 export class SugarcaneScene extends Phaser.Scene {
   private readonly job: Job
   private readonly onComplete: (result: GameResult) => void
+  private readonly avatarData: PhaserAvatarData
+  private avatar: PhaserAvatar | null = null
   private score = 0
   private customersServed = 0
   private remainingGameMs: number
@@ -48,7 +54,9 @@ export class SugarcaneScene extends Phaser.Scene {
   private timerText!: Phaser.GameObjects.Text
   private scoreText!: Phaser.GameObjects.Text
   private servedText!: Phaser.GameObjects.Text
-  private customerFaceText!: Phaser.GameObjects.Text
+  private customer!: CustomerVisual
+  private cupFill!: Phaser.GameObjects.Rectangle
+  private cupDetails!: Phaser.GameObjects.Graphics
   private orderNameText!: Phaser.GameObjects.Text
   private orderDetailsText!: Phaser.GameObjects.Text
   private drinkStatusText!: Phaser.GameObjects.Text
@@ -59,15 +67,18 @@ export class SugarcaneScene extends Phaser.Scene {
   private serveButton!: Phaser.GameObjects.Rectangle
   private interactiveButtons: Phaser.GameObjects.Rectangle[] = []
 
-  constructor(job: Job, onComplete: (result: GameResult) => void) {
+  constructor(job: Job, onComplete: (result: GameResult) => void, avatarData = getPhaserAvatarData()) {
     super({ key: job.sceneKey })
     this.job = job
     this.onComplete = onComplete
+    this.avatarData = avatarData
     this.remainingGameMs = job.duration * 1_000
   }
 
   create(): void {
     this.cameras.main.setBackgroundColor(COLORS.cream)
+    createEnvironment(this, this.job.id)
+    getSceneFx(this)
     this.createHud()
     this.createCustomerArea()
     this.createWorkArea()
@@ -98,7 +109,7 @@ export class SugarcaneScene extends Phaser.Scene {
   }
 
   private createHud(): void {
-    this.add.rectangle(180, 42, 360, 84, COLORS.ink)
+    hudPanel(this, this.job.id)
     this.add
       .text(180, 20, 'BÁN NƯỚC MÍA', this.textStyle(21, '#f6c945', 'bold'))
       .setOrigin(0.5)
@@ -115,11 +126,9 @@ export class SugarcaneScene extends Phaser.Scene {
   }
 
   private createCustomerArea(): void {
-    this.add.rectangle(180, 164, 332, 136, COLORS.white).setStrokeStyle(2, COLORS.ink)
-    this.add.circle(62, 151, 37, COLORS.paleGreen).setStrokeStyle(2, COLORS.ink)
-    this.customerFaceText = this.add
-      .text(62, 151, '🙂', this.textStyle(39, '#20211d'))
-      .setOrigin(0.5)
+    panel(this, 180, 164, 332, 136)
+    this.add.circle(62, 151, 39, 0xe6f3dc)
+    this.customer = createCustomer(this, 62, 149, 0.95)
 
     this.add.text(112, 105, 'KHÁCH GỌI', this.textStyle(11, '#8a815f', 'bold'))
     this.orderNameText = this.add.text(112, 122, '', this.textStyle(21, '#20211d', 'bold'))
@@ -132,11 +141,21 @@ export class SugarcaneScene extends Phaser.Scene {
   }
 
   private createWorkArea(): void {
-    this.add.rectangle(180, 336, 332, 206, 0xffefb1).setStrokeStyle(2, COLORS.ink)
-
-    this.add.rectangle(76, 324, 92, 120, COLORS.green).setStrokeStyle(3, COLORS.ink)
-    this.machineRoller = this.add.circle(76, 303, 25, COLORS.yellow).setStrokeStyle(3, COLORS.ink)
-    this.add.rectangle(76, 365, 54, 18, COLORS.ink)
+    const stall = this.add.graphics()
+    stall.fillStyle(0x62834e).fillRoundedRect(28, 262, 94, 120, 13)
+    stall.fillStyle(0x38634c).fillRoundedRect(35, 270, 80, 105, 10)
+    stall.fillStyle(0x9fb8a4).fillRoundedRect(37, 278, 76, 60, 8)
+    stall.fillStyle(0xe9e6ca).fillRoundedRect(43, 282, 64, 54, 6)
+    for (let x = 42; x <= 103; x += 14) {
+      stall.lineStyle(6, 0xadb752).lineBetween(x, 267, x + 16, 241)
+      stall.lineStyle(1, 0x6e8c47).lineBetween(x + 1, 263, x + 14, 247)
+    }
+    stall.fillStyle(0x243f35).fillRoundedRect(44, 349, 62, 19, 4)
+    stall.fillStyle(0xc5d7c3).fillRoundedRect(48, 351, 53, 6, 3)
+    this.machineRoller = this.add.circle(76, 303, 21, 0xb0bca8).setStrokeStyle(3, 0x46604d)
+    const spoke = this.add.graphics().setPosition(76, 303)
+    spoke.lineStyle(3, 0x52634e).lineBetween(-14, 0, 14, 0).lineBetween(0, -14, 0, 14)
+    this.machineRoller.setData('spoke', spoke)
     this.add
       .text(76, 263, 'MÁY ÉP', this.textStyle(12, '#20211d', 'bold'))
       .setOrigin(0.5)
@@ -144,14 +163,22 @@ export class SugarcaneScene extends Phaser.Scene {
       .text(76, 325, '≋', this.textStyle(29, '#20211d', 'bold'))
       .setOrigin(0.5)
 
-    this.add.rectangle(255, 330, 82, 100, COLORS.white).setStrokeStyle(3, COLORS.ink)
-    this.add.rectangle(255, 366, 68, 20, 0xa8d273)
+    stall.fillStyle(0x413f3b, 0.13).fillEllipse(255, 382, 79, 12)
+    stall.fillStyle(0xffffff, 0.9).fillRoundedRect(217, 295, 76, 83, { tl: 5, tr: 5, bl: 18, br: 18 })
+    this.cupFill = this.add.rectangle(255, 372, 60, 68, 0xb8d571).setOrigin(0.5, 1).setScale(1, 0)
+    this.cupDetails = this.add.graphics()
+    this.cupDetails.lineStyle(3, 0x75917c).strokeRoundedRect(217, 295, 76, 83, { tl: 5, tr: 5, bl: 18, br: 18 })
+    this.cupDetails.lineStyle(5, 0xe0f2ee).lineBetween(229, 308, 229, 356)
+    this.cupDetails.lineStyle(4, 0xea9b63).lineBetween(268, 314, 279, 281)
+    this.cupDetails.lineStyle(3, 0xffffff).lineBetween(214, 295, 296, 295)
+    this.avatar = createPhaserAvatar(this, this.avatarData, { x: 166, y: 377, scale: 0.65 })
     this.add
       .text(255, 276, 'LY HIỆN TẠI', this.textStyle(11, '#20211d', 'bold'))
       .setOrigin(0.5)
-    this.add
-      .text(255, 323, '🥤', this.textStyle(38, '#20211d'))
-      .setOrigin(0.5)
+    // Original cup/tray illustration; the drink state remains the same data.
+    stall.fillStyle(0xf8f1d6).fillRoundedRect(137, 241, 59, 18, 6)
+    stall.fillStyle(0xcfe8ec).fillRoundedRect(142, 244, 12, 11, 3).fillRoundedRect(156, 244, 12, 11, 3)
+    stall.fillStyle(0xe0aa4e).fillCircle(181, 250, 6)
 
     this.drinkStatusText = this.add
       .text(180, 397, '', {
@@ -211,12 +238,14 @@ export class SugarcaneScene extends Phaser.Scene {
     const labelText = this.add
       .text(x, y, label, this.textStyle(14, textColor, 'bold'))
       .setOrigin(0.5)
+    decorateButton(this, button, color, textColor === '#ffffff')
+    labelText.setDepth(3)
 
     button.on('pointerdown', () => {
       if (this.hasFinished || this.customerTransition) return
       playAudioCue('click')
       onPress()
-      this.tweens.add({ targets: [button, labelText], scale: 0.96, duration: 65, yoyo: true })
+      if (!reducedMotion()) this.tweens.add({ targets: labelText, scale: 0.96, duration: 65, yoyo: true })
     })
 
     this.interactiveButtons.push(button)
@@ -227,18 +256,21 @@ export class SugarcaneScene extends Phaser.Scene {
     if (this.isProcessing) return
     this.drink.iceLevel = getNextIceLevel(this.drink.iceLevel)
     this.updateDrinkDisplay()
+    getSceneFx(this).burst(252, 326, 0xdffaff, 'water')
   }
 
   private toggleKumquat(): void {
     if (this.isProcessing) return
     this.drink.kumquat = !this.drink.kumquat
     this.updateDrinkDisplay()
+    getSceneFx(this).burst(255, 331, 0xeab652)
   }
 
   private pressSugarcane(): void {
     if (this.isProcessing || this.drink.pressed) return
 
     this.isProcessing = true
+    this.avatar?.setState('work')
     this.processingFill.setScale(0, 1)
     this.machineRoller.setAngle(0)
     this.updateDrinkDisplay()
@@ -248,6 +280,10 @@ export class SugarcaneScene extends Phaser.Scene {
       angle: 360,
       duration: PRESS_DURATION_MS,
       ease: 'Linear',
+      onUpdate: () => {
+        const spoke = this.machineRoller.getData('spoke') as Phaser.GameObjects.Graphics
+        if (!reducedMotion()) spoke.setAngle(this.machineRoller.angle)
+      },
     })
 
     this.pressTween = this.tweens.add({
@@ -258,6 +294,7 @@ export class SugarcaneScene extends Phaser.Scene {
       onComplete: () => {
         if (this.hasFinished || this.customerTransition) return
         this.isProcessing = false
+        this.avatar?.setState('idle')
         this.drink.pressed = true
         this.pressTween = null
         this.showFeedback('ÉP XONG! SẴN SÀNG GIAO', '#3b8d4d')
@@ -282,10 +319,15 @@ export class SugarcaneScene extends Phaser.Scene {
       this.score += 100 + fastBonus
       this.customersServed += 1
       playAudioCue('success')
+      this.avatar?.setState('success')
+      this.customer.react(true)
+      getSceneFx(this).burst(255, 332, 0xf4d57d)
       this.showFeedback(`+100 CHÍNH XÁC!  +${fastBonus} NHANH TAY!`, '#3b8d4d')
     } else {
       this.score = Math.max(0, this.score - 50)
       playAudioCue('error')
+      this.avatar?.setState('fail')
+      this.customer.react(false)
       this.showFeedback('-50 SAI MÓN!', '#df382b')
     }
 
@@ -298,12 +340,15 @@ export class SugarcaneScene extends Phaser.Scene {
     this.score = Math.max(0, this.score - 30)
     playAudioCue('error')
     this.showFeedback('KHÁCH BỎ ĐI!  -30', '#df382b')
+    this.avatar?.setState('fail')
+    this.customer.react(false)
     this.updateHud()
     this.queueNextCustomer()
   }
 
   private queueNextCustomer(): void {
     this.customerTransition = true
+    this.customer.exit()
     this.resetDrink()
     this.time.delayedCall(550, () => {
       if (this.hasFinished) return
@@ -324,13 +369,14 @@ export class SugarcaneScene extends Phaser.Scene {
     )
     this.customerRemainingMs = this.customerTotalMs
 
-    this.customerFaceText.setText(Phaser.Utils.Array.GetRandom([...CUSTOMER_FACES]))
+    this.customer.next()
     this.orderNameText.setText(this.currentOrder.name)
     this.orderDetailsText.setText(this.currentOrder.shortDescription)
     this.updatePatienceBar()
   }
 
   private resetDrink(): void {
+    this.avatar?.setState('idle')
     this.pressTween?.stop()
     this.pressTween = null
     this.isProcessing = false
@@ -345,13 +391,26 @@ export class SugarcaneScene extends Phaser.Scene {
     this.drinkStatusText.setText(
       `Đá: ${getIceLabel(this.drink.iceLevel)}   •   Tắc: ${this.drink.kumquat ? 'Có' : 'Không'}\nMía: ${pressedLabel}`,
     )
-    this.serveButton?.setFillStyle(
-      this.drink.pressed && !this.isProcessing ? COLORS.red : COLORS.muted,
-    )
+    const color = this.drink.pressed && !this.isProcessing ? 0xc25c4d : 0x8b998c
+    if (this.serveButton) updateButtonArt(this, this.serveButton, color)
+    this.tweens.killTweensOf(this.cupFill)
+    if (this.drink.pressed && !reducedMotion()) this.tweens.add({ targets: this.cupFill, scaleY: 1, duration: 200 })
+    else this.cupFill.setScale(1, this.drink.pressed ? 1 : 0)
+    this.cupDetails.clear()
+    this.cupDetails.lineStyle(3, 0x75917c).strokeRoundedRect(217, 295, 76, 83, { tl: 5, tr: 5, bl: 18, br: 18 })
+    this.cupDetails.lineStyle(5, 0xffffff, 0.7).lineBetween(229, 308, 229, 356)
+    this.cupDetails.lineStyle(4, 0xea9b63).lineBetween(268, 314, 279, 281)
+    this.cupDetails.lineStyle(3, 0xffffff).lineBetween(214, 295, 296, 295)
+    if (this.drink.iceLevel !== 'none') {
+      this.cupDetails.fillStyle(0xe6f7ff, 0.8).fillRoundedRect(233, 316, 14, 12, 3)
+      if (this.drink.iceLevel === 'normal') this.cupDetails.fillRoundedRect(254, 328, 14, 12, 3)
+    }
+    if (this.drink.kumquat) this.cupDetails.fillStyle(0xe8b650).fillCircle(273, 344, 8).lineStyle(1, 0xfff4bc).strokeCircle(273, 344, 5)
   }
 
   private updateHud(): void {
     this.scoreText.setText(`⭐ ${this.score}`)
+    getSceneFx(this).pulse(this.scoreText)
     this.servedText.setText(`💰 ${this.customersServed} khách`)
   }
 
@@ -368,6 +427,8 @@ export class SugarcaneScene extends Phaser.Scene {
   private finishGame(): void {
     if (this.hasFinished) return
     this.hasFinished = true
+    this.avatar?.destroy()
+    this.avatar = null
     this.interactiveButtons.forEach((button) => button.disableInteractive())
     this.time.removeAllEvents()
     this.tweens.killAll()
@@ -381,6 +442,8 @@ export class SugarcaneScene extends Phaser.Scene {
   }
 
   private cleanup(): void {
+    this.avatar?.destroy()
+    this.avatar = null
     this.pressTween?.stop()
     this.pressTween = null
     this.time.removeAllEvents()

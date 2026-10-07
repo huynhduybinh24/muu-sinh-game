@@ -6,13 +6,21 @@ const fs = require('node:fs/promises')
 const os = require('node:os')
 const path = require('node:path')
 const http = require('node:http')
-const { completeProfile, verifyProfileFlows } = require('./profile-qa.cjs')
+const { completeProfile, verifyProfileFlows, dismissReward } = require('./profile-qa.cjs')
+const { verifyShopFlows } = require('./shop-qa.cjs')
+const { verifyDailyFlows } = require('./daily-qa.cjs')
+const { verifySaveFlows } = require('./save-qa.cjs')
 
 const origin = process.env.PWA_QA_URL || 'http://127.0.0.1:4173'
 const sizes = [
   { width: 360, height: 800 },
   { width: 390, height: 844 },
   { width: 412, height: 915 },
+]
+const dailyCases = [
+  { date: '2026-10-07', id: 'sugarcane' }, { date: '2026-10-08', id: 'construction' },
+  { date: '2026-10-09', id: 'shipper' }, { date: '2026-10-13', id: 'noodle' },
+  { date: '2026-10-14', id: 'barber' }, { date: '2026-10-15', id: 'carwash' },
 ]
 
 async function assertLayout(page, label) {
@@ -78,6 +86,7 @@ async function verifyUpdate(browser, artifacts) {
     })
     await installedPage.goto(updateOrigin)
     await installedPage.locator('.home-player').waitFor()
+    await dismissReward(installedPage)
     await assertLayout(installedPage, 'Standalone Home')
     await installedPage.screenshot({ path: path.join(artifacts, 'standalone-home.png') })
     await installedPage.evaluate(() => {
@@ -90,6 +99,22 @@ async function verifyUpdate(browser, artifacts) {
     })
     assert.equal(await installedPage.getByRole('button', { name: /CÀI GAME/ }).count(), 0)
     console.log('PASS: standalone mode suppresses install CTA even when an install event arrives')
+    await context.setOffline(true)
+    await installedPage.getByRole('button', { name: 'HỒ SƠ', exact: true }).click()
+    await installedPage.locator('.save-data-panel summary').click()
+    const backupDownload = installedPage.waitForEvent('download')
+    await installedPage.getByRole('button', { name: 'TẢI FILE SAO LƯU', exact: true }).click()
+    const backupFile = await backupDownload
+    const backupPath = path.join(artifacts, 'standalone-backup.json')
+    await backupFile.saveAs(backupPath)
+    const portable = JSON.parse(await fs.readFile(backupPath, 'utf8'))
+    assert.deepEqual(portable.data, progress)
+    await installedPage.getByLabel('Chọn file sao lưu JSON').setInputFiles(backupPath)
+    await installedPage.getByRole('dialog').getByRole('button', { name: 'KHÔI PHỤC', exact: true }).click()
+    await installedPage.locator('.home-player').waitFor()
+    await dismissReward(installedPage)
+    assert.deepEqual(await readProgress(installedPage), progress)
+    console.log('PASS: standalone-mode PWA exports and restores backup offline')
   } finally {
     await context.close()
     await new Promise((resolve) => server.close(resolve))
@@ -170,6 +195,18 @@ async function main() {
     }
     console.log('PASS: production manifest, icon dimensions, and service-worker control')
     await verifyProfileFlows(browser, page, origin, artifacts, assertLayout)
+    await page.getByRole('button', { name: 'CỬA HÀNG', exact: true }).click()
+    await page.getByRole('tab', { name: 'ÁO', exact: true }).click()
+    assert.equal(await page.locator('[data-item-id="shirt-blue"]').getByRole('button', { name: 'KHÔNG ĐỦ TIỀN', exact: true }).isDisabled(), true)
+    assert.equal(await page.locator('[data-item-id="shirt-rose"]').getByRole('button', { name: 'MỞ Ở LEVEL 5', exact: true }).isDisabled(), true)
+    await page.getByRole('button', { name: 'TRANG CHỦ', exact: true }).click()
+    await verifyShopFlows(browser, origin, artifacts, assertLayout, await readProgress(page))
+    await verifyDailyFlows(browser, origin, artifacts, assertLayout, await readProgress(page))
+    await verifySaveFlows(browser, origin, artifacts, assertLayout, await readProgress(page))
+    if (process.argv.includes('--daily-only')) {
+      await context.close()
+      return
+    }
 
     if (await page.getByRole('button', { name: 'Tắt âm thanh' }).count()) {
       await page.getByRole('button', { name: 'Tắt âm thanh' }).click()
@@ -182,6 +219,7 @@ async function main() {
     })
     await page.reload()
     await page.getByRole('heading', { name: 'MƯU SINH' }).waitFor()
+    await dismissReward(page)
     assert.deepEqual(await readProgress(page), saved)
     console.log('Offline state:', await page.evaluate(() => ({
       online: navigator.onLine,
@@ -193,22 +231,26 @@ async function main() {
 
     await page.clock.install({ time: new Date('2026-10-06T05:00:00Z') })
     const jobsSeen = new Set()
-    for (let index = 0; index < sizes.length; index++) {
-      await page.setViewportSize(sizes[index])
-      await page.clock.setFixedTime(new Date(`2026-10-0${6 + index}T05:00:00Z`))
+    for (let index = 0; index < dailyCases.length; index++) {
+      const size = sizes[index % sizes.length]
+      const daily = dailyCases[index]
+      await page.setViewportSize(size)
+      await page.clock.setFixedTime(new Date(`${daily.date}T05:00:00Z`))
       // Re-enter Home so the daily date is read again without touching app storage.
       await page.getByRole('button', { name: 'SỰ NGHIỆP', exact: true }).click()
       await page.getByRole('heading', { name: 'SỰ NGHIỆP', exact: true }).waitFor()
+      assert.equal(await page.locator('.career-job-card').count(), 6)
       await assertLayout(page, 'Career')
-      await page.screenshot({ path: path.join(artifacts, `career-${sizes[index].width}.png`) })
+      await page.screenshot({ path: path.join(artifacts, `career-${daily.id}-${size.width}.png`) })
       await page.getByRole('button', { name: '← VỀ TRANG CHỦ' }).click()
+      await dismissReward(page)
       await assertLayout(page, 'Home')
-      await page.screenshot({ path: path.join(artifacts, `home-${sizes[index].width}.png`) })
+      await page.screenshot({ path: path.join(artifacts, `home-${daily.id}-${size.width}.png`) })
       await page.getByRole('button', { name: /^(ĐI LÀM|CHƠI LẠI) →$/ }).click()
       await assertLayout(page, 'Reveal')
       const job = await page.locator('.job-name').innerText()
       jobsSeen.add(job)
-      await page.screenshot({ path: path.join(artifacts, `reveal-${sizes[index].width}.png`) })
+      await page.screenshot({ path: path.join(artifacts, `reveal-${daily.id}-${size.width}.png`) })
       await page.getByRole('button', { name: 'ĐI LÀM →', exact: true }).click()
       await page.getByRole('dialog').waitFor()
       for (const size of sizes) {
@@ -216,7 +258,7 @@ async function main() {
         await assertLayout(page, 'Tutorial')
         await page.screenshot({ path: path.join(artifacts, `tutorial-${job}-${size.width}.png`) })
       }
-      await page.setViewportSize(sizes[index])
+      await page.setViewportSize(size)
       await page.getByRole('button', { name: 'BẮT ĐẦU', exact: true }).click()
       await page.clock.runFor(4_000)
       await page.locator('canvas').waitFor()
@@ -229,37 +271,67 @@ async function main() {
         assert.equal(await page.locator('canvas').count(), 1)
         await page.screenshot({ path: path.join(artifacts, `game-${job}-${size.width}.png`) })
       }
-      await page.setViewportSize(sizes[index])
-      await page.clock.runFor(47_000)
+      await page.setViewportSize(size)
+      // Countdown already advanced 4s above; advance one full 45s game, preserving toast time.
+      await page.clock.runFor(45_000)
       await page.locator('.share-card-preview').waitFor()
+      if (index === 2) {
+        // Inspect transient feedback immediately, before screenshots/PNG export can consume its lifetime.
+        await page.getByText('LÊN CẤP! LEVEL 2', { exact: true }).waitFor()
+        await page.getByRole('button', { name: 'Đóng thông báo lên cấp', exact: true }).click()
+        assert.equal(await page.locator('.level-up-toast').count(), 0)
+      }
       assert.equal(
         (await page.locator('.share-card-preview h1').innerText()).toLocaleUpperCase('vi-VN'),
         job.toLocaleUpperCase('vi-VN'),
       )
       assert.equal(await page.locator('canvas').count(), 0)
       await assertLayout(page, 'Result')
-      await page.screenshot({ path: path.join(artifacts, `result-${sizes[index].width}.png`) })
+      await page.screenshot({ path: path.join(artifacts, `result-${daily.id}-${size.width}.png`) })
       const downloadPromise = page.waitForEvent('download')
       await page.getByRole('button', { name: 'LƯU ẢNH', exact: true }).click()
       const download = await downloadPromise
-      assert.match(download.suggestedFilename(), /^muu-sinh-(sugarcane|construction|shipper)-\d{4}-\d{2}-\d{2}\.png$/)
+      assert.equal(download.suggestedFilename(), `muu-sinh-${daily.id}-${daily.date}.png`)
       const downloadPath = path.join(artifacts, download.suggestedFilename())
       await download.saveAs(downloadPath)
       const png = await fs.readFile(downloadPath)
       assert.equal(png.readUInt32BE(16), 1080)
       assert.equal(png.readUInt32BE(20), 1350)
       const completed = await readProgress(page)
-      assert.equal(completed.totalGamesPlayed, saved.totalGamesPlayed + index + 1)
-      const expectedJobId = ['shipper', 'sugarcane', 'construction'][index]
+      assert.equal(completed.dailyMissions.dateKey, daily.date)
+      assert.equal(completed.dailyMissions.missions.length, 3)
+      for (const mission of completed.dailyMissions.missions) {
+        if (['play-3', 'play-8', 'daily-shifts'].includes(mission.id)) assert.equal(mission.progress, 1, 'Game commit must update mission progress centrally')
+      }
+      assert.equal(completed.xp, saved.xp + 30 * (index * 2 + 1), 'Zero-score game XP must be awarded once')
+      assert.equal(completed.totalGamesPlayed, saved.totalGamesPlayed + index * 2 + 1)
+      const expectedJobId = daily.id
       assert.equal(completed.currentJobId, expectedJobId, 'Incorrect daily scene/result routing')
       assert.equal(completed.jobStats[expectedJobId].timesPlayed, saved.jobStats[expectedJobId].timesPlayed + 1)
-      console.log(`PASS: ${job} offline at ${sizes[index].width}×${sizes[index].height}; result and PNG export`)
+      await page.getByRole('button', { name: 'CHƠI LẠI', exact: true }).click()
+      assert.equal(await page.getByRole('dialog').count(), 0)
+      await page.clock.runFor(4_000)
+      await page.locator('canvas').waitFor()
+      assert.equal(await page.locator('canvas').count(), 1)
+      await page.clock.runFor(47_000)
+      await page.locator('.share-card-preview').waitFor()
+      assert.equal(await page.locator('canvas').count(), 0)
+      const replayed = await readProgress(page)
+      for (const mission of replayed.dailyMissions.missions) {
+        if (['play-3', 'play-8', 'daily-shifts'].includes(mission.id)) assert.equal(mission.progress, 2, 'Replay must count toward daily missions')
+      }
+      assert.equal(replayed.jobStats[expectedJobId].timesPlayed, saved.jobStats[expectedJobId].timesPlayed + 2)
+      assert.equal(replayed.totalDaysWorked, completed.totalDaysWorked, 'Replay must not add another daily completion')
+      console.log(`PASS: ${job} offline at ${size.width}×${size.height}; timer, result, career, PNG export and replay`)
       await page.getByRole('button', { name: 'VỀ TRANG CHỦ →' }).click()
     }
-    assert.equal(jobsSeen.size, 3, 'All jobs must be checked')
+    assert.equal(jobsSeen.size, 6, 'All six jobs must be checked')
     const persisted = await readProgress(page)
     await page.reload()
+    await page.locator('.home-player').waitFor()
+    await dismissReward(page)
     assert.deepEqual(await readProgress(page), persisted)
+    assert.equal(await page.locator('.level-up-toast').count(), 0, 'Level-up toast replayed after refresh')
     assert.equal(await page.getByRole('button', { name: /CÀI GAME/ }).count(), 0)
     // Simulate browser install events; never install onto the user's device.
     await page.evaluate(() => {

@@ -50,7 +50,7 @@ export function readPlayerProfile(value: unknown): PlayerProfile {
   }
 }
 
-// Display-only level: never changes rewards, scoring, or achievement thresholds.
+// Legacy level retained for save migration. Live UI/shop levels now derive from XP.
 export function getPlayerLevel(totalGamesPlayed: number): number {
   return 1 + Math.floor(Math.max(0, totalGamesPlayed) / 10)
 }

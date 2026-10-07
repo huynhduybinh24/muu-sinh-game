@@ -1,4 +1,6 @@
 import Phaser from 'phaser'
+import { getPhaserAvatarData, type PhaserAvatarData } from '../avatar/avatarData'
+import { createPhaserAvatar, type PhaserAvatar } from '../avatar/createPhaserAvatar'
 import { showFloatingFeedback, showTimeUpOverlay } from '../gameFeedback'
 import {
   SHIPPER_CONFIG,
@@ -14,6 +16,9 @@ import { createGameResult } from '../../services/resultCalculator'
 import { playAudioCue } from '../../services/audioFeedback'
 import type { GameResult } from '../../types/game'
 import type { Job } from '../../types/job'
+import { createEnvironment, createCityMap, hudPanel, panel, decorateButton } from '../visual/environment'
+import { getSceneFx } from '../visual/feedbackFx'
+import { reducedMotion } from '../visual/sceneTheme'
 
 interface MovementKeys {
   up: Phaser.Input.Keyboard.Key
@@ -25,7 +30,7 @@ interface MovementKeys {
 interface ObstacleView {
   config: ObstacleConfig
   background: Phaser.GameObjects.Rectangle
-  icon: Phaser.GameObjects.Text
+  icon: Phaser.GameObjects.Graphics
 }
 
 const COLORS = {
@@ -45,6 +50,8 @@ const COLORS = {
 export class ShipperScene extends Phaser.Scene {
   private readonly job: Job
   private readonly onComplete: (result: GameResult) => void
+  private readonly avatarData: PhaserAvatarData
+  private avatar: PhaserAvatar | null = null
   private score = 0
   private deliveries = 0
   private remainingGameMs: number
@@ -75,15 +82,18 @@ export class ShipperScene extends Phaser.Scene {
   }
   private controlButtons: Phaser.GameObjects.Rectangle[] = []
 
-  constructor(job: Job, onComplete: (result: GameResult) => void) {
+  constructor(job: Job, onComplete: (result: GameResult) => void, avatarData = getPhaserAvatarData()) {
     super({ key: job.sceneKey })
     this.job = job
     this.onComplete = onComplete
+    this.avatarData = avatarData
     this.remainingGameMs = job.duration * 1_000
   }
 
   create(): void {
     this.cameras.main.setBackgroundColor(0xf3e7c9)
+    createEnvironment(this, this.job.id)
+    getSceneFx(this)
     this.createHud()
     this.createMap()
     this.createTargets()
@@ -118,7 +128,7 @@ export class ShipperScene extends Phaser.Scene {
   }
 
   private createHud(): void {
-    this.add.rectangle(180, 42, 360, 84, COLORS.ink)
+    hudPanel(this, this.job.id)
     this.add
       .text(180, 19, '🛵 SHIPPER', this.textStyle(21, '#f5d45d', 'bold'))
       .setOrigin(0.5)
@@ -135,23 +145,11 @@ export class ShipperScene extends Phaser.Scene {
   }
 
   private createMap(): void {
-    this.add.rectangle(180, 309, 360, 450, COLORS.sidewalk)
-    this.add.rectangle(180, 309, 142, 376, COLORS.road)
-    this.add.rectangle(180, 309, 328, 116, COLORS.road)
-
-    for (let y = 142; y <= 470; y += 42) {
-      this.add.rectangle(180, y, 4, 21, COLORS.roadLine).setAlpha(0.9)
+    createCityMap(this)
+    for (const [x, y, label] of [[48, 197, 'TIỆM'], [312, 198, 'NHÀ'], [49, 467, 'CHỢ'], [311, 467, 'QUÁN']] as const) {
+      this.add.text(x, y, label, this.textStyle(9, '#4c635e', 'bold')).setOrigin(0.5)
     }
-    for (let x = 34; x <= 326; x += 42) {
-      this.add.rectangle(x, 309, 21, 4, COLORS.roadLine).setAlpha(0.9)
-    }
-
-    this.createBuilding(48, 173, 70, 72, COLORS.buildingBlue, 'TIỆM')
-    this.createBuilding(312, 174, 70, 72, COLORS.buildingRed, 'NHÀ')
-    this.createBuilding(49, 444, 72, 68, COLORS.buildingRed, 'CHỢ')
-    this.createBuilding(311, 444, 72, 68, COLORS.buildingBlue, 'QUÁN')
-
-    this.add.rectangle(180, 108, 332, 34, COLORS.white).setStrokeStyle(2, COLORS.ink)
+    panel(this, 180, 108, 332, 34, 0xfffcf0, 0, 12)
     this.objectiveText = this.add
       .text(168, 108, '', this.textStyle(13, '#20211d', 'bold'))
       .setOrigin(0.5)
@@ -160,28 +158,13 @@ export class ShipperScene extends Phaser.Scene {
       .setOrigin(0.5)
 
     this.feedbackText = this.add
-      .text(180, 137, '', {
+      .text(180, 215, '', {
         ...this.textStyle(15, '#ffffff', 'bold'),
         align: 'center',
-        backgroundColor: '#20211d',
         padding: { x: 8, y: 5 },
       })
       .setOrigin(0.5)
       .setDepth(30)
-  }
-
-  private createBuilding(
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-    color: number,
-    label: string,
-  ): void {
-    this.add.rectangle(x, y, width, height, color).setStrokeStyle(2, COLORS.ink)
-    this.add
-      .text(x, y, label, this.textStyle(11, '#20211d', 'bold'))
-      .setOrigin(0.5)
   }
 
   private createTargets(): void {
@@ -192,8 +175,19 @@ export class ShipperScene extends Phaser.Scene {
   private createMarker(icon: string, color: number): Phaser.GameObjects.Container {
     const ring = this.add.circle(0, 0, SHIPPER_CONFIG.targetRadius, color, 0.3)
       .setStrokeStyle(3, color)
-    const label = this.add.text(0, 0, icon, this.textStyle(25, '#20211d')).setOrigin(0.5)
-    return this.add.container(0, 0, [ring, label]).setDepth(10)
+    const art = this.add.graphics()
+    art.fillStyle(0xfffaf0).fillRoundedRect(-16, -18, 32, 34, 8)
+    if (icon === '📦') {
+      art.fillStyle(0xd8a568).fillRoundedRect(-11, -10, 22, 22, 3)
+      art.lineStyle(2, 0x976f48).lineBetween(-11, -3, 11, -3).lineBetween(0, -10, 0, 12)
+      art.fillStyle(0xffebba).fillRect(-3, -10, 6, 8)
+    } else {
+      art.fillStyle(0x69a289).fillRoundedRect(-10, 0, 20, 12, 6)
+      art.fillStyle(0xeab68e).fillCircle(0, -5, 9)
+      art.fillStyle(0x604943).fillEllipse(0, -10, 18, 8)
+    }
+    if (!reducedMotion()) this.tweens.add({ targets: ring, scale: 1.1, alpha: 0.7, duration: 800, yoyo: true, repeat: -1 })
+    return this.add.container(0, 0, [ring, art]).setDepth(10)
   }
 
   private createObstacles(): void {
@@ -202,10 +196,25 @@ export class ShipperScene extends Phaser.Scene {
         .rectangle(config.x, config.y, config.width, config.height, config.color, 0.88)
         .setStrokeStyle(2, COLORS.ink)
         .setDepth(12)
-      const icon = this.add
-        .text(config.x, config.y, config.icon, this.textStyle(20, '#20211d'))
-        .setOrigin(0.5)
-        .setDepth(13)
+      background.setAlpha(0)
+      const icon = this.add.graphics().setPosition(config.x, config.y).setDepth(13)
+      const w = config.width, h = config.height
+      icon.fillStyle(0x243b4b, 0.2).fillRoundedRect(-w / 2 + 3, -h / 2 + 3, w, h, 7)
+      icon.fillStyle(config.color).fillRoundedRect(-w / 2, -h / 2, w, h, 7)
+      if (config.id.startsWith('car')) {
+        icon.fillStyle(0xcde6e3).fillRoundedRect(-w / 2 + 9, -h / 2 + 4, w - 23, h - 8, 5)
+        icon.fillStyle(0xffffff, 0.6).fillRoundedRect(-w / 2 + 5, -h / 2 + 3, w - 10, 3, 2)
+        icon.fillStyle(0xffedb6).fillRect(w / 2 - 5, -h / 2 + 5, 3, 5).fillRect(w / 2 - 5, h / 2 - 10, 3, 5)
+      } else if (config.id === 'pothole') {
+        icon.fillStyle(0x293d49).fillEllipse(0, 0, w - 6, h - 6).fillStyle(0x789aa5, 0.6).fillEllipse(4, 1, w / 2, h / 3)
+      } else if (config.id === 'dog') {
+        icon.fillStyle(0xeacba1).fillEllipse(0, 1, 26, 15).fillCircle(12, -5, 9)
+        icon.fillStyle(0x895d44).fillEllipse(11, -12, 8, 11).fillCircle(16, -6, 2)
+        icon.lineStyle(3, 0xeacba1).lineBetween(-14, -1, -19, -10)
+      } else {
+        icon.lineStyle(4, 0xffebc1)
+        for (let x = -w / 2 + 8; x < w / 2; x += 14) icon.lineBetween(x, -h / 2 + 4, x - 8, h / 2 - 4)
+      }
       const visible = index < SHIPPER_CONFIG.initialObstacleCount
       background.setVisible(visible)
       icon.setVisible(visible)
@@ -214,10 +223,9 @@ export class ShipperScene extends Phaser.Scene {
   }
 
   private createPlayer(): void {
-    const body = this.add.circle(0, 0, SHIPPER_CONFIG.playerRadius, 0xf5d45d)
-      .setStrokeStyle(3, COLORS.ink)
-    const icon = this.add.text(0, 0, '🛵', this.textStyle(24, '#20211d')).setOrigin(0.5)
-    this.player = this.add.container(180, 470, [body, icon]).setDepth(20)
+    // Collision still uses this stable center and the unchanged playerRadius.
+    this.avatar = createPhaserAvatar(this, this.avatarData, { riding: true, scale: 0.3, nameTag: true })
+    this.player = this.add.container(180, 470, [this.avatar.container]).setDepth(20)
   }
 
   private createControls(): void {
@@ -243,6 +251,7 @@ export class ShipperScene extends Phaser.Scene {
       .text(x, y, label, this.textStyle(28, '#ffffff', 'bold'))
       .setOrigin(0.5)
       .setDepth(26)
+    decorateButton(this, button, 0x365d69, true)
 
     button.on('pointerdown', () => {
       if (!this.hasFinished) {
@@ -283,6 +292,10 @@ export class ShipperScene extends Phaser.Scene {
   private movePlayer(delta: number): void {
     const horizontal = Number(this.isMoving('right')) - Number(this.isMoving('left'))
     const vertical = Number(this.isMoving('down')) - Number(this.isMoving('up'))
+    this.avatar?.setState(horizontal === 0 && vertical === 0 ? 'idle' : 'move')
+    // Keep the name clear of the HUD and side edges; visual only.
+    this.avatar?.nameTag?.setX(Phaser.Math.Clamp(this.player.x, 48, 312) - this.player.x)
+      .setVisible(this.player.y >= 174)
     if (horizontal === 0 && vertical === 0) return
 
     const length = Math.hypot(horizontal, vertical) || 1
@@ -305,7 +318,7 @@ export class ShipperScene extends Phaser.Scene {
       SHIPPER_CONFIG.mapBounds.bottom - SHIPPER_CONFIG.playerRadius,
     )
 
-    if (horizontal !== 0) this.player.setScale(horizontal < 0 ? -1 : 1, 1)
+    if (horizontal !== 0) this.avatar?.setFacing(horizontal < 0 ? -1 : 1)
     this.handleObstacleCollision(previousX, previousY)
   }
 
@@ -331,6 +344,9 @@ export class ShipperScene extends Phaser.Scene {
     this.scoreText.setText(`⭐ ${this.score}`)
     playAudioCue('error')
     this.showFeedback('-20 VA CHẠM!', '#d84835')
+    getSceneFx(this).burst(this.player.x, this.player.y, 0xe9b4a0, 'dust')
+    getSceneFx(this).shake()
+    this.avatar?.setState('fail')
   }
 
   private circleIntersectsRectangle(obstacle: ObstacleConfig): boolean {
@@ -375,12 +391,14 @@ export class ShipperScene extends Phaser.Scene {
   }
 
   private completeDelivery(): void {
+    getSceneFx(this).burst(this.destinationMarker.x, this.destinationMarker.y, 0xffe3a0)
     const fastBonus = getFastDeliveryBonus(this.deliveryElapsedMs, this.deliveries)
     this.score += SHIPPER_CONFIG.successfulDeliveryScore + fastBonus
     this.deliveries += 1
     this.scoreText.setText(`⭐ ${this.score}`)
     this.deliveriesText.setText(`📦 ${this.deliveries}`)
     playAudioCue('success')
+    this.avatar?.setState('success')
 
     const bonusMessage = fastBonus > 0 ? `\n+${fastBonus} GIAO NHANH!` : ''
     this.showFeedback(`+100 GIAO THÀNH CÔNG!${bonusMessage}`, '#4c9a61')
@@ -432,6 +450,8 @@ export class ShipperScene extends Phaser.Scene {
   private finishGame(): void {
     if (this.hasFinished) return
     this.hasFinished = true
+    this.avatar?.destroy()
+    this.avatar = null
     this.releaseTouchControls()
     this.input.off('pointerup', this.releaseTouchControls, this)
     this.controlButtons.forEach((button) => button.disableInteractive())
@@ -447,6 +467,8 @@ export class ShipperScene extends Phaser.Scene {
   }
 
   private cleanup(): void {
+    this.avatar?.destroy()
+    this.avatar = null
     this.releaseTouchControls()
     this.input.off('pointerup', this.releaseTouchControls, this)
     this.controlButtons.forEach((button) => button.removeAllListeners())

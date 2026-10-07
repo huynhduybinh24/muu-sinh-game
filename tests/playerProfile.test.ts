@@ -3,6 +3,7 @@ import { avatarOptions, defaultAppearance } from '../src/data/avatar'
 import { getPlayerLevel, getPlayerNameError, normalizePlayerName, readAppearance, readPlayerProfile } from '../src/services/playerProfile'
 import { migratePersistedProgress, useProgressStore } from '../src/store/progressStore'
 import { dailyResult } from './fixtures'
+import { getLevelThreshold } from '../src/services/level'
 
 const storageKey = 'muu-sinh-player-progress'
 beforeEach(() => useProgressStore.getState().resetProgress())
@@ -31,7 +32,7 @@ describe('appearance defaults and recovery', () => {
       .toEqual({ ...defaultAppearance, gender: 'female', hairId: 'bun', shirtId: 'mint' })
   })
   it('has the requested option counts with no duplicate IDs', () => {
-    expect(Object.values(avatarOptions).map((options) => options.length)).toEqual([2, 4, 6, 6, 4])
+    expect(Object.values(avatarOptions).map((options) => options.length)).toEqual([2, 4, 6, 10, 6])
     for (const options of Object.values(avatarOptions)) {
       expect(new Set(options.map((option) => option.id)).size).toBe(options.length)
     }
@@ -47,7 +48,8 @@ describe('appearance defaults and recovery', () => {
 describe('profile migration and persistence', () => {
   it('adds an unnamed profile without altering a version-2 save', async () => {
     const current = migratePersistedProgress(undefined)
-    const { profile, ...legacy } = current
+    const { profile, xp: _xp, totalMoneySpent: _spent, ownedItemIds: _owned, ...legacy } = current
+    expect([_xp, _spent, _owned.length]).toEqual([0, 0, 6])
     expect(profile.playerName).toBe('')
     const oldSave = {
       ...legacy, money: 450_000, reputation: 30, energy: 40,
@@ -61,9 +63,12 @@ describe('profile migration and persistence', () => {
     localStorage.setItem(storageKey, JSON.stringify({ version: 2, state: oldSave }))
     await useProgressStore.persist.rehydrate()
     const saved = JSON.parse(localStorage.getItem(storageKey) ?? '{}') as { version: number; state: Record<string, unknown> }
-    const { profile: migratedProfile, ...remaining } = saved.state
-    expect(saved.version).toBe(3)
+    const { profile: migratedProfile, xp, totalMoneySpent, ownedItemIds, ...remaining } = saved.state
+    expect(saved.version).toBe(5)
     expect(remaining).toEqual(oldSave)
+    expect(xp).toBe(getLevelThreshold(2))
+    expect(totalMoneySpent).toBe(0)
+    expect(ownedItemIds).toHaveLength(6)
     expect(migratedProfile).toEqual(readPlayerProfile(undefined))
   })
   it('rejects invalid creation without writing a new profile or affecting progress', () => {
@@ -90,6 +95,8 @@ describe('profile migration and persistence', () => {
   it('editing appearance preserves every progression/preference field and identity', () => {
     useProgressStore.getState().completeGame(dailyResult('2026-10-06', 400), '2026-10-06')
     useProgressStore.getState().createProfile('Minh', defaultAppearance)
+    useProgressStore.setState({ xp: getLevelThreshold(2) })
+    expect(useProgressStore.getState().purchaseItem('pants-forest').status).toBe('purchased')
     const before = migratePersistedProgress(useProgressStore.getState())
     const appearance = { ...defaultAppearance, shirtId: 'mint', pantsId: 'forest' } as const
     useProgressStore.getState().updateAppearance(appearance)
@@ -98,7 +105,7 @@ describe('profile migration and persistence', () => {
     useProgressStore.getState().completeGame(dailyResult('2026-10-07', 200), '2026-10-07')
     expect(useProgressStore.getState().profile).toEqual(after.profile)
   })
-  it('derives a display-only level without extra stored progression', () => {
+  it('retains the legacy displayed-level formula for migration', () => {
     expect([0, 9, 10, 25].map(getPlayerLevel)).toEqual([1, 1, 2, 3])
   })
 })

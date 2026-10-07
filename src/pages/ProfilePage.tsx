@@ -3,16 +3,19 @@ import { PlayerAvatar } from '../components/PlayerAvatar'
 import { ScreenShell } from '../components/ScreenShell'
 import { StatCard } from '../components/StatCard'
 import { formatMoney } from '../services/formatters'
-import { getPlayerLevel } from '../services/playerProfile'
+import { LevelProgress } from '../components/LevelProgress'
 import { useProgressStore } from '../store/progressStore'
+import { SaveDataPanel } from '../components/SaveDataPanel'
 
 interface ProfilePageProps {
   onHome: () => void
   onCareer: () => void
   onEdit: () => void
+  onWardrobe: () => void
+  onReinitialize: () => void
 }
 
-export function ProfilePage({ onHome, onCareer, onEdit }: ProfilePageProps) {
+export function ProfilePage({ onHome, onCareer, onEdit, onWardrobe, onReinitialize }: ProfilePageProps) {
   const progress = useProgressStore()
   return (
     <ScreenShell header={<span>Góc riêng của bạn</span>} contentClassName="profile-content"
@@ -21,7 +24,7 @@ export function ProfilePage({ onHome, onCareer, onEdit }: ProfilePageProps) {
       <section className="profile-identity">
         <div className="avatar-stage"><PlayerAvatar appearance={progress.profile.appearance} size={115} /></div>
         <h2>{progress.profile.playerName}</h2>
-        <span className="level-badge">CẤP {getPlayerLevel(progress.totalGamesPlayed)}</span>
+        <LevelProgress xp={progress.xp} />
         <div className="wallet-row"><span>💵 {formatMoney(progress.money)}</span><span>⭐ {progress.reputation} điểm</span></div>
       </section>
       <div className="stats-grid profile-stats" aria-label="Thống kê hồ sơ">
@@ -30,8 +33,11 @@ export function ProfilePage({ onHome, onCareer, onEdit }: ProfilePageProps) {
         <StatCard icon="🔥" label="Chuỗi tốt nhất" value={`${progress.bestStreak} ngày`} />
         <StatCard icon="💰" label="Tổng thu nhập" value={formatMoney(progress.totalMoneyEarned)} />
       </div>
-      <button className="primary-button profile-edit" type="button" onClick={onEdit}>CHỈNH SỬA NHÂN VẬT</button>
-      <p className="privacy-note">Đổi diện mạo, giữ nguyên thành tích.<br />Hồ sơ lưu trên thiết bị này.</p>
+      <div className="profile-outfit-actions">
+        <button className="primary-button profile-edit" type="button" onClick={onEdit}>CHỈNH SỬA NHÂN VẬT</button>
+        <button className="secondary-button" type="button" onClick={onWardrobe}>TỦ ĐỒ</button>
+      </div>
+      <SaveDataPanel onReinitialize={onReinitialize} />
     </ScreenShell>
   )
 }

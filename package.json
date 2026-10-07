@@ -12,6 +12,7 @@
     "test:run": "tsc -p tsconfig.tests.json && vitest run",
     "qa:static": "node scripts/static-qa.cjs",
     "qa:pwa": "node scripts/run-pwa-qa.cjs",
+    "qa:avatar": "node scripts/avatar-qa.cjs",
     "release:check": "npm run lint && npm run test:run && npm run build && npm run qa:static"
   },
   "dependencies": {

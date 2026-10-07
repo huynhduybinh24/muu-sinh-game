@@ -3,6 +3,9 @@ import { ScreenShell } from '../components/ScreenShell'
 import { PlayerAvatar } from '../components/PlayerAvatar'
 import { appearanceKeys, appearanceLabels, avatarOptions } from '../data/avatar'
 import type { PlayerAppearance } from '../types/profile'
+import type { ItemId } from '../types/shop'
+import { starterItemIds } from '../data/shop'
+import { canUseAppearanceOption, ownedAppearance } from '../services/inventory'
 
 interface CharacterCreatorPageProps {
   playerName: string
@@ -10,12 +13,15 @@ interface CharacterCreatorPageProps {
   onSave: (appearance: PlayerAppearance) => void
   onBack: () => void
   editing?: boolean
+  ownedItemIds?: readonly ItemId[]
 }
 
-export function CharacterCreatorPage({ playerName, initialAppearance, onSave, onBack, editing = false }: CharacterCreatorPageProps) {
-  const [appearance, setAppearance] = useState<PlayerAppearance>(() => ({ ...initialAppearance }))
+export function CharacterCreatorPage({ playerName, initialAppearance, onSave, onBack, editing = false, ownedItemIds = starterItemIds }: CharacterCreatorPageProps) {
+  const [appearance, setAppearance] = useState<PlayerAppearance>(() => ownedAppearance(initialAppearance, ownedItemIds))
+  const availableOptions = <Key extends keyof PlayerAppearance>(key: Key) =>
+    avatarOptions[key].filter((option) => canUseAppearanceOption(key, option.id, ownedItemIds))
   const cycle = <Key extends keyof PlayerAppearance>(key: Key, direction: number) => {
-    const options = avatarOptions[key]
+    const options = availableOptions(key)
     const index = options.findIndex((option) => option.id === appearance[key])
     const next = options[(index + direction + options.length) % options.length]
     setAppearance((current) => ({ ...current, [key]: next.id }))
@@ -32,7 +38,7 @@ export function CharacterCreatorPage({ playerName, initialAppearance, onSave, on
       </div>
       <div className="appearance-options">
         {appearanceKeys.map((key) => {
-          const options = avatarOptions[key]
+          const options = availableOptions(key)
           const index = options.findIndex((option) => option.id === appearance[key])
           const selected = options[index]
           return (

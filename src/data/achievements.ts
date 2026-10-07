@@ -4,6 +4,8 @@ import type {
   PlayerProgress,
 } from '../types/game'
 import type { JobId } from '../types/job'
+import { jobs } from './jobs'
+import { shopItems } from './shop'
 
 export interface AchievementProgress {
   current: number
@@ -90,11 +92,11 @@ export const achievements: readonly AchievementDefinition[] = [
   {
     id: 'all-jobs',
     title: 'Đa ngành đa nghề',
-    description: 'Thử sức với cả 3 nghề.',
+    description: `Thử sức với cả ${jobs.length} nghề hiện có.`,
     getProgress: (progress) => boundedProgress(
-      progress.completedJobs.length,
-      3,
-      `${progress.completedJobs.length} / 3 nghề`,
+      jobs.filter((job) => progress.completedJobs.includes(job.id)).length,
+      jobs.length,
+      `${jobs.filter((job) => progress.completedJobs.includes(job.id)).length} / ${jobs.length} nghề`,
     ),
   },
   {
@@ -133,6 +135,39 @@ export const achievements: readonly AchievementDefinition[] = [
     title: 'Shipper quốc dân',
     description: 'Hoàn thành 10 ca giao hàng.',
     getProgress: (progress) => jobCountProgress(progress, 'shipper'),
+  },
+  { id: 'noodle-10', title: 'Vua hủ tiếu', description: 'Hoàn thành 10 ca bán hủ tiếu.', getProgress: (progress) => jobCountProgress(progress, 'noodle') },
+  { id: 'barber-10', title: 'Tay kéo vàng', description: 'Hoàn thành 10 ca cắt tóc.', getProgress: (progress) => jobCountProgress(progress, 'barber') },
+  { id: 'carwash-10', title: 'Thánh rửa xe', description: 'Hoàn thành 10 ca rửa xe.', getProgress: (progress) => jobCountProgress(progress, 'carwash') },
+  ...([
+    { id: 'fashion-5', title: 'Tín đồ thời trang', target: 5 },
+    { id: 'wardrobe-10', title: 'Tủ đồ có gu', target: 10 },
+  ] as const).map(({ id, title, target }): AchievementDefinition => ({
+    id, title, description: `Sở hữu ${target} món mua trong cửa hàng (không tính đồ khởi đầu).`,
+    getProgress: (progress) => {
+      const count = shopItems.filter((item) => item.price > 0 && progress.ownedItemIds.includes(item.id)).length
+      return boundedProgress(count, target, `${count} / ${target} món`)
+    },
+  })),
+  {
+    id: 'shopping-500k', title: 'Đại gia mua sắm', description: 'Chi tổng cộng 500.000đ cho phong cách của bạn.',
+    getProgress: (progress) => boundedProgress(progress.totalMoneySpent, 500_000,
+      `${progress.totalMoneySpent.toLocaleString('vi-VN')} / 500.000đ`),
+  },
+  {
+    id: 'missions-day', title: 'Chăm chỉ mỗi ngày', description: 'Nhận thưởng cả 3 nhiệm vụ trong một ngày.',
+    getProgress: (progress) => {
+      const count = progress.dailyMissions?.missions.filter((mission) => mission.claimed).length ?? 0
+      return boundedProgress(count, 3, `${count} / 3 nhiệm vụ`)
+    },
+  },
+  {
+    id: 'missions-30', title: 'Chiến thần nhiệm vụ', description: 'Nhận thưởng 30 nhiệm vụ hằng ngày.',
+    getProgress: (progress) => boundedProgress(progress.totalDailyMissionsClaimed, 30, `${progress.totalDailyMissionsClaimed} / 30 nhiệm vụ`),
+  },
+  {
+    id: 'reward-7', title: 'Quà không sót ngày nào', description: 'Nhận quà ngày 7 trong chuỗi nhận quà liên tiếp.',
+    getProgress: (progress) => boundedProgress(progress.dailyRewardStreak, 7, `${progress.dailyRewardStreak} / 7 ngày`),
   },
 ]
 

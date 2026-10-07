@@ -1,6 +1,8 @@
 import { getNewAchievementUnlocks } from '../data/achievements'
 import { getDailyJobId, isYesterday } from './dailyChallenge'
 import type { AchievementUnlock, GameResult, PlayerProgress } from '../types/game'
+import { getGameXp } from './level'
+import { updateDailyMissionProgress } from './dailyMissions'
 
 export interface GameCompletionUpdate {
   progress: PlayerProgress
@@ -52,6 +54,7 @@ export function applyGameCompletion(
     totalDaysWorked,
     totalGamesPlayed: progress.totalGamesPlayed + 1,
     totalMoneyEarned: progress.totalMoneyEarned + result.earnedMoney,
+    xp: progress.xp + getGameXp(result.score),
     jobStats: {
       ...progress.jobStats,
       [result.jobId]: nextJobStats,
@@ -60,12 +63,13 @@ export function applyGameCompletion(
   const unlockedAt = Number.isNaN(new Date(result.completedAt).getTime())
     ? new Date().toISOString()
     : result.completedAt
-  const newAchievements = getNewAchievementUnlocks(nextProgress, unlockedAt)
+  const missionProgress = updateDailyMissionProgress(nextProgress, result, localDateKey)
+  const newAchievements = getNewAchievementUnlocks(missionProgress, unlockedAt)
 
   return {
     progress: {
-      ...nextProgress,
-      achievements: [...nextProgress.achievements, ...newAchievements],
+      ...missionProgress,
+      achievements: [...missionProgress.achievements, ...newAchievements],
     },
     newAchievements,
     completedDailyChallenge,

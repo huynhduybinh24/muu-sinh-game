@@ -56,6 +56,8 @@ export function PlayerAvatar({ size = 160, appearance, state = 'idle' }: PlayerA
           <path d="M98 99 L96 105 L102 105" fill="none" stroke="#a46754" strokeWidth="2" opacity=".5" strokeLinecap="round" />
           <path d="M91 111 Q101 120 112 111" stroke="#834d48" strokeWidth="2.5" strokeLinecap="round" fill="none" />
           <path d="M81 154 L88 149 L95 154 L91 163 L85 163Z" fill="#fff" opacity=".65" />
+          <path d="M72 178Q100 186 129 178M73 198L89 198M112 198L127 198" stroke="#353044" strokeWidth="2" opacity=".12" fill="none" />
+          <path d="M72 48Q86 40 106 43M76 129L68 140" stroke="#fff" strokeWidth="3" opacity=".22" fill="none" strokeLinecap="round" />
         </g>
       </svg>
     </div>

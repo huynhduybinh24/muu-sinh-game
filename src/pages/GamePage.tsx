@@ -2,8 +2,11 @@ import { useCallback, useState } from 'react'
 import { GameStartOverlay } from '../components/GameStartOverlay'
 import { ScreenShell } from '../components/ScreenShell'
 import { PhaserGame } from '../game/PhaserGame'
+import { useProgressStore } from '../store/progressStore'
+import { tutorials } from '../data/tutorials'
 import type { GameResult } from '../types/game'
 import type { Job } from '../types/job'
+import { GameIcon } from '../components/GameIcon'
 
 interface GamePageProps {
   job: Job
@@ -11,6 +14,7 @@ interface GamePageProps {
 }
 
 export function GamePage({ job, onComplete }: GamePageProps) {
+  const profile = useProgressStore((state) => state.profile)
   const [isPlaying, setIsPlaying] = useState(false)
   const startGame = useCallback(() => setIsPlaying(true), [])
   const subtitle =
@@ -18,13 +22,14 @@ export function GamePage({ job, onComplete }: GamePageProps) {
       ? 'Phục vụ khách thật nhanh'
       : job.id === 'construction'
         ? 'Xây tháp thật vững'
-        : 'Giao hàng khắp phố'
+        : job.id === 'shipper' ? 'Giao hàng khắp phố' : tutorials[job.id].objective
   const instructions =
     job.id === 'sugarcane'
       ? 'Pha đúng món, ép mía rồi giao trước khi khách hết kiên nhẫn.'
       : job.id === 'construction'
         ? 'Chạm vào khu vực chơi để thả gạch đúng vị trí.'
-        : 'Giữ nút điều hướng để lấy hàng, né chướng ngại và giao đúng khách.'
+        : job.id === 'shipper' ? 'Giữ nút điều hướng để lấy hàng, né chướng ngại và giao đúng khách.'
+          : tutorials[job.id].steps.join(' → ')
 
   return (
     <ScreenShell
@@ -38,7 +43,7 @@ export function GamePage({ job, onComplete }: GamePageProps) {
     >
       <div className="game-heading">
         <span className="game-heading-icon" aria-hidden="true">
-          {job.icon}
+          <GameIcon name={job.id} />
         </span>
         <div>
           <h1>{job.name}</h1>
@@ -46,7 +51,7 @@ export function GamePage({ job, onComplete }: GamePageProps) {
         </div>
       </div>
       {isPlaying ? (
-        <PhaserGame job={job} onComplete={onComplete} />
+        <PhaserGame job={job} onComplete={onComplete} profile={profile} />
       ) : (
         <div className="game-canvas-frame game-canvas-frame--tall">
           <GameStartOverlay job={job} onReady={startGame} />

@@ -1,52 +1,34 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
-import { achievementsById } from '../data/achievements'
+import { persist, createJSONStorage } from 'zustand/middleware'
+import { getNewAchievementUnlocks } from '../data/achievements'
+import { starterItemIds } from '../data/shop'
+import { emptyJobStats, initialProgress, initialPreferences, migratePersistedProgress } from '../services/saveMigration'
+import { gameStateStorage } from '../services/saveStorage'
+import { SAVE_VERSION, SAVE_KEY } from '../data/save'
+import { equipItem as applyEquipment, ownedAppearance, purchaseItem as applyPurchase } from '../services/inventory'
+import { claimMission as applyMissionClaim, syncDailyMissions } from '../services/dailyMissions'
+import { claimDailyReward as applyDailyRewardClaim } from '../services/dailyRewards'
+import type { PurchaseStatus } from '../types/shop'
 import { applyGameCompletion } from '../services/progression'
 import { getLocalDateKey } from '../services/dailyChallenge'
-import { getPlayerNameError, normalizePlayerName, readAppearance, readPlayerProfile } from '../services/playerProfile'
+import { getPlayerNameError, normalizePlayerName, readAppearance } from '../services/playerProfile'
 import type { PlayerAppearance } from '../types/profile'
 import type {
-  AchievementId,
   AchievementUnlock,
   GameResult,
-  JobCareerStats,
   PlayerPreferences,
   PlayerProgress,
 } from '../types/game'
 import type { JobId } from '../types/job'
 
-const jobIds: readonly JobId[] = ['sugarcane', 'construction', 'shipper']
-
-const emptyJobStats = (): Record<JobId, JobCareerStats> => ({
-  sugarcane: { timesPlayed: 0, bestScore: 0, totalScore: 0, totalMoneyEarned: 0 },
-  construction: { timesPlayed: 0, bestScore: 0, totalScore: 0, totalMoneyEarned: 0 },
-  shipper: { timesPlayed: 0, bestScore: 0, totalScore: 0, totalMoneyEarned: 0 },
-})
-
-const initialProgress: PlayerProgress = {
-  profile: readPlayerProfile(undefined),
-  money: 0,
-  reputation: 0,
-  energy: 100,
-  currentJobId: null,
-  previousJobId: null,
-  completedJobs: [],
-  currentStreak: 0,
-  bestStreak: 0,
-  lastCompletedDate: null,
-  totalDaysWorked: 0,
-  totalGamesPlayed: 0,
-  totalMoneyEarned: 0,
-  jobStats: emptyJobStats(),
-  achievements: [],
-}
-
-const initialPreferences: PlayerPreferences = {
-  soundEnabled: true,
-  completedTutorials: [],
-}
+export { migratePersistedProgress } from '../services/saveMigration'
 
 interface ProgressStore extends PlayerProgress, PlayerPreferences {
+  ensureDailyMissions: (dateKey?: string) => void
+  claimMission: (id: string, dateKey?: string) => { claimed: boolean; newAchievements: AchievementUnlock[] }
+  claimDailyReward: (dateKey?: string) => { claimed: boolean; newAchievements: AchievementUnlock[] }
+  purchaseItem: (id: string) => { status: PurchaseStatus; newAchievements: AchievementUnlock[] }
+  equipItem: (id: string) => boolean
   createProfile: (name: string, appearance: PlayerAppearance) => boolean
   updateAppearance: (appearance: PlayerAppearance) => void
   selectJob: (jobId: JobId) => void
@@ -58,107 +40,67 @@ interface ProgressStore extends PlayerProgress, PlayerPreferences {
 
 type PersistedProgress = PlayerProgress & PlayerPreferences
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null
-}
-
-function safeNumber(value: unknown, fallback: number): number {
-  return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : fallback
-}
-
-function isJobId(value: unknown): value is JobId {
-  return typeof value === 'string' && jobIds.includes(value as JobId)
-}
-
-function isAchievementId(value: unknown): value is AchievementId {
-  return typeof value === 'string' && Object.hasOwn(achievementsById, value)
-}
-
-function readJobStats(
-  value: unknown,
-  completedJobs: readonly JobId[],
-): Record<JobId, JobCareerStats> {
-  const source = isRecord(value) ? value : {}
-
-  return Object.fromEntries(jobIds.map((jobId) => {
-    const stored = isRecord(source[jobId]) ? source[jobId] : {}
-    return [jobId, {
-      timesPlayed: safeNumber(stored.timesPlayed, completedJobs.includes(jobId) ? 1 : 0),
-      bestScore: safeNumber(stored.bestScore, 0),
-      totalScore: safeNumber(stored.totalScore, 0),
-      totalMoneyEarned: safeNumber(stored.totalMoneyEarned, 0),
-    }]
-  })) as Record<JobId, JobCareerStats>
-}
-
-export function migratePersistedProgress(value: unknown): PersistedProgress {
-  const source = isRecord(value) ? value : {}
-  const completedJobs = Array.isArray(source.completedJobs)
-    ? [...new Set(source.completedJobs.filter(isJobId))]
-    : []
-  const completedTutorials = Array.isArray(source.completedTutorials)
-    ? [...new Set(source.completedTutorials.filter(isJobId))]
-    : []
-  const jobStats = readJobStats(source.jobStats, completedJobs)
-  const storedAchievements = Array.isArray(source.achievements)
-    ? source.achievements
-        .filter(isRecord)
-        .filter((item) => isAchievementId(item.id) && typeof item.unlockedAt === 'string')
-        .map((item) => ({ id: item.id as AchievementId, unlockedAt: item.unlockedAt as string }))
-    : []
-  const achievements = [...new Map(
-    storedAchievements.map((achievement) => [achievement.id, achievement]),
-  ).values()]
-  const inferredGames = Object.values(jobStats)
-    .reduce((total, stats) => total + stats.timesPlayed, 0)
-  const money = safeNumber(source.money, initialProgress.money)
-  const currentStreak = safeNumber(source.currentStreak, 0)
-
-  return {
-    ...initialProgress,
-    ...initialPreferences,
-    profile: readPlayerProfile(source.profile),
-    money,
-    reputation: safeNumber(source.reputation, initialProgress.reputation),
-    energy: safeNumber(source.energy, initialProgress.energy),
-    currentJobId: isJobId(source.currentJobId) ? source.currentJobId : null,
-    previousJobId: isJobId(source.previousJobId) ? source.previousJobId : null,
-    completedJobs,
-    currentStreak,
-    bestStreak: Math.max(safeNumber(source.bestStreak, 0), currentStreak),
-    lastCompletedDate: typeof source.lastCompletedDate === 'string'
-      ? source.lastCompletedDate
-      : null,
-    totalDaysWorked: safeNumber(source.totalDaysWorked, 0),
-    totalGamesPlayed: safeNumber(source.totalGamesPlayed, inferredGames),
-    totalMoneyEarned: safeNumber(source.totalMoneyEarned, money),
-    jobStats,
-    achievements,
-    soundEnabled: typeof source.soundEnabled === 'boolean'
-      ? source.soundEnabled
-      : initialPreferences.soundEnabled,
-    completedTutorials,
-  }
-}
-
 export const useProgressStore = create<ProgressStore>()(
   persist(
     (set) => ({
       ...initialProgress,
       ...initialPreferences,
+      ensureDailyMissions: (dateKey = getLocalDateKey()) => set((state) => syncDailyMissions(state, dateKey)),
+      claimMission: (id, dateKey = getLocalDateKey()) => {
+        let outcome: { claimed: boolean; newAchievements: AchievementUnlock[] } = { claimed: false, newAchievements: [] }
+        set((state) => {
+          const progress = applyMissionClaim(state, id, dateKey)
+          if (progress.totalDailyMissionsClaimed === state.totalDailyMissionsClaimed) return progress
+          const newAchievements = getNewAchievementUnlocks(progress, new Date().toISOString())
+          outcome = { claimed: true, newAchievements }
+          return { ...progress, achievements: [...progress.achievements, ...newAchievements] }
+        })
+        return outcome
+      },
+      claimDailyReward: (dateKey = getLocalDateKey()) => {
+        let outcome: { claimed: boolean; newAchievements: AchievementUnlock[] } = { claimed: false, newAchievements: [] }
+        set((state) => {
+          const progress = applyDailyRewardClaim(state, dateKey)
+          if (progress === state) return state
+          const newAchievements = getNewAchievementUnlocks(progress, new Date().toISOString())
+          outcome = { claimed: true, newAchievements }
+          return { ...progress, achievements: [...progress.achievements, ...newAchievements] }
+        })
+        return outcome
+      },
+      purchaseItem: (id) => {
+        let outcome: { status: PurchaseStatus; newAchievements: AchievementUnlock[] } = { status: 'invalid-item', newAchievements: [] }
+        set((state) => {
+          const purchase = applyPurchase(state, id)
+          if (purchase.status !== 'purchased') { outcome.status = purchase.status; return state }
+          const newAchievements = getNewAchievementUnlocks(purchase.progress, new Date().toISOString())
+          outcome = { status: purchase.status, newAchievements }
+          return { ...purchase.progress, achievements: [...purchase.progress.achievements, ...newAchievements] }
+        })
+        return outcome
+      },
+      equipItem: (id) => {
+        let equipped = false
+        set((state) => {
+          const updated = applyEquipment(state, id)
+          equipped = updated !== state
+          return updated
+        })
+        return equipped
+      },
       createProfile: (name, appearance) => {
         if (getPlayerNameError(name)) return false
         set((state) => ({
           profile: {
             playerName: normalizePlayerName(name),
             createdAt: state.profile.createdAt || new Date().toISOString(),
-            appearance: readAppearance(appearance),
+            appearance: ownedAppearance(readAppearance(appearance), state.ownedItemIds),
           },
         }))
         return true
       },
       updateAppearance: (appearance) => set((state) => ({
-        profile: { ...state.profile, appearance: readAppearance(appearance) },
+        profile: { ...state.profile, appearance: ownedAppearance(readAppearance(appearance), state.ownedItemIds) },
       })),
       selectJob: (jobId) =>
         set((state) => ({
@@ -184,17 +126,19 @@ export const useProgressStore = create<ProgressStore>()(
       resetProgress: () => set({
         ...initialProgress,
         jobStats: emptyJobStats(),
+        ownedItemIds: [...starterItemIds],
         achievements: [],
         ...initialPreferences,
       }),
     }),
     {
-      name: 'muu-sinh-player-progress',
-      version: 3,
-      migrate: (persistedState) => migratePersistedProgress(persistedState),
+      name: SAVE_KEY,
+      version: SAVE_VERSION,
+      storage: createJSONStorage(() => gameStateStorage),
+      migrate: (persistedState, version) => migratePersistedProgress(persistedState, version),
       merge: (persistedState, currentState) => ({
         ...currentState,
-        ...migratePersistedProgress(persistedState),
+        ...migratePersistedProgress(persistedState, SAVE_VERSION),
       }),
       partialize: (state): PersistedProgress => ({
         profile: state.profile,
@@ -210,6 +154,14 @@ export const useProgressStore = create<ProgressStore>()(
         totalDaysWorked: state.totalDaysWorked,
         totalGamesPlayed: state.totalGamesPlayed,
         totalMoneyEarned: state.totalMoneyEarned,
+        totalMoneySpent: state.totalMoneySpent,
+        ownedItemIds: state.ownedItemIds,
+        xp: state.xp,
+        dailyMissions: state.dailyMissions,
+        totalDailyMissionsClaimed: state.totalDailyMissionsClaimed,
+        dailyRewardStreak: state.dailyRewardStreak,
+        dailyRewardCycleDay: state.dailyRewardCycleDay,
+        lastDailyRewardDate: state.lastDailyRewardDate,
         jobStats: state.jobStats,
         achievements: state.achievements,
         soundEnabled: state.soundEnabled,

@@ -1,16 +1,130 @@
 # MƯU SINH – Mỗi Ngày Một Nghề
 
 React/TypeScript handles UI and persisted Zustand progress; Phaser 3 owns the
-three mini-games. Vite builds the app and its PWA service worker.
+six mini-games. Vite builds the app and its PWA service worker.
 
 ## Player profile
 
 First launch asks for a 2–20 character name, then opens the original layered-SVG
 character creator. Home, Profile, and the creator share one avatar component and
 typed appearance configuration. Appearance edits never change career progress.
-Save version 3 adds `profile` to the existing storage key; older saves keep all
-progress/settings and go through setup once. Level is display-only (one level
-per ten completed games). Profiles stay on this device, without accounts or sync.
+Save version 5 adds daily missions/claim tracking and daily rewards to the existing
+storage key; version 4 introduced inventory, spending and XP.
+older saves keep all progress/settings and worn items become owned. The former
+displayed level is preserved as the starting XP threshold. Profiles stay on this
+device, without accounts or sync.
+
+All six Phaser scenes receive a snapshot of that same profile from React.
+The shared primitive avatar renderer uses the existing appearance IDs/colors;
+visual tweens never move a collision anchor. `npm run qa:avatar` uses the same
+browser prerequisites as `qa:pwa` to exercise real scene actions/reactions,
+fallbacks, and cleanup against source scenes. Production/offline checks remain
+in `qa:pwa`. No production debug globals or extra dependencies are added.
+
+## Playable jobs
+
+Sugarcane, Construction, and Shipper retain their existing mechanics. Noodle adds
+three ingredient recipes, Barber uses six large haircut sections, and Carwash
+uses mouse/touch scrubbing with a 90% cleanliness target. Every job lasts 45
+seconds and shares the tutorial/countdown, result, Career, daily challenge,
+achievement and offline PNG systems. Daily selection uses frozen, versioned
+catalog epochs rather than the current catalog length. Old saves gain empty stats for
+new jobs, while previously unlocked achievements remain unlocked.
+
+## Shop, wardrobe and levels
+
+Home opens **CỬA HÀNG**; Profile opens **TỦ ĐỒ**. The shared catalog contains 6 hair,
+10 shirts and 6 pants, including two permanent free starters per category. Preview
+never equips or spends money. Purchases are atomic store actions; equipment only
+changes the existing appearance IDs, shared by React and all six Phaser games.
+Character creation/editing only offers owned clothes; skin/gender remain free.
+Prices range from 20.000đ to 750.000đ, with level 1–5 unlocks. Game rewards are unchanged.
+Wardrobe is owned-only and has no payments. All purchases work offline.
+
+Each game grants `30 + min(120, floor(score / 20))` XP. The next level needs
+`150 + 50 × (level − 1)` additional XP; level is derived, not stored separately.
+Three shop achievements count 5/10 non-starter owned items and 500.000đ lifetime
+spending. Free/grandfathered items never add spending. Level-up notices are transient.
+
+`src/data/dailySchedule.ts` freezes the current six-job date hash mappings. To
+activate future jobs, append a new ordered catalog epoch with a future local
+date; never edit old epoch IDs/order/dates. Tests cover historical dates, catalog
+growth/reordering and activation boundaries. No server or new environment variables.
+
+## Daily missions and rewards
+
+Home previews all three mission progress indicators and opens **NHIỆM VỤ HÔM NAY**
+for descriptions, progress, rewards and claims. The deterministic local-date schedule
+uses three frozen pools (easy, daily-job-specific, harder); future templates must
+activate through a new future-dated epoch, not edits to old pools/templates.
+Job-specific missions use the already available `GameResult.metadata` and always
+match the playable Daily Job. Replays count. Missing metadata contributes zero;
+single-score missions use a maximum, totals accumulate, all progress caps at target.
+Progress updates centrally after game progression, before achievement evaluation.
+The next local date resets missions; unclaimed prior-day rewards expire.
+
+Mission rewards range from 7.500–25.000đ and 25–60 XP. The separate daily gift cycle
+is 5.000 / 7.500 / 10.000 / 12.500 / 15.000 / 20.000 / 30.000đ, with 60 bonus XP on
+day 7. Claim once per local date; consecutive claims advance and day 7 wraps to day 1.
+Missing a calendar day resets to day 1. Closing the gift dialog never claims it;
+Home keeps a claim-later entry. Neither gift streak nor reward money changes work
+streak, days worked, job income or Career totals. Reward XP uses existing levels
+and transient level-up feedback. Three new achievements cover all three missions
+claimed in one day, 30 lifetime mission claims, and seven consecutive gift claims.
+
+Atomic Zustand actions prevent double claims, including after refresh. Save v5
+keeps all v4 profile/outfit/inventory/money/XP/shop/Career/settings fields and adds
+safe daily defaults. Everything works offline; dates use the device's local clock.
+Clock/save manipulation cannot be prevented without a backend. No network time,
+accounts, dependencies or anti-cheat services are added.
+
+## Backup and restore
+
+Profile's **DỮ LIỆU TRÒ CHƠI** panel downloads UTF-8 JSON named
+`muu-sinh-save-YYYY-MM-DD.json`. It works offline and in standalone PWA mode;
+clipboard copying is optional. JSON backup and result PNG sharing are independent.
+The portable envelope is `{ format: "muu-sinh-save", version: 5, exportedAt, data }`.
+It contains only persistent player data (level derives from XP), not Zustand
+actions/metadata or UI state. Backup files contain the player's name/progress;
+keep them private. No accounts, network requests, cloud services or dependencies.
+
+Imports are limited to 256 KiB. File selection only validates and previews; an
+explicit confirmation replaces progress and reinitializes React state. Supported
+portable versions 0–5 reuse existing migration/normalization. Future versions,
+invalid shapes/dates/numbers and unsafe keys are rejected. Obsolete IDs fall back
+safely; unowned paid clothing never becomes owned except worn legacy v0–3 gear.
+Restoring older dates follows normal daily rollover/expiry rules, not extra rewards.
+
+`saveService` is the single UI entry; pure `portableSave`/`saveMigration` do not depend
+on React or Zustand. `SaveRepository` separates the envelope from storage transport;
+`LocalStorageSaveAdapter` alone knows the existing local persistence wrapper/key.
+Future cloud code can reuse this portable boundary, but no cloud transport exists.
+
+Before restore, reset or legacy local migration, one normalized recovery envelope
+is kept in `muu-sinh-backup`. Restore holds an in-memory snapshot and pauses automatic
+persistence during commit; storage/subscriber failures restore the original state.
+Reset requires typing **XÓA**. The developer Home action now opens Profile instead
+of immediately wiping data. `recoverSave()` is an internal/dev recovery helper.
+Corrupt startup JSON recovers from a valid recovery slot when available; otherwise
+safe defaults are used without overwriting corrupt/future data. Profile displays
+storage health; blocked writes keep gameplay usable in memory but require exporting
+a file to preserve it. The single local slot is not a backup history or a replacement
+for downloaded files; browser/site-data deletion removes it too.
+
+## Visual presentation
+
+All six jobs use original layered Phaser/vector illustrations and shared themes,
+rounded button artwork, customer variants and restrained feedback under
+`src/game/visual/`. Rectangular interaction areas, scooter collision anchors,
+brick placement, recipes, dirt coordinates and all rewards/timing stay unchanged.
+React job/navigation icons are original inline SVG; PNG exports keep their existing layout.
+
+Visual randomness is independent of gameplay RNG. Each scene reuses a fixed pool
+of 24 particle shapes; foam emission is throttled, scenery is drawn once and brick
+decoration lookup uses a map rather than a per-frame scene scan. No textures,
+remote art, fonts, dependencies, expensive masks or per-frame object creation.
+Reduced motion suppresses ambient loops, bursts, shake and movement transitions.
+VFX cleanup follows scene shutdown/destroy; score/readable status feedback remains.
 
 ## Development
 
@@ -38,7 +152,7 @@ See [BETA_CHECKLIST.md](BETA_CHECKLIST.md) for the remaining device checks.
 
 Build, then preview the production app. Service workers run on HTTPS deployments
 or localhost; the Vite development server does not register one. The first
-successful production load caches the app shell, all three games, local styles,
+successful production load caches the app shell, all six games, local styles,
 manifest, and icons. Progress and settings remain in localStorage, including
 across updates. PNG result exports also work offline.
 
