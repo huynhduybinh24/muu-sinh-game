@@ -10,6 +10,8 @@ const { completeProfile, verifyProfileFlows, dismissReward } = require('./profil
 const { verifyShopFlows } = require('./shop-qa.cjs')
 const { verifyDailyFlows } = require('./daily-qa.cjs')
 const { verifySaveFlows } = require('./save-qa.cjs')
+const { verifyTownFlows } = require('./town-qa.cjs')
+const { verifyNativeAdapter } = require('./native-adapter-qa.cjs')
 
 const origin = process.env.PWA_QA_URL || 'http://127.0.0.1:4173'
 const sizes = [
@@ -21,6 +23,8 @@ const dailyCases = [
   { date: '2026-10-07', id: 'sugarcane' }, { date: '2026-10-08', id: 'construction' },
   { date: '2026-10-09', id: 'shipper' }, { date: '2026-10-13', id: 'noodle' },
   { date: '2026-10-14', id: 'barber' }, { date: '2026-10-15', id: 'carwash' },
+  { date: '2026-11-06', id: 'rubber' }, { date: '2026-11-07', id: 'mechanic' },
+  { date: '2026-11-08', id: 'coffee' }, { date: '2026-11-09', id: 'fishing' },
 ]
 
 async function assertLayout(page, label) {
@@ -203,6 +207,9 @@ async function main() {
     await verifyShopFlows(browser, origin, artifacts, assertLayout, await readProgress(page))
     await verifyDailyFlows(browser, origin, artifacts, assertLayout, await readProgress(page))
     await verifySaveFlows(browser, origin, artifacts, assertLayout, await readProgress(page))
+    await verifyTownFlows(browser, origin, artifacts, assertLayout, await readProgress(page))
+    await verifyNativeAdapter(browser, origin, await readProgress(page))
+    if (process.argv.includes('--town-only')) return
     if (process.argv.includes('--daily-only')) {
       await context.close()
       return
@@ -239,7 +246,7 @@ async function main() {
       // Re-enter Home so the daily date is read again without touching app storage.
       await page.getByRole('button', { name: 'SỰ NGHIỆP', exact: true }).click()
       await page.getByRole('heading', { name: 'SỰ NGHIỆP', exact: true }).waitFor()
-      assert.equal(await page.locator('.career-job-card').count(), 6)
+      assert.equal(await page.locator('.career-job-card').count(), 10)
       await assertLayout(page, 'Career')
       await page.screenshot({ path: path.join(artifacts, `career-${daily.id}-${size.width}.png`) })
       await page.getByRole('button', { name: '← VỀ TRANG CHỦ' }).click()
@@ -325,7 +332,7 @@ async function main() {
       console.log(`PASS: ${job} offline at ${size.width}×${size.height}; timer, result, career, PNG export and replay`)
       await page.getByRole('button', { name: 'VỀ TRANG CHỦ →' }).click()
     }
-    assert.equal(jobsSeen.size, 6, 'All six jobs must be checked')
+    assert.equal(jobsSeen.size, 10, 'All ten jobs must be checked')
     const persisted = await readProgress(page)
     await page.reload()
     await page.locator('.home-player').waitFor()

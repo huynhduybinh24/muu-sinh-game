@@ -11,6 +11,10 @@ export interface ShareCardTheme {
 }
 
 export const shareCardThemes: Record<JobId, ShareCardTheme> = {
+  rubber: { accent: '#59885a', accentSoft: '#e3f0cf', dark: '#324f36', statLabel: 'Cây đã cạo', metadataKey: 'treesTapped', fallbackSymbol: 'CAO SU' },
+  mechanic: { accent: '#55859a', accentSoft: '#dfedf2', dark: '#324854', statLabel: 'Xe đã sửa', metadataKey: 'vehiclesRepaired', fallbackSymbol: 'CỜ LÊ' },
+  coffee: { accent: '#99705a', accentSoft: '#f8e9cc', dark: '#594036', statLabel: 'Ly cà phê đã phục vụ', metadataKey: 'customersServed', fallbackSymbol: 'PHIN' },
+  fishing: { accent: '#468c98', accentSoft: '#daf0ec', dark: '#2b555c', statLabel: 'Cá đã bắt', metadataKey: 'fishCaught', fallbackSymbol: 'CÁ' },
   noodle: { accent: '#be7130', accentSoft: '#fff0ca', dark: '#603711', statLabel: 'Khách phục vụ', metadataKey: 'customersServed', fallbackSymbol: 'HỦ TIẾU' },
   barber: { accent: '#8258a6', accentSoft: '#eee0fa', dark: '#382252', statLabel: 'Khách cắt tóc', metadataKey: 'customersServed', fallbackSymbol: 'KÉO' },
   carwash: { accent: '#168e98', accentSoft: '#d6f6f7', dark: '#10474d', statLabel: 'Xe đã rửa', metadataKey: 'vehiclesWashed', fallbackSymbol: 'XE SẠCH' },
@@ -40,12 +44,15 @@ export const shareCardThemes: Record<JobId, ShareCardTheme> = {
   },
 }
 
-export function getViralStat(result: GameResult): { label: string; value: number } {
+export function getViralStat(result: GameResult): { label: string; value: number; detail?: string } {
   const theme = shareCardThemes[result.jobId]
   const storedValue = result.metadata?.[theme.metadataKey]
-  return {
+  const stat = {
     label: theme.statLabel,
     value: typeof storedValue === 'number' && Number.isFinite(storedValue) && storedValue >= 0
       ? Math.floor(storedValue) : Math.max(0, Math.floor(result.score / 100)),
   }
+  if (result.jobId !== 'coffee') return stat
+  const perfect = result.metadata?.perfectBrews
+  return { ...stat, detail: `Pha chuẩn: ${typeof perfect === 'number' && Number.isFinite(perfect) && perfect >= 0 ? Math.floor(perfect) : 0}` }
 }

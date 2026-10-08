@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { isNativePlatform } from '../services/platform'
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>
@@ -47,6 +48,7 @@ export function usePwaInstall(): PwaInstallControls {
   const [installed, setInstalled] = useState(isStandalone)
 
   useEffect(() => {
+    if (isNativePlatform()) return
     const displayMode = window.matchMedia('(display-mode: standalone)')
     const handleInstallPrompt = (event: Event) => {
       event.preventDefault()
@@ -92,8 +94,8 @@ export function usePwaInstall(): PwaInstallControls {
   }, [installPrompt])
 
   return {
-    canInstall: !installed && installPrompt !== null,
-    showIosHint: !installed && isIosSafari(),
+    canInstall: !isNativePlatform() && !installed && installPrompt !== null,
+    showIosHint: !isNativePlatform() && !installed && isIosSafari(),
     install,
   }
 }

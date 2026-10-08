@@ -1,0 +1,56 @@
+.app-shell:has(.town-content) { width: min(100%, 980px); }
+.town-content { gap: 12px; padding-top: 14px; min-width: 0; }
+.town-home { min-height: 36px; border: 0; padding: 0; background: transparent; color: #6c7d6b; font: inherit; font-size: .69rem; font-weight: 850; cursor: pointer; }
+.town-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.town-heading .eyebrow { margin-bottom: 6px; font-size: .59rem; letter-spacing: .04em; }
+.town-heading h1 { margin: 0; color: #45665f; font-size: 1.4rem; letter-spacing: -.04em; }
+.town-heading > span { flex-shrink: 0; padding: 6px 9px; border-radius: 14px; color: #8b6847; background: #f5dfa9; font-size: .64rem; font-weight: 850; }
+.town-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.town-toolbar p { margin: 0; color: var(--muted); font-size: .65rem; line-height: 1.5; }
+.town-toolbar button { min-height: 44px; max-width: 150px; padding: 8px 10px; border: 1px solid #d7e3d2; border-radius: 12px; color: #557761; background: #eff6e6; font: inherit; font-size: .61rem; font-weight: 850; cursor: pointer; }
+.town-scroll { width: 100%; min-width: 0; height: clamp(300px, 49svh, 610px); overflow: auto; overscroll-behavior: contain; touch-action: pan-x pan-y; border: 2px solid #fff9e8; border-radius: 24px; background: #e5eccf; box-shadow: 0 5px 0 #b9c9b83b, 0 12px 24px #506d6314; scrollbar-color: #99b39b #e5eccf; }
+.town-canvas { position: relative; margin: 0 auto; isolation: isolate; }
+.town-scenery { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.town-location { position: absolute; z-index: 3; width: 160px; min-height: 158px; padding: 0 4px 6px; border: 0; border-radius: 24px; background: transparent; color: #425c53; font: inherit; text-align: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.town-location:focus-visible { outline: 3px solid #627eaf; outline-offset: 6px; }
+.town-building { display: block; width: 152px; height: 125px; transition: transform 180ms ease; }
+.town-location:hover .town-building, .town-location--selected .town-building { transform: translateY(-4px); }
+.town-location--selected { background: radial-gradient(ellipse at 50% 70%, #fffbd199, transparent 75%); box-shadow: inset 0 -3px 0 #e6bd6880; }
+.town-location-name { display: inline-flex; align-items: center; justify-content: center; gap: 5px; padding: 5px 8px; border-radius: 13px; background: #fffbedee; box-shadow: 0 2px 0 #879d7022; font-size: .72rem; font-weight: 850; white-space: nowrap; }
+.town-daily-badge { display: block; width: max-content; margin: 5px auto 0; padding: 5px 8px; border: 1px solid #efce76; border-radius: 12px; color: #885824; background: #ffe4a2; font-size: .57rem; font-weight: 900; animation: town-marker-pulse 2.5s ease-in-out infinite; }
+.town-player { position: absolute; z-index: 2; top: 0; left: 0; pointer-events: none; transition: transform 560ms cubic-bezier(.25,.5,.3,1); }
+.town-player--walking .avatar-figure { animation: town-walk 180ms ease-in-out infinite alternate; transform-origin: 100px 210px; }
+.town-travel-status { margin: 0; min-height: 28px; color: var(--muted); font-size: .67rem; line-height: 1.5; }
+.town-directory { border: 1px solid #fff; border-radius: 18px; background: #fffdf4; box-shadow: var(--shadow-soft); }
+.town-directory summary { min-height: 44px; padding: 14px; color: #4e705e; cursor: pointer; font-size: .68rem; font-weight: 900; }
+.town-directory > div { padding: 0 12px 12px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.town-directory h2 { margin: 8px 0; color: #a0835f; font-size: .65rem; }
+.town-directory button { width: 100%; display: flex; align-items: center; gap: 8px; min-height: 54px; padding: 8px; margin-block: 4px; border: 1px solid #e2e8d8; border-radius: 12px; background: #f5f7ef; font: inherit; font-size: .8rem; font-weight: 850; text-align: left; cursor: pointer; }
+.town-directory button span { flex: 1; }
+.town-directory button small { display: block; margin-top: 3px; font-size: .59rem; font-weight: 500; color: var(--muted); }
+.town-job-panel { width: min(calc(100% - 28px), 420px); max-height: calc(100svh - 40px); overflow: auto; border: 1px solid #fff; border-radius: 26px; padding: 22px; color: var(--text); background: linear-gradient(145deg, #fffdf4, #eff5eb); box-shadow: 0 18px 70px #273f3e40; }
+.town-job-panel::backdrop { background: #273f3e60; }
+.town-panel-heading { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.town-panel-heading h2 { margin: 0; font-size: 1.4rem; }
+.town-panel-heading .eyebrow { margin-bottom: 5px; font-size: .61rem; letter-spacing: .04em; }
+.town-place-name { font-size: .9rem; color: #587763; }
+.town-place-description, .town-mode-note { font-size: .75rem; line-height: 1.6; color: var(--muted); }
+.town-career-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 12px 0; margin: 12px 0; border-block: 1px solid #dce7d8; }
+.town-career-stats dt { font-size: .62rem; color: var(--muted); }
+.town-career-stats dd { margin: 6px 0 0; font-size: .85rem; font-weight: 850; overflow-wrap: anywhere; }
+.town-play-mode { display: flex; flex-wrap: wrap; gap: 10px; border: 1px solid #dae5d4; border-radius: 12px; padding: 8px 10px; margin: 0; }
+.town-play-mode legend { font-size: .65rem; color: var(--muted); }
+.town-play-mode label { display: flex; align-items: center; gap: 6px; min-height: 36px; font-size: .75rem; cursor: pointer; }
+.town-play-mode input { accent-color: #598064; }
+.town-panel-actions { display: grid; grid-template-columns: 1fr 1.3fr; gap: 12px; margin-top: 16px; }
+.town-panel-actions button { min-height: 48px; font-size: .8rem; padding: 12px 6px; }
+.town-tree-crown { transform-box: fill-box; transform-origin: 50% 90%; animation: town-tree-sway 5s ease-in-out infinite; }
+.town-ripples { animation: town-water 4s ease-in-out infinite; }
+.home-job-actions { display: grid; grid-template-columns: .85fr 1.4fr; gap: 10px; }
+.home-job-actions > .primary-button { padding-inline: 6px; font-size: .82rem; white-space: nowrap; }
+.home-town-button { display: flex; align-items: center; justify-content: center; gap: 7px; min-height: 48px; margin-bottom: 5px; padding: 8px; border: 1px solid #d4e4c9; border-radius: 18px; background: linear-gradient(140deg, #e5f1d0, #bedcc9); color: #456b59; box-shadow: 0 4px 0 #8ba9994d; font: inherit; font-size: .66rem; font-weight: 900; line-height: 1.4; cursor: pointer; }
+@keyframes town-marker-pulse { 50% { box-shadow: 0 0 0 4px #f2ce7730; } }
+@keyframes town-tree-sway { 50% { transform: rotate(2deg); } }
+@keyframes town-water { 50% { opacity: .35; transform: translateX(3px); } }
+@keyframes town-walk { to { transform: translateY(-4px) rotate(2deg); } }
+@media (prefers-reduced-motion: reduce) { .town-player, .town-building { transition: none; } .town-tree-crown, .town-ripples, .town-daily-badge, .town-player--walking .avatar-figure { animation: none; } }

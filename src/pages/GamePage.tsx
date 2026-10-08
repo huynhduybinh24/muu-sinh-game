@@ -11,9 +11,10 @@ import { GameIcon } from '../components/GameIcon'
 interface GamePageProps {
   job: Job
   onComplete: (result: GameResult) => void
+  paused?: boolean
 }
 
-export function GamePage({ job, onComplete }: GamePageProps) {
+export function GamePage({ job, onComplete, paused = false }: GamePageProps) {
   const profile = useProgressStore((state) => state.profile)
   const [isPlaying, setIsPlaying] = useState(false)
   const startGame = useCallback(() => setIsPlaying(true), [])
@@ -51,10 +52,10 @@ export function GamePage({ job, onComplete }: GamePageProps) {
         </div>
       </div>
       {isPlaying ? (
-        <PhaserGame job={job} onComplete={onComplete} profile={profile} />
+        <PhaserGame job={job} onComplete={onComplete} profile={profile} paused={paused} />
       ) : (
         <div className="game-canvas-frame game-canvas-frame--tall">
-          <GameStartOverlay job={job} onReady={startGame} />
+          <GameStartOverlay job={job} onReady={startGame} paused={paused} />
         </div>
       )}
       <p className="game-note">

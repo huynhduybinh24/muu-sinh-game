@@ -7,4 +7,7 @@ export interface DailyJobEpoch { version: string; activeFrom: string; jobIds: re
 export const dailyJobEpochs: readonly DailyJobEpoch[] = [{
   version: 'six-jobs-v1', activeFrom: '0000-01-01',
   jobIds: ['sugarcane', 'construction', 'shipper', 'noodle', 'barber', 'carwash'],
+}, {
+  version: 'ten-jobs-v2', activeFrom: '2026-11-01',
+  jobIds: ['sugarcane', 'construction', 'shipper', 'noodle', 'barber', 'carwash', 'rubber', 'mechanic', 'coffee', 'fishing'],
 }]

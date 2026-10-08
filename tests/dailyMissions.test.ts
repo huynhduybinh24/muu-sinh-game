@@ -93,13 +93,13 @@ describe('centralized progress and claims', () => {
     }).find((day) => getDailyJobId(day) === jobId && getDailyMissionDefinitions(day).some(({ id }) => id === 'daily-work'))!
     expect(key).toBeDefined()
     const mission = getDailyMissionDefinitions(key).find(({ id }) => id === 'daily-work')!
-    const metadata = { customersServed: 2, successfulBricks: 2, deliveries: 2, vehiclesWashed: 2 }
+    const metadata = { customersServed: 2, successfulBricks: 2, deliveries: 2, vehiclesWashed: 2, treesTapped: 2, vehiclesRepaired: 2, fishCaught: 2 }
     const view = (p: PlayerProgress) => getMissionViews(p.dailyMissions, key).find(({ id }) => id === mission.id)!
     const wrong = jobs.find((job) => job.id !== jobId)!.id
     expect(view(updateDailyMissionProgress(fresh(), result({ jobId: wrong, metadata }), key)).progress).toBe(0)
     expect(view(updateDailyMissionProgress(fresh(), result({ jobId }), key)).progress).toBe(0)
     expect(view(updateDailyMissionProgress(fresh(), result({ jobId, metadata }), key)).progress).toBe(2)
-    expect(view(updateDailyMissionProgress(fresh(), result({ jobId, metadata: { customersServed: NaN, successfulBricks: -1, deliveries: Infinity, vehiclesWashed: -10 } }), key)).progress).toBe(0)
+    expect(view(updateDailyMissionProgress(fresh(), result({ jobId, metadata: { customersServed: NaN, successfulBricks: -1, deliveries: Infinity, vehiclesWashed: -10, treesTapped: NaN, vehiclesRepaired: -1, fishCaught: Infinity } }), key)).progress).toBe(0)
   })
   it('rejects incomplete/unknown claims and awards money/XP once without job-income inflation', () => {
     const before = syncDailyMissions(fresh(), date)

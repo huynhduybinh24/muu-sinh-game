@@ -4,6 +4,8 @@ import { formatMoney } from './formatters'
 import { getResultMessage } from './resultCalculator'
 import type { GameResult } from '../types/game'
 import type { Job } from '../types/job'
+import { isNativePlatform } from './platform'
+import { shareNativeFile, saveNativeFile } from './nativeFiles'
 
 const CARD_WIDTH = 1080
 const CARD_HEIGHT = 1350
@@ -88,6 +90,18 @@ function drawFallbackSymbol(
     context.moveTo(590, 415)
     context.lineTo(452, 275)
     context.stroke()
+  } else if (jobId === 'rubber') {
+    context.fillRect(480, 280, 120, 225)
+    context.beginPath(); context.moveTo(480, 365); context.lineTo(600, 423); context.stroke()
+    context.strokeRect(597, 441, 55, 64)
+  } else if (jobId === 'coffee') {
+    context.strokeRect(445, 350, 190, 155); context.fillRect(463, 265, 154, 70); context.fillRect(436, 251, 208, 18)
+  } else if (jobId === 'mechanic') {
+    context.beginPath(); context.arc(478, 445, 28, 0, Math.PI * 2); context.moveTo(497, 420); context.lineTo(608, 285); context.stroke()
+    context.strokeRect(575, 278, 65, 60)
+  } else if (jobId === 'fishing') {
+    context.beginPath(); context.ellipse(540, 411, 105, 50, 0, 0, Math.PI * 2); context.fill()
+    context.beginPath(); context.moveTo(437, 411); context.lineTo(373, 367); context.lineTo(373, 455); context.closePath(); context.fill()
   } else {
     context.fillRect(410, 330, 190, 105)
     context.fillRect(595, 365, 65, 70)
@@ -172,7 +186,8 @@ export function createShareCardBlob(result: GameResult, job: Job): Promise<Blob>
   context.fill()
   context.fillStyle = '#ffffff'
   context.font = '800 29px Arial, sans-serif'
-  context.fillText(`${viralStat.label}: ${viralStat.value}`, 540, 973)
+  context.font = `800 ${viralStat.detail ? 25 : 29}px Arial, sans-serif`
+  context.fillText(`${viralStat.label}: ${viralStat.value}${viralStat.detail ? ` · ${viralStat.detail}` : ''}`, 540, 973)
 
   context.fillStyle = theme.dark
   context.font = 'italic 800 38px Arial, sans-serif'
@@ -212,7 +227,12 @@ export function getShareText(result: GameResult, job: Job): string {
   return `Hôm nay tôi làm nghề ${job.name} và đạt ${score} điểm trong MƯU SINH 😎\nBạn thử xem hôm nay ra nghề gì?`
 }
 
-export function downloadShareCard(blob: Blob, filename: string): void {
+export async function downloadShareCard(blob: Blob, filename: string): Promise<boolean> {
+  if (isNativePlatform()) {
+    const outcome = await saveNativeFile(blob, filename)
+    if (outcome === 'unsupported') throw new Error('native-file-export-unavailable')
+    return outcome !== 'cancelled'
+  }
   const objectUrl = URL.createObjectURL(blob)
   const anchor = document.createElement('a')
   anchor.href = objectUrl
@@ -224,6 +244,7 @@ export function downloadShareCard(blob: Blob, filename: string): void {
     anchor.remove()
     window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1_000)
   }
+  return true
 }
 
 export async function shareResultCard(
@@ -231,6 +252,7 @@ export async function shareResultCard(
   result: GameResult,
   job: Job,
 ): Promise<ShareOutcome> {
+  if (isNativePlatform()) return shareNativeFile(blob, getShareFilename(result), getShareText(result, job))
   if (!navigator.share) return 'unsupported'
 
   const text = getShareText(result, job)

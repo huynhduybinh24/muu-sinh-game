@@ -42,3 +42,25 @@ qa-artifacts/
 # Windows junk
 Thumbs.db
 Desktop.ini
+
+# Android native source is tracked; generated assets, SDK paths and signing are not.
+android/.gradle/
+android/**/build/
+android/local.properties
+android/captures/
+android/.idea/
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/assets/capacitor.plugins.json
+android/capacitor-cordova-android-plugins/
+*.jks
+*.keystore
+keystore.properties
+signing.properties
+/android/**/*.pem
+/android/**/*.p12
+/android/**/*.key
+/android/**/key.properties
+google-services.json
+*.apk
+*.aab

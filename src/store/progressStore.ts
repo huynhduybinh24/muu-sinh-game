@@ -16,6 +16,7 @@ import type { PlayerAppearance } from '../types/profile'
 import type {
   AchievementUnlock,
   GameResult,
+  GameRunMode,
   PlayerPreferences,
   PlayerProgress,
 } from '../types/game'
@@ -32,7 +33,7 @@ interface ProgressStore extends PlayerProgress, PlayerPreferences {
   createProfile: (name: string, appearance: PlayerAppearance) => boolean
   updateAppearance: (appearance: PlayerAppearance) => void
   selectJob: (jobId: JobId) => void
-  completeGame: (result: GameResult, localDateKey?: string) => AchievementUnlock[]
+  completeGame: (result: GameResult, localDateKey?: string, mode?: GameRunMode) => AchievementUnlock[]
   setSoundEnabled: (enabled: boolean) => void
   completeTutorial: (jobId: JobId) => void
   resetProgress: () => void
@@ -107,10 +108,10 @@ export const useProgressStore = create<ProgressStore>()(
           previousJobId: state.currentJobId ?? state.previousJobId,
           currentJobId: jobId,
         })),
-      completeGame: (result, localDateKey = getLocalDateKey()) => {
+      completeGame: (result, localDateKey = getLocalDateKey(), mode = 'daily') => {
         let newAchievements: AchievementUnlock[] = []
         set((state) => {
-          const update = applyGameCompletion(state, result, localDateKey)
+          const update = applyGameCompletion(state, result, localDateKey, mode)
           newAchievements = update.newAchievements
           return update.progress
         })

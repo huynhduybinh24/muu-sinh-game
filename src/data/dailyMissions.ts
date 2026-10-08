@@ -19,9 +19,17 @@ export const jobMissionMetrics: Record<JobId, { type: MissionType; target: numbe
   noodle: { type: 'SERVE_CUSTOMERS', target: 18, description: 'Phục vụ 18 khách hủ tiếu.' },
   barber: { type: 'SERVE_CUSTOMERS', target: 18, description: 'Cắt tóc cho 18 khách.' },
   carwash: { type: 'WASH_VEHICLES', target: 12, description: 'Rửa xong 12 chiếc xe.' },
+  rubber: { type: 'TAP_TREES', target: 12, description: 'Cạo thành công 12 cây cao su.' },
+  mechanic: { type: 'REPAIR_VEHICLES', target: 15, description: 'Sửa đúng 15 chiếc xe.' },
+  coffee: { type: 'SERVE_CUSTOMERS', target: 15, description: 'Phục vụ 15 ly cà phê đúng món.' },
+  fishing: { type: 'CATCH_FISH', target: 12, description: 'Bắt thành công 12 con cá.' },
 }
 export interface MissionEpoch { version: string; activeFrom: string; pools: readonly (readonly MissionId[])[] }
 export const dailyMissionEpochs: readonly MissionEpoch[] = [{
   version: 'missions-v1', activeFrom: '0000-01-01',
+  pools: [['play-3', 'earn-75k'], ['daily-shifts', 'daily-work'], ['score-6000', 'score-1500', 'play-8']],
+}, {
+  // Same frozen template pools; only the newly activated Daily Job metadata expands.
+  version: 'missions-v2', activeFrom: '2026-11-01',
   pools: [['play-3', 'earn-75k'], ['daily-shifts', 'daily-work'], ['score-6000', 'score-1500', 'play-8']],
 }]

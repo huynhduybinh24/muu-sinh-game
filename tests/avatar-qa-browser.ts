@@ -12,6 +12,10 @@ import { defaultAppearance } from '../src/data/avatar'
 import { useProgressStore } from '../src/store/progressStore'
 import { getLevelThreshold } from '../src/services/level'
 import { getSceneFx } from '../src/game/visual/feedbackFx'
+import { mechanicProblems } from '../src/game/config/mechanicConfig'
+import { coffeeRecipes } from '../src/game/config/coffeeConfig'
+import { tappingGuide } from '../src/game/config/rubberConfig'
+import { setGamePaused } from '../src/game/lifecycle'
 
 let game: Phaser.Game | null = null
 let scene: Phaser.Scene | null = null
@@ -95,6 +99,10 @@ export function snapshot() {
     completed,
     noodleRecipe: noodleRecipes.find((recipe) => text.some((object) => object.text === recipe.name)) ?? null,
     barberTarget: haircutPatterns.find((pattern) => text.some((object) => object.text === `MẪU: ${pattern.name}`)) ?? null,
+    mechanicProblem: mechanicProblems.find((problem) => text.some((object) => object.text === problem.name)) ?? null,
+    coffeeRecipe: coffeeRecipes.find((recipe) => text.some((object) => object.text === recipe.name)) ?? null,
+    rubberGuide: tappingGuide(),
+    fishingStatus: text.find((object) => object.text.startsWith('CÁ CẮN') || object.text.startsWith('CANH NHỊP'))?.text ?? null,
     cleanliness: text.find((object) => object.text.startsWith('ĐỘ SẠCH:'))?.text,
     served: text.find((object) => object.text.startsWith('✓'))?.text,
     timer: text.find((object) => object.text.startsWith('⏱'))?.text,
@@ -116,6 +124,10 @@ export function pressButton(label: string): void {
 export function releaseControls(): void { scene?.input.emit('pointerup') }
 export function dropBrick(): void { scene?.input.emit('pointerdown') }
 export function getCompletion(): GameResult | null { return completed }
+export function nativePause(paused: boolean): void {
+  if (!game) throw new Error('Game not ready')
+  setGamePaused(game, paused)
+}
 export function exerciseVisualFx(): void {
   if (!scene) throw new Error('Scene not ready')
   const fx = getSceneFx(scene)

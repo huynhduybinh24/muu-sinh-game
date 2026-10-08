@@ -1,11 +1,14 @@
 # Public beta checklist
 
-- [x] `npm run release:check`: lint, 223 unit tests, build, static PWA QA green.
+- [x] `npm run release:check`: lint, 305 unit tests, build, static PWA QA green.
 - [x] `npm run qa:pwa`: production/offline browser QA green.
 - [x] Review 360×800, 390×844, and 412×915 screenshots and controls.
 - [ ] Android Chrome: real-device installation, standalone launch, offline replay.
 - [ ] iOS Safari: manual Add to Home Screen, safe areas, offline launch.
 - [ ] Real-device native sharing and PNG download/open.
+- [ ] Real-device Town panning, location selection and avatar travel on mid-range Android.
+- [ ] Android APK: native Back/pause/resume, all ten controls, cold offline launch and restart persistence.
+- [ ] Android PNG Share, PNG/JSON Save picker, document restore and web→native v5 backup migration.
 - [x] Fresh isolated browser storage: tutorial, first daily completion, and first achievement.
 - [x] Migrated storage fixtures: rewards, preferences, achievements, career data preserved.
 

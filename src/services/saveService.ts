@@ -4,6 +4,8 @@ import { migratePersistedProgress } from './saveMigration'
 import { localSaveRepository, setStorageHealth, withoutPersistWrites } from './saveStorage'
 import { useProgressStore } from '../store/progressStore'
 import type { ImportedSave, PlayerSaveData, SaveError, SaveRepository } from '../types/save'
+import { isNativePlatform } from './platform'
+import { saveNativeFile } from './nativeFiles'
 
 export { serializeSave, validateSave, migrateImportedSave, getBackupFilename } from './portableSave'
 export const saveErrorMessage = (error: SaveError): string => ({
@@ -15,8 +17,13 @@ export async function readBackupFile(file: File): Promise<ImportedSave> {
   if (file.size > MAX_BACKUP_BYTES) return { ok: false, error: 'invalid' }
   try { return migrateImportedSave(await file.text()) } catch { return { ok: false, error: 'invalid' } }
 }
-export function downloadSaveBackup(): void {
+export async function downloadSaveBackup(): Promise<boolean> {
   const data = serializeSave(useProgressStore.getState())
+  if (isNativePlatform()) {
+    const outcome = await saveNativeFile(new Blob([data], { type: 'application/json' }), getBackupFilename())
+    if (outcome === 'unsupported') throw new Error('native-file-export-unavailable')
+    return outcome !== 'cancelled'
+  }
   const url = URL.createObjectURL(new Blob([data], { type: 'application/json;charset=utf-8' }))
   try {
     const anchor = document.createElement('a')
@@ -26,6 +33,7 @@ export function downloadSaveBackup(): void {
     anchor.click()
     anchor.remove()
   } finally { window.setTimeout(() => URL.revokeObjectURL(url), 1000) }
+  return true
 }
 export async function copySaveBackup(): Promise<boolean> {
   try {

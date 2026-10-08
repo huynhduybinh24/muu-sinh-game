@@ -14,20 +14,20 @@ import { getFastBonus } from '../src/game/config/serviceJobConfig'
 
 describe('six-job catalog and progression', () => {
   it('has six unique playable jobs with tutorials, themes and 45-second rounds', () => {
-    expect(jobs.map((job) => job.id)).toEqual(['sugarcane', 'construction', 'shipper', 'noodle', 'barber', 'carwash'])
-    expect(new Set(jobs.map((job) => job.sceneKey)).size).toBe(6)
+    expect(jobs.map((job) => job.id)).toEqual(['sugarcane', 'construction', 'shipper', 'noodle', 'barber', 'carwash', 'rubber', 'mechanic', 'coffee', 'fishing'])
+    expect(new Set(jobs.map((job) => job.sceneKey)).size).toBe(10)
     for (const job of jobs) {
       expect(job.duration).toBe(45)
       expect(jobsById[job.id]).toBe(job)
       expect(tutorials[job.id].steps.length).toBeGreaterThanOrEqual(3)
       expect(shareCardThemes[job.id]).toBeDefined()
     }
-    expect(achievements).toHaveLength(20)
+    expect(achievements).toHaveLength(24)
   })
   it('daily selection covers all six jobs deterministically', () => {
     const dates = Array.from({ length: 28 }, (_, index) => `2026-10-${String(index + 1).padStart(2, '0')}`)
     const selected = dates.map((date) => getDailyJobId(date))
-    expect(new Set(selected)).toEqual(new Set(jobs.map((job) => job.id)))
+    expect(new Set(selected)).toEqual(new Set(jobs.slice(0, 6).map((job) => job.id)))
     expect(dates.map((date) => getDailyJobId(date))).toEqual(selected)
   })
   it('fills new stats in version-3 saves without losing old stats or unlocked achievements', () => {

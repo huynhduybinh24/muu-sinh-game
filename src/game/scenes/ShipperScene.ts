@@ -105,6 +105,7 @@ export class ShipperScene extends Phaser.Scene {
 
     this.input.addPointer(2)
     this.input.on('pointerup', this.releaseTouchControls, this)
+    this.input.on('nativepause', this.releaseTouchControls, this)
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.cleanup, this)
     this.events.once(Phaser.Scenes.Events.DESTROY, this.cleanup, this)
   }
@@ -454,6 +455,7 @@ export class ShipperScene extends Phaser.Scene {
     this.avatar = null
     this.releaseTouchControls()
     this.input.off('pointerup', this.releaseTouchControls, this)
+    this.input.off('nativepause', this.releaseTouchControls, this)
     this.controlButtons.forEach((button) => button.disableInteractive())
     this.time.removeAllEvents()
     this.tweens.killAll()
@@ -471,6 +473,7 @@ export class ShipperScene extends Phaser.Scene {
     this.avatar = null
     this.releaseTouchControls()
     this.input.off('pointerup', this.releaseTouchControls, this)
+    this.input.off('nativepause', this.releaseTouchControls, this)
     this.controlButtons.forEach((button) => button.removeAllListeners())
     this.controlButtons = []
     this.input.keyboard?.removeAllKeys(true)

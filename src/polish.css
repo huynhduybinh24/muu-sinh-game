@@ -31,6 +31,7 @@
 .job-icon { background: transparent; border: 0; box-shadow: none; }
 .job-icon .game-icon { width: 102px; height: 102px; }
 .career-job-icon .game-icon { width: 42px; height: 42px; }
+.career-play { min-height: 44px; padding: 8px 0; border: 0; color: #a34e42; background: transparent; font: inherit; font-size: .68rem; font-weight: 900; cursor: pointer; }
 .game-canvas-frame { overflow: hidden; border-radius: 22px; box-shadow: 0 5px 0 #6e87942b, 0 10px 28px #455c7729; border: 1px solid #fffaf0; }
 .game-heading-icon { background: transparent; }
 .game-start-overlay { background: radial-gradient(ellipse at 50% 25%, #fffef788, transparent 70%), linear-gradient(150deg, #f4ead0, #dceae4); }

@@ -3,6 +3,10 @@ import type { JobId } from '../types/job'
 
 export type GameIconName = JobId | 'home' | 'career' | 'profile' | 'gift'
 const drawings: Record<GameIconName, ReactNode> = {
+  rubber: <><path d="M24 21H41V54H24Z" fill="#b49472" /><circle cx="31" cy="16" r="13" fill="#99ba81" /><path d="M26 30L39 39" stroke="#fff3ca" /><path d="M37 42H51L48 55H40Z" fill="#e6ebd8" /></>,
+  mechanic: <><path d="M19 14L23 21L32 18L32 10Q45 16 39 28L21 52L12 44L31 24Q17 27 19 14Z" fill="#91b2bd" /><circle cx="18" cy="44" r="3" /></>,
+  coffee: <><path d="M16 29H46V50Q31 57 16 50Z" fill="#c5a184" /><path d="M21 19H41V30H21ZM17 15H45" fill="#a8b3ac" /><path d="M47 33Q60 33 55 45H47M28 7L31 12" /><path d="M18 45H44" stroke="#f7ddac" /></>,
+  fishing: <><path d="M13 54L35 10L54 28" stroke="#bb9167" /><path d="M54 28V46" /><ellipse cx="41" cy="48" rx="10" ry="6" fill="#91bdc1" /><path d="M31 48L23 42V54Z" fill="#91bdc1" /><circle cx="45" cy="46" r="1" /></>,
   sugarcane: <><path d="M19 24H46L42 53H23Z" fill="#c6dc83" /><path d="M18 24H47M24 29L26 47" /><path d="M37 32L45 10H53" stroke="#cf876b" /><circle cx="32" cy="39" r="6" fill="#e8b568" /><path d="M13 13L19 20M12 20L18 25" stroke="#76a176" /></>,
   construction: <><path d="M9 36H34V51H9ZM34 36H56V51H34ZM19 20H46V36H19Z" fill="#d99670" /><path d="M22 24H41M13 40H27M39 40H51" stroke="#ffe0aa" /><path d="M13 9H50M18 9V17M46 9V17" stroke="#91a9b8" /></>,
   shipper: <><circle cx="17" cy="48" r="8" fill="#718896" /><circle cx="48" cy="48" r="8" fill="#718896" /><path d="M11 35H37V45H15ZM43 44L46 22H53" fill="#f3c96b" /><path d="M35 29H45M23 28H35" /><path d="M15 15H29V28H15Z" fill="#ddaa76" /><path d="M22 15V23" /></>,

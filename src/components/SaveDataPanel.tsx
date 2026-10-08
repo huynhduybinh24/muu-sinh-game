@@ -71,8 +71,9 @@ export function SaveDataPanel({ onReinitialize }: { onReinitialize: () => void }
         <p>Dữ liệu hiện được lưu trên thiết bị này. File sao lưu giúp chuyển máy hoặc giữ lại tiến trình.</p>
         <div className="save-actions">
           <button className="secondary-button" type="button" disabled={busy} onClick={() => {
-            try { downloadSaveBackup(); setMessage('Đã chuẩn bị file sao lưu.') }
-            catch { setMessage('Chưa thể tải file sao lưu. Bạn thử lại nhé!') }
+            setBusy(true)
+            void downloadSaveBackup().then((saved) => setMessage(saved ? 'Đã chuẩn bị file sao lưu.' : ''))
+              .catch(() => setMessage('Chưa thể tải file sao lưu. Bạn thử lại nhé!')).finally(() => setBusy(false))
           }}>TẢI FILE SAO LƯU</button>
           <button className="secondary-button" type="button" disabled={busy} onClick={() => fileInput.current?.click()}>
             {busy ? 'ĐANG ĐỌC FILE…' : 'KHÔI PHỤC DỮ LIỆU'}

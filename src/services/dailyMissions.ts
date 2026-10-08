@@ -62,10 +62,13 @@ function missionIncrement(mission: MissionDefinition, result: GameResult): numbe
     case 'PLAY_GAMES': case 'PLAY_JOB': return 1
     case 'SCORE_TOTAL': case 'SCORE_SINGLE': return count(result.score)
     case 'EARN_MONEY': return count(result.earnedMoney)
-    case 'SERVE_CUSTOMERS': return ['sugarcane', 'noodle', 'barber'].includes(result.jobId) ? count(result.metadata?.customersServed) : 0
+    case 'SERVE_CUSTOMERS': return ['sugarcane', 'noodle', 'barber', 'coffee'].includes(result.jobId) ? count(result.metadata?.customersServed) : 0
     case 'SUCCESSFUL_BRICKS': return result.jobId === 'construction' ? count(result.metadata?.successfulBricks) : 0
     case 'DELIVERIES': return result.jobId === 'shipper' ? count(result.metadata?.deliveries) : 0
     case 'WASH_VEHICLES': return result.jobId === 'carwash' ? count(result.metadata?.vehiclesWashed) : 0
+    case 'TAP_TREES': return result.jobId === 'rubber' ? count(result.metadata?.treesTapped) : 0
+    case 'REPAIR_VEHICLES': return result.jobId === 'mechanic' ? count(result.metadata?.vehiclesRepaired) : 0
+    case 'CATCH_FISH': return result.jobId === 'fishing' ? count(result.metadata?.fishCaught) : 0
   }
 }
 export function updateDailyMissionProgress(progress: PlayerProgress, result: GameResult, dateKey: string): PlayerProgress {

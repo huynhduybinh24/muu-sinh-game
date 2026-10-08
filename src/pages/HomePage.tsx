@@ -21,9 +21,10 @@ interface HomePageProps {
   onShop: () => void
   onMissions: () => void
   onReward: () => void
+  onTown: () => void
 }
 
-export function HomePage({ dailyJob, localDateKey, canInstall, showIosInstallHint, onStart, onCareer, onProfile, onInstall, onShop, onMissions, onReward }: HomePageProps) {
+export function HomePage({ dailyJob, localDateKey, canInstall, showIosInstallHint, onStart, onCareer, onProfile, onInstall, onShop, onMissions, onReward, onTown }: HomePageProps) {
   const progress = useProgressStore()
   const completedToday = progress.lastCompletedDate === localDateKey
   const missions = getMissionViews(progress.dailyMissions, localDateKey)
@@ -61,7 +62,8 @@ export function HomePage({ dailyJob, localDateKey, canInstall, showIosInstallHin
         <div className="daily-card-body"><span className="daily-job-icon" aria-hidden="true"><GameIcon name={dailyJob.id} size={52} /></span>
           <div><h2 id="daily-job-title">{dailyJob.name}</h2><p>{dailyJob.description}</p></div></div>
         {completedToday ? <strong className="daily-complete">✓ ĐÃ ĐI LÀM HÔM NAY</strong> : null}
-        <button className="primary-button" type="button" onClick={onStart}>{completedToday ? 'CHƠI LẠI' : 'ĐI LÀM'} →</button>
+        <div className="home-job-actions"><button className="primary-button" type="button" onClick={onStart}>{completedToday ? 'CHƠI LẠI' : 'ĐI LÀM'} →</button>
+          <button className="home-town-button" type="button" onClick={onTown} aria-label="KHÁM PHÁ THỊ TRẤN"><GameIcon name="home" size={26} /><span>KHÁM PHÁ<br />THỊ TRẤN</span></button></div>
       </section>
       <section className="home-daily-extras" aria-label="Nhiệm vụ và quà hôm nay">
         <div className="home-missions-preview">

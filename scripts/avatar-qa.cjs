@@ -4,6 +4,8 @@ const assert = require('node:assert/strict')
 const fs = require('node:fs/promises')
 const path = require('node:path')
 const os = require('node:os')
+const { verifyNewJobActions } = require('./new-jobs-qa.cjs')
+const { verifyNativeGestures } = require('./native-gestures-qa.cjs')
 
 async function main() {
   const { createServer } = await import('vite')
@@ -40,6 +42,8 @@ async function main() {
     }
 
     await page.clock.install()
+    await verifyNativeGestures(page, run, start)
+    await page.clock.resume()
     await start('sugarcane')
     await page.clock.pauseAt(await page.evaluate(() => Date.now() + 100))
     let state = await run('snapshot')
@@ -140,7 +144,7 @@ async function main() {
     await start('shipper')
     assert.equal((await run('snapshot')).appearance.shirtId, 'blue')
     await run('checkShutdown')
-    for (const job of ['sugarcane', 'construction', 'shipper', 'noodle', 'barber', 'carwash']) {
+    for (const job of ['sugarcane', 'construction', 'shipper', 'noodle', 'barber', 'carwash', 'rubber', 'mechanic', 'coffee', 'fishing']) {
       await start(job, null)
       assert.equal((await run('snapshot')).appearance.shirtId, 'coral')
       await run('checkShutdown')
@@ -242,7 +246,8 @@ async function main() {
       await run('checkShutdown')
       console.log(`PASS: ${job} scene, real actions, scoring/reactions, 45s timer, result metadata, avatar, replay/cleanup`)
     }
-    for (const job of ['sugarcane', 'construction', 'shipper', 'noodle', 'barber', 'carwash']) {
+    await verifyNewJobActions(page, run, start, capture)
+    for (const job of ['sugarcane', 'construction', 'shipper', 'noodle', 'barber', 'carwash', 'rubber', 'mechanic', 'coffee', 'fishing']) {
       await run('startEquipped', [job])
       const close = page.getByRole('button', { name: 'Đóng quà hôm nay', exact: true })
       if (await close.count()) await close.click()
@@ -252,9 +257,9 @@ async function main() {
       await capture(`equipped-${job}`)
       await run('checkShutdown')
     }
-    console.log('PASS: real store purchases/equipment pass the latest paid outfit to all six Phaser scenes without duplicate avatars')
+    console.log('PASS: real store purchases/equipment pass the latest paid outfit to all ten Phaser scenes without duplicate avatars')
     await page.emulateMedia({ reducedMotion: 'reduce' })
-    for (const job of ['sugarcane', 'construction', 'shipper', 'noodle', 'barber', 'carwash']) {
+    for (const job of ['sugarcane', 'construction', 'shipper', 'noodle', 'barber', 'carwash', 'rubber', 'mechanic', 'coffee', 'fishing']) {
       await start(job)
       await run('exerciseVisualFx')
       const reduced = await run('snapshot')
@@ -270,7 +275,7 @@ async function main() {
     assert.equal(bounded.visualParticles, 24)
     assert.ok(bounded.activeParticles <= 24)
     await run('checkShutdown')
-    console.log('PASS: bounded visual pool after repeated bursts, reduced motion in all six jobs, and particle cleanup')
+    console.log('PASS: bounded visual pool after repeated bursts, reduced motion in all ten jobs, and particle cleanup')
     await run('dispose')
     assert.deepEqual(errors, [])
     console.log('PASS: replay/new game uses fresh appearance; legacy/missing profile renders defaults in all jobs; no duplicate avatars or browser errors')

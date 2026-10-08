@@ -1,4 +1,4 @@
-export type JobId = 'sugarcane' | 'construction' | 'shipper' | 'noodle' | 'barber' | 'carwash'
+export type JobId = 'sugarcane' | 'construction' | 'shipper' | 'noodle' | 'barber' | 'carwash' | 'rubber' | 'mechanic' | 'coffee' | 'fishing'
 
 export type JobDifficulty = 'Dễ thở' | 'Hơi cực' | 'Căng à nha'
 

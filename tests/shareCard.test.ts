@@ -23,7 +23,7 @@ describe('share card helpers', () => {
   })
 
   it('provides distinct centralized accents and keeps all job names/icons', () => {
-    expect(new Set(Object.values(shareCardThemes).map((theme) => theme.accent)).size).toBe(6)
+    expect(new Set(Object.values(shareCardThemes).map((theme) => theme.accent)).size).toBe(10)
     Object.values(jobsById).forEach((job) => {
       expect(job.name).not.toBe('')
       expect(job.icon).not.toBe('')

@@ -3,6 +3,9 @@ import type { PlayerProfile } from './profile'
 import type { ItemId } from './shop'
 import type { DailyMissions } from './daily'
 
+// Ephemeral navigation context; not a persistent/portable save field.
+export type GameRunMode = 'daily' | 'free-play' | 'replay'
+
 export type AchievementId =
   | 'first-day'
   | 'streak-3'
@@ -24,6 +27,10 @@ export type AchievementId =
   | 'missions-day'
   | 'missions-30'
   | 'reward-7'
+  | 'rubber-10'
+  | 'mechanic-10'
+  | 'coffee-10'
+  | 'fishing-10'
 
 export interface AchievementUnlock {
   id: AchievementId
@@ -43,6 +50,13 @@ export interface GameResultMetadata {
   deliveries?: number
   perfectHaircuts?: number
   vehiclesWashed?: number
+  treesTapped?: number
+  perfectTaps?: number
+  vehiclesRepaired?: number
+  correctRepairs?: number
+  perfectBrews?: number
+  fishCaught?: number
+  rareFishCaught?: number
 }
 
 export interface GameResult {

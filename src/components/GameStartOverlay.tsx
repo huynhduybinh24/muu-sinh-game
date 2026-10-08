@@ -12,9 +12,10 @@ const countdownSteps = ['3', '2', '1', 'LÀM THÔI!'] as const
 interface GameStartOverlayProps {
   job: Job
   onReady: () => void
+  paused?: boolean
 }
 
-export function GameStartOverlay({ job, onReady }: GameStartOverlayProps) {
+export function GameStartOverlay({ job, onReady, paused = false }: GameStartOverlayProps) {
   const completedTutorials = useProgressStore((state) => state.completedTutorials)
   const completeTutorial = useProgressStore((state) => state.completeTutorial)
   const tutorial = tutorials[job.id]
@@ -26,16 +27,16 @@ export function GameStartOverlay({ job, onReady }: GameStartOverlayProps) {
   const playedCountdownRef = useRef(-1)
 
   useEffect(() => {
-    if (phase !== 'intro') return
+    if (paused || phase !== 'intro') return
     const timer = window.setTimeout(() => {
       setCountdownIndex(0)
       setPhase('countdown')
     }, 1_050)
     return () => window.clearTimeout(timer)
-  }, [phase])
+  }, [phase, paused])
 
   useEffect(() => {
-    if (phase !== 'countdown') return
+    if (paused || phase !== 'countdown') return
     if (playedCountdownRef.current !== countdownIndex) {
       playAudioCue(countdownIndex === countdownSteps.length - 1 ? 'success' : 'countdown')
       playedCountdownRef.current = countdownIndex
@@ -48,7 +49,7 @@ export function GameStartOverlay({ job, onReady }: GameStartOverlayProps) {
       }
     }, 650)
     return () => window.clearTimeout(timer)
-  }, [countdownIndex, onReady, phase])
+  }, [countdownIndex, onReady, phase, paused])
 
   const handleStart = () => {
     primeAudio()

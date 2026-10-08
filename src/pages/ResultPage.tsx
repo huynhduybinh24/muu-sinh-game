@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ScreenShell } from '../components/ScreenShell'
 import { ShareCardPreview } from '../components/ShareCardPreview'
 import { playAudioCue, primeAudio } from '../services/audioFeedback'
+import { isNativePlatform } from '../services/platform'
 import {
   createShareCardBlob,
   downloadShareCard,
@@ -33,7 +34,7 @@ export function ResultPage({ job, result, onHome, onReplay }: ResultPageProps) {
     primeAudio()
     playAudioCue('click')
 
-    if (!navigator.share) {
+    if (!isNativePlatform() && !navigator.share) {
       setStatusMessage('Trình duyệt chưa hỗ trợ chia sẻ. Bạn vẫn có thể lưu ảnh.')
       return
     }
@@ -61,8 +62,7 @@ export function ResultPage({ job, result, onHome, onReplay }: ResultPageProps) {
     playAudioCue('click')
     try {
       const blob = await createShareCardBlob(result, job)
-      downloadShareCard(blob, getShareFilename(result))
-      setStatusMessage('Đã chuẩn bị ảnh kết quả!')
+      if (await downloadShareCard(blob, getShareFilename(result))) setStatusMessage('Đã chuẩn bị ảnh kết quả!')
     } catch {
       setStatusMessage('Chưa thể lưu ảnh. Bạn thử lại nhé!')
     } finally {

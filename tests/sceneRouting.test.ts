@@ -13,6 +13,10 @@ vi.mock('../src/game/scenes/ShipperScene', () => ({ ShipperScene: class ShipperS
 vi.mock('../src/game/scenes/NoodleScene', () => ({ NoodleScene: class NoodleScene extends SceneStub {} }))
 vi.mock('../src/game/scenes/BarberScene', () => ({ BarberScene: class BarberScene extends SceneStub {} }))
 vi.mock('../src/game/scenes/CarwashScene', () => ({ CarwashScene: class CarwashScene extends SceneStub {} }))
+vi.mock('../src/game/scenes/RubberScene', () => ({ RubberScene: class RubberScene extends SceneStub {} }))
+vi.mock('../src/game/scenes/MechanicScene', () => ({ MechanicScene: class MechanicScene extends SceneStub {} }))
+vi.mock('../src/game/scenes/CoffeeScene', () => ({ CoffeeScene: class CoffeeScene extends SceneStub {} }))
+vi.mock('../src/game/scenes/FishingScene', () => ({ FishingScene: class FishingScene extends SceneStub {} }))
 import { createGameConfig } from '../src/game/config/createGameConfig'
 
 describe('React → Phaser scene routing', () => {

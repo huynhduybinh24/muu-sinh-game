@@ -5,10 +5,12 @@ import { jobs } from '../data/jobs'
 import { formatMoney } from '../services/formatters'
 import { useProgressStore } from '../store/progressStore'
 import { GameIcon } from '../components/GameIcon'
+import type { JobId } from '../types/job'
 
 interface CareerPageProps {
   onBack: () => void
   onProfile: () => void
+  onPlayJob: (jobId: JobId) => void
 }
 
 function formatUnlockDate(value: string): string {
@@ -16,7 +18,7 @@ function formatUnlockDate(value: string): string {
   return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString('vi-VN')
 }
 
-export function CareerPage({ onBack, onProfile }: CareerPageProps) {
+export function CareerPage({ onBack, onProfile, onPlayJob }: CareerPageProps) {
   const progress = useProgressStore()
   const unlockedById = new Map(
     progress.achievements.map((achievement) => [achievement.id, achievement]),
@@ -51,6 +53,7 @@ export function CareerPage({ onBack, onProfile }: CareerPageProps) {
                 <span className="career-job-icon" aria-hidden="true"><GameIcon name={job.id} size={42} /></span>
                 <div>
                   <h2>{job.name}</h2>
+                  <button className="career-play" type="button" onClick={() => onPlayJob(job.id)} aria-label={`Chơi ${job.name}`}>THỬ NGHỀ →</button>
                   {stats.timesPlayed === 0 ? (
                     <p className="career-untried">CHƯA THỬ NGHỀ NÀY</p>
                   ) : (

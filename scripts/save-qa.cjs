@@ -62,8 +62,8 @@ async function verifySaveFlows(browser, origin, artifacts, assertLayout, baseSta
       dailyMissions: { dateKey: '2026-10-07', missions }, totalDailyMissionsClaimed: 30,
       dailyRewardStreak: 7, dailyRewardCycleDay: 7, lastDailyRewardDate: '2026-10-07',
       achievements: ['first-day', 'missions-day', 'reward-7'].map((id) => ({ id, unlockedAt: '2026-10-07T05:00:00Z' })),
-      jobStats: Object.fromEntries(['sugarcane', 'construction', 'shipper', 'noodle', 'barber', 'carwash']
-        .map((id) => [id, { timesPlayed: 2, bestScore: 1500, totalScore: 2800, totalMoneyEarned: 250_000 }])),
+      jobStats: { ...backup.data.jobStats, ...Object.fromEntries(['sugarcane', 'construction', 'shipper', 'noodle', 'barber', 'carwash']
+        .map((id) => [id, { timesPlayed: 2, bestScore: 1500, totalScore: 2800, totalMoneyEarned: 250_000 }])) },
     })
     await upload(page, target)
     await page.getByRole('dialog', { name: 'KHÔI PHỤC DỮ LIỆU?' }).waitFor()
@@ -104,7 +104,7 @@ async function verifySaveFlows(browser, origin, artifacts, assertLayout, baseSta
     await page.getByRole('button', { name: 'XEM TẤT CẢ', exact: true }).click()
     assert.equal(await page.getByRole('button', { name: '✓ ĐÃ NHẬN', exact: true }).count(), 3)
     await page.getByRole('button', { name: 'SỰ NGHIỆP', exact: true }).click()
-    assert.equal(await page.locator('.career-job-card').count(), 6)
+    assert.equal(await page.locator('.career-job-card').count(), 10)
     assert.equal(await page.getByText('Mở khóa 7/10/2026').count(), 3)
     await page.getByRole('button', { name: 'TRANG CHỦ', exact: true }).click()
     await page.getByRole('button', { name: 'CỬA HÀNG', exact: true }).click()

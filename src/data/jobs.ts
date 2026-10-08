@@ -43,6 +43,10 @@ export const jobs: readonly Job[] = [
     description: 'Chà sạch bụi phố, trả xe sáng bóng. Càng nhanh càng nhiều khách!',
     difficulty: 'Dễ thở', duration: 45, sceneKey: 'CarwashScene', icon: '🚗',
   },
+  { id: 'rubber', name: 'Cạo cao su', description: 'Kéo dao theo đường cong, thu mủ trắng và giữ vỏ cây lành.', difficulty: 'Hơi cực', duration: 45, sceneKey: 'RubberScene', icon: '🌳' },
+  { id: 'mechanic', name: 'Sửa xe', description: 'Nghe triệu chứng, chọn đúng dụng cụ. Xe khỏe, khách vui!', difficulty: 'Dễ thở', duration: 45, sceneKey: 'MechanicScene', icon: '🔧' },
+  { id: 'coffee', name: 'Pha cà phê', description: 'Đúng sữa, đúng nhịp phin. Một ly cà phê đánh thức cả phố.', difficulty: 'Hơi cực', duration: 45, sceneKey: 'CoffeeScene', icon: '☕' },
+  { id: 'fishing', name: 'Đánh cá', description: 'Canh cá cắn, giật cần đúng nhịp. Cá quý đang chờ dưới nước!', difficulty: 'Hơi cực', duration: 45, sceneKey: 'FishingScene', icon: '🎣' },
 ]
 
 export const jobsById = Object.fromEntries(

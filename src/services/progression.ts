@@ -1,6 +1,6 @@
 import { getNewAchievementUnlocks } from '../data/achievements'
 import { getDailyJobId, isYesterday } from './dailyChallenge'
-import type { AchievementUnlock, GameResult, PlayerProgress } from '../types/game'
+import type { AchievementUnlock, GameResult, GameRunMode, PlayerProgress } from '../types/game'
 import { getGameXp } from './level'
 import { updateDailyMissionProgress } from './dailyMissions'
 
@@ -14,6 +14,7 @@ export function applyGameCompletion(
   progress: PlayerProgress,
   result: GameResult,
   localDateKey: string,
+  mode: GameRunMode = 'daily',
 ): GameCompletionUpdate {
   const previousJobStats = progress.jobStats[result.jobId]
   const nextJobStats = {
@@ -26,7 +27,7 @@ export function applyGameCompletion(
     ? progress.completedJobs
     : [...progress.completedJobs, result.jobId]
 
-  const isDailyJob = result.jobId === getDailyJobId(localDateKey)
+  const isDailyJob = mode === 'daily' && result.jobId === getDailyJobId(localDateKey)
   const completedDailyChallenge = isDailyJob && progress.lastCompletedDate !== localDateKey
   let currentStreak = progress.currentStreak
   let bestStreak = progress.bestStreak

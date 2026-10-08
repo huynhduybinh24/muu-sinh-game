@@ -7,10 +7,12 @@ import type { PortableSave, SaveRepository } from '../types/save'
 export type StorageHealth = 'saved' | 'unavailable' | 'corrupted' | 'recovered' | 'newer'
 let health: StorageHealth = 'saved'
 let paused = false
+let migrationBackupMissing = false
 const listeners = new Set<() => void>()
 export const getStorageHealth = () => health
 export const subscribeStorageHealth = (listener: () => void) => { listeners.add(listener); return () => { listeners.delete(listener) } }
 export function setStorageHealth(next: StorageHealth): void {
+  if (next === 'saved') migrationBackupMissing = false
   if (health === next) return
   health = next
   listeners.forEach((listener) => { try { listener() } catch { /* Status observers cannot invalidate a save commit. */ } })
@@ -64,8 +66,14 @@ export const gameStateStorage: StateStorage = {
       if (value.version > SAVE_VERSION) { setStorageHealth('newer'); return null }
       // Preserve normalized legacy progress before the existing middleware migrates it.
       if (value.version < SAVE_VERSION) {
-        try { localSaveRepository.writeRecovery(createPortableSave(migratePersistedProgress(value.state, value.version))) }
-        catch { setStorageHealth('unavailable') }
+        try {
+          localSaveRepository.writeRecovery(createPortableSave(migratePersistedProgress(value.state, value.version)))
+          migrationBackupMissing = false
+        } catch {
+          // Keep the original bytes if the required pre-migration snapshot cannot be saved.
+          migrationBackupMissing = true
+          setStorageHealth('unavailable')
+        }
       } else setStorageHealth('saved')
       return raw
     } catch {
@@ -74,7 +82,7 @@ export const gameStateStorage: StateStorage = {
     }
   },
   setItem: (key, value) => {
-    if (paused || health === 'corrupted' || health === 'newer') return
+    if (paused || migrationBackupMissing || health === 'corrupted' || health === 'newer') return
     try {
       localStorage.setItem(key, value)
       if (health !== 'recovered') setStorageHealth('saved')

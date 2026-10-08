@@ -2,6 +2,7 @@ import type { JobId } from './job'
 
 export type MissionType = 'PLAY_GAMES' | 'PLAY_JOB' | 'SCORE_TOTAL' | 'SCORE_SINGLE' | 'EARN_MONEY'
   | 'SERVE_CUSTOMERS' | 'SUCCESSFUL_BRICKS' | 'DELIVERIES' | 'WASH_VEHICLES'
+  | 'TAP_TREES' | 'REPAIR_VEHICLES' | 'CATCH_FISH'
 export type MissionId = 'play-3' | 'earn-75k' | 'daily-shifts' | 'daily-work' | 'score-6000' | 'score-1500' | 'play-8'
 export interface MissionDefinition {
   id: MissionId

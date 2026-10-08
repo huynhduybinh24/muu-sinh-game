@@ -1,7 +1,7 @@
 # MƯU SINH – Mỗi Ngày Một Nghề
 
 React/TypeScript handles UI and persisted Zustand progress; Phaser 3 owns the
-six mini-games. Vite builds the app and its PWA service worker.
+ten mini-games. Vite builds the app and its PWA service worker.
 
 ## Player profile
 
@@ -14,7 +14,7 @@ older saves keep all progress/settings and worn items become owned. The former
 displayed level is preserved as the starting XP threshold. Profiles stay on this
 device, without accounts or sync.
 
-All six Phaser scenes receive a snapshot of that same profile from React.
+All ten Phaser scenes receive a snapshot of that same profile from React.
 The shared primitive avatar renderer uses the existing appearance IDs/colors;
 visual tweens never move a collision anchor. `npm run qa:avatar` uses the same
 browser prerequisites as `qa:pwa` to exercise real scene actions/reactions,
@@ -31,12 +31,46 @@ achievement and offline PNG systems. Daily selection uses frozen, versioned
 catalog epochs rather than the current catalog length. Old saves gain empty stats for
 new jobs, while previously unlocked achievements remain unlocked.
 
+Rubber traces a generous curved guide and grades coverage/distance/completion
+(120/80/40/−30, fast bonus up to 30). Mechanic matches four symptoms to typed tools
+(100/−40, timeout −25, fast bonus up to 50); a committed repair animates briefly
+without accepting duplicate choices. Coffee uses three recipes plus a one-shot
+extraction meter: target = 120, acceptable = 80, wrong = −50, fast bonus up to 30.
+Fishing has cast → bite → tension phases, common/rare/epic fish (70/120/180),
+a 20-point perfect bonus and no miss penalty. `rareFishCaught` includes rare and epic.
+Each job has its own pure config and real scene; no new assets or dependencies.
+
+Town and Career's **THỬ NGHỀ** buttons make all ten jobs playable immediately.
+Free play and replay count games/XP/earnings and eligible missions, but never
+advance the work streak. Only a deliberate Daily Job run can complete today's
+challenge, once per day. Existing scoring/mechanics are unchanged.
+The original six-job epoch and mission pools remain frozen. A ten-job epoch plus
+metadata-compatible missions activates on **2026-11-01**, leaving all earlier
+dates unchanged. New job stats normalize to zero in existing local/portable v5
+saves; no schema-version bump, extra shop items or revoked achievements.
+Four new achievements count ten plays per new job. Coffee share cards also show
+perfect brews; all ten PNG themes/exports are available offline.
+
+## Town map
+
+Home's **KHÁM PHÁ THỊ TRẤN** opens an original SVG/CSS map with ten locations in
+five neighborhoods. Scroll with touch/mouse, select a building, watch the saved
+avatar walk to it, then enter the existing reveal → game → result flow. The
+location panel reuses Career statistics. An accessible grouped job list and
+reduced-motion support provide alternatives to animated map navigation.
+
+`src/data/town.ts` centralizes typed district/location coordinates; Town's
+selection and avatar position are temporary React state, not save data. The
+**NGHỀ HÔM NAY** marker follows the existing daily schedule; its panel defaults
+to free play and offers an explicit Daily choice. Gameplay is lazy-loaded on
+entering a job, never instantiated for Town, and still precached for offline use.
+
 ## Shop, wardrobe and levels
 
 Home opens **CỬA HÀNG**; Profile opens **TỦ ĐỒ**. The shared catalog contains 6 hair,
 10 shirts and 6 pants, including two permanent free starters per category. Preview
 never equips or spends money. Purchases are atomic store actions; equipment only
-changes the existing appearance IDs, shared by React and all six Phaser games.
+changes the existing appearance IDs, shared by React and all ten Phaser games.
 Character creation/editing only offers owned clothes; skin/gender remain free.
 Prices range from 20.000đ to 750.000đ, with level 1–5 unlocks. Game rewards are unchanged.
 Wardrobe is owned-only and has no payments. All purchases work offline.
@@ -103,6 +137,8 @@ Future cloud code can reuse this portable boundary, but no cloud transport exist
 Before restore, reset or legacy local migration, one normalized recovery envelope
 is kept in `muu-sinh-backup`. Restore holds an in-memory snapshot and pauses automatic
 persistence during commit; storage/subscriber failures restore the original state.
+If the pre-migration recovery write fails, the old local save stays untouched;
+normalized progress remains usable in memory until recovery storage is available.
 Reset requires typing **XÓA**. The developer Home action now opens Profile instead
 of immediately wiping data. `recoverSave()` is an internal/dev recovery helper.
 Corrupt startup JSON recovers from a valid recovery slot when available; otherwise
@@ -113,7 +149,7 @@ for downloaded files; browser/site-data deletion removes it too.
 
 ## Visual presentation
 
-All six jobs use original layered Phaser/vector illustrations and shared themes,
+All ten jobs use original layered Phaser/vector illustrations and shared themes,
 rounded button artwork, customer variants and restrained feedback under
 `src/game/visual/`. Rectangular interaction areas, scooter collision anchors,
 brick placement, recipes, dirt coordinates and all rewards/timing stay unchanged.
@@ -152,7 +188,7 @@ See [BETA_CHECKLIST.md](BETA_CHECKLIST.md) for the remaining device checks.
 
 Build, then preview the production app. Service workers run on HTTPS deployments
 or localhost; the Vite development server does not register one. The first
-successful production load caches the app shell, all six games, local styles,
+successful production load caches the app shell, all ten games, local styles,
 manifest, and icons. Progress and settings remain in localStorage, including
 across updates. PNG result exports also work offline.
 
@@ -182,14 +218,20 @@ $env:PWA_QA_BROWSER='C:\Program Files\Google\Chrome\Application\chrome.exe'
 npm run qa:pwa
 ```
 
-The command starts an isolated production preview, checks all jobs through their
-actual timers, offline reloads, Career, replay, persisted progress, PNG downloads,
-three mobile sizes, and updates. It closes its preview/browser when finished and
+The command starts an isolated production preview, checks Town touch navigation,
+all ten locations, avatar/panels, free-play versus Daily, and all jobs through
+their actual timers. It also checks offline reloads, Career, replay, persisted
+progress, PNG downloads, three mobile sizes, and updates. It closes its preview/browser when finished and
 writes screenshots/downloads to a temporary directory. Missing prerequisites or
 failed checks exit non-zero. `npm run qa:static` validates built assets without a
-browser. Scene routing is covered by the production smoke flow.
+browser. Scene routing is covered by the production smoke flow. Use
+`npm run qa:pwa -- --town-only` to stop after Town and the shared profile/shop,
+daily-system and backup checks; the full command remains the release QA gate.
 
 ## Cloudflare Pages
+
+Android development is documented in [ANDROID.md](ANDROID.md). Capacitor packages
+the same `dist` locally; web/PWA deployment and saves are independent and unchanged.
 
 Connect the repository to Cloudflare Pages and enter:
 

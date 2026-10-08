@@ -120,8 +120,36 @@ export function createEnvironment(scene: Phaser.Scene, job: JobId): void {
   g.fillStyle(0xffffff, 0.25).fillCircle(285, 122, 48)
   if (job === 'construction') construction(g)
   else if (job === 'barber' || job === 'carwash') indoor(g, job)
-  else if (job !== 'shipper') street(g, job)
-  if (job === 'sugarcane' || job === 'noodle') {
+  else if (job === 'rubber') {
+    g.fillStyle(0xa7bd82).fillRect(0, 270, 360, 380)
+    for (let i = 0; i < 7; i++) {
+      const x = i * 62 - 15
+      g.fillStyle(0x90775b, 0.65).fillRoundedRect(x, 133, 13, 250, 5)
+      g.fillStyle(0x78a071, 0.75).fillEllipse(x + 4, 142, 94, 105)
+      g.fillStyle(0xa2c184, 0.65).fillEllipse(x - 7, 117, 66, 57)
+    }
+    g.fillStyle(0xcdcea0, 0.7).fillTriangle(176, 289, 110, 650, 329, 650)
+    g.fillStyle(0x5d895f, 0.25)
+    for (let x = 8; x < 360; x += 35) g.fillEllipse(x, 424 + x % 7 * 17, 24, 5)
+  } else if (job === 'fishing') {
+    g.fillStyle(0x89b4a2).fillEllipse(50, 273, 235, 150).fillEllipse(297, 265, 236, 142)
+    g.fillStyle(0x92bda7).fillRect(0, 294, 360, 356)
+    g.fillStyle(0x468c98, 0.35).fillRect(80, 294, 280, 356)
+    for (const x of [24, 48, 334]) {
+      g.fillStyle(0x907b5a).fillRect(x, 178, 8, 134)
+      g.fillStyle(0x72a382).fillEllipse(x + 4, 181, 76, 85)
+    }
+    g.fillStyle(0xefe8bb).fillRoundedRect(52, 219, 24, 45, 3).fillTriangle(52, 219, 76, 219, 52, 198)
+  } else if (job !== 'shipper') street(g, job)
+  if (job === 'mechanic') {
+    g.fillStyle(0x657f86).fillRoundedRect(11, 226, 338, 235, 18)
+    g.fillStyle(0xd1d8ca).fillRoundedRect(18, 233, 324, 222, 14)
+    g.fillStyle(0x8c9b91).fillRoundedRect(27, 242, 50, 121, 8)
+    g.lineStyle(4, 0xf0e5c4)
+    for (let y = 255; y < 343; y += 27) g.lineBetween(36, y, 66, y + 9).strokeCircle(36, y, 5)
+    g.fillStyle(0x6c827f, 0.17).fillEllipse(180, 456, 291, 18)
+  }
+  if (job === 'sugarcane' || job === 'noodle' || job === 'coffee') {
     g.fillStyle(theme.deep).fillRoundedRect(11, 230, 338, 237, 13)
     g.fillStyle(theme.ground).fillRoundedRect(18, 236, 324, 218, 10)
     g.fillStyle(theme.deep, 0.25).fillRect(18, 429, 324, 25)

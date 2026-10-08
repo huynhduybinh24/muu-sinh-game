@@ -5,6 +5,10 @@ import { SugarcaneScene } from '../scenes/SugarcaneScene'
 import { NoodleScene } from '../scenes/NoodleScene'
 import { BarberScene } from '../scenes/BarberScene'
 import { CarwashScene } from '../scenes/CarwashScene'
+import { RubberScene } from '../scenes/RubberScene'
+import { MechanicScene } from '../scenes/MechanicScene'
+import { CoffeeScene } from '../scenes/CoffeeScene'
+import { FishingScene } from '../scenes/FishingScene'
 import type { GameResult } from '../../types/game'
 import type { Job, JobId } from '../../types/job'
 import type { PlayerProfile } from '../../types/profile'
@@ -18,9 +22,10 @@ export function createGameConfig(
 ): Phaser.Types.Core.GameConfig {
   const avatarData = getPhaserAvatarData(profile)
   const sceneTypes: Record<JobId, typeof SugarcaneScene | typeof ConstructionScene | typeof ShipperScene
-    | typeof NoodleScene | typeof BarberScene | typeof CarwashScene> = {
+    | typeof NoodleScene | typeof BarberScene | typeof CarwashScene | typeof RubberScene | typeof MechanicScene | typeof CoffeeScene | typeof FishingScene> = {
     sugarcane: SugarcaneScene, construction: ConstructionScene, shipper: ShipperScene,
     noodle: NoodleScene, barber: BarberScene, carwash: CarwashScene,
+    rubber: RubberScene, mechanic: MechanicScene, coffee: CoffeeScene, fishing: FishingScene,
   }
   const scene = new sceneTypes[job.id](job, onComplete, avatarData)
 

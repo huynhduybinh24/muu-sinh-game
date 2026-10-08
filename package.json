@@ -13,15 +13,24 @@
     "qa:static": "node scripts/static-qa.cjs",
     "qa:pwa": "node scripts/run-pwa-qa.cjs",
     "qa:avatar": "node scripts/avatar-qa.cjs",
-    "release:check": "npm run lint && npm run test:run && npm run build && npm run qa:static"
+    "release:check": "npm run lint && npm run test:run && npm run build && npm run qa:static",
+    "mobile:sync": "npm run build && cap sync android",
+    "mobile:open": "cap open android",
+    "mobile:run": "npm run mobile:sync && cap run android --no-sync"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/core": "^8.5.3",
+    "@capacitor/filesystem": "^8.1.4",
+    "@capacitor/share": "^8.0.3",
     "phaser": "^3.90.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "zustand": "^5.0.15"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.5.3",
     "@eslint/js": "^10.0.1",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.18",

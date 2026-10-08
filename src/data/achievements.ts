@@ -139,6 +139,10 @@ export const achievements: readonly AchievementDefinition[] = [
   { id: 'noodle-10', title: 'Vua hủ tiếu', description: 'Hoàn thành 10 ca bán hủ tiếu.', getProgress: (progress) => jobCountProgress(progress, 'noodle') },
   { id: 'barber-10', title: 'Tay kéo vàng', description: 'Hoàn thành 10 ca cắt tóc.', getProgress: (progress) => jobCountProgress(progress, 'barber') },
   { id: 'carwash-10', title: 'Thánh rửa xe', description: 'Hoàn thành 10 ca rửa xe.', getProgress: (progress) => jobCountProgress(progress, 'carwash') },
+  { id: 'rubber-10', title: 'Bàn tay vàng', description: 'Hoàn thành 10 ca cạo cao su.', getProgress: (progress) => jobCountProgress(progress, 'rubber') },
+  { id: 'mechanic-10', title: 'Thợ máy lành nghề', description: 'Hoàn thành 10 ca sửa xe.', getProgress: (progress) => jobCountProgress(progress, 'mechanic') },
+  { id: 'coffee-10', title: 'Barista đường phố', description: 'Hoàn thành 10 ca pha cà phê.', getProgress: (progress) => jobCountProgress(progress, 'coffee') },
+  { id: 'fishing-10', title: 'Cần thủ mưu sinh', description: 'Hoàn thành 10 ca đánh cá.', getProgress: (progress) => jobCountProgress(progress, 'fishing') },
   ...([
     { id: 'fashion-5', title: 'Tín đồ thời trang', target: 5 },
     { id: 'wardrobe-10', title: 'Tủ đồ có gu', target: 10 },

@@ -42,7 +42,7 @@ export function ShareCardPreview({ job, result }: ShareCardPreviewProps) {
         <div><span>💰 THU NHẬP</span><strong>+{formatMoney(result.earnedMoney)}</strong></div>
         <div><span>📈 DANH TIẾNG</span><strong>{reputation}</strong></div>
       </div>
-      <div className="share-card-viral-stat">{viralStat.label}: {viralStat.value}</div>
+      <div className="share-card-viral-stat">{viralStat.label}: {viralStat.value}{viralStat.detail ? ` · ${viralStat.detail}` : ''}</div>
       <blockquote>“{getResultMessage(result.score)}”</blockquote>
       <footer>Hôm nay bạn làm nghề gì?</footer>
     </article>

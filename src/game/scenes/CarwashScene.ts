@@ -64,6 +64,7 @@ export class CarwashScene extends ServiceJobScene {
     this.input.on('pointerdown', this.beginScrub, this)
     this.input.on('pointerup', this.stopScrub, this)
     this.input.on('gameout', this.stopScrub, this)
+    this.input.on('nativepause', this.stopScrub, this)
   }
 
   protected startRound(): void {
@@ -144,5 +145,6 @@ export class CarwashScene extends ServiceJobScene {
     this.input.off('pointerdown', this.beginScrub, this)
     this.input.off('pointerup', this.stopScrub, this)
     this.input.off('gameout', this.stopScrub, this)
+    this.input.off('nativepause', this.stopScrub, this)
   }
 }

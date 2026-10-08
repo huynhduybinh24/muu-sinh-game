@@ -1,6 +1,6 @@
 import { GameIcon } from './GameIcon'
 
-export type DashboardTab = 'home' | 'career' | 'profile' | 'shop' | 'wardrobe' | 'missions'
+export type DashboardTab = 'home' | 'career' | 'profile' | 'shop' | 'wardrobe' | 'missions' | 'town'
 
 interface BottomNavProps {
   active: DashboardTab
