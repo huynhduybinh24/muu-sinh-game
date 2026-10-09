@@ -2,7 +2,7 @@
 const assert = require('node:assert/strict')
 const { dismissReward } = require('./profile-qa.cjs')
 
-async function verifyNativeAdapter(browser, origin, baseState) {
+async function verifyNativeAdapter(browser, origin, baseState, { policyOnly = false } = {}) {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true })
   try {
     await context.addInitScript((state) => {
@@ -22,6 +22,17 @@ async function verifyNativeAdapter(browser, origin, baseState) {
           if (method === 'removeListener') listeners.delete(options.callbackId)
         },
       }
+      // Observe the actual production engine so boot/React effects are settled
+      // before testing a paused canvas. A DOM canvas can precede Phaser READY.
+      let phaser
+      Object.defineProperty(window, 'Phaser', { configurable: true, get: () => phaser, set(value) {
+        phaser = value
+        value.Game = new Proxy(value.Game, { construct(target, args) {
+          const game = Reflect.construct(target, args)
+          window.__nativeQA.game = new WeakRef(game)
+          return game
+        } })
+      } })
     }, { ...baseState, money: 2_000_000, xp: 900 })
     const page = await context.newPage()
     const errors = []
@@ -34,6 +45,31 @@ async function verifyNativeAdapter(browser, origin, baseState) {
     await page.evaluate(() => window.dispatchEvent(Object.assign(new Event('beforeinstallprompt'), { prompt: async () => {}, userChoice: Promise.resolve({ outcome: 'accepted' }) })))
     assert.equal(await page.getByRole('button', { name: /CÀI GAME/ }).count(), 0)
     const back = () => page.evaluate(() => window.__nativeQA.emit('backButton'))
+    if (policyOnly) await context.setOffline(true)
+    await page.getByRole('button', { name: 'HỒ SƠ', exact: true }).click()
+    const beforePolicy = await page.evaluate(() => localStorage.getItem('muu-sinh-player-progress'))
+    await page.locator('.privacy-policy summary').click()
+    await page.getByRole('link', { name: 'XEM BẢN NHÁP HTML — CHỜ DUYỆT', exact: true }).click()
+    await page.locator('.privacy-dialog[open]').waitFor()
+    assert.equal(await page.locator('.privacy-dialog section').count(), 6)
+    await back(); assert.equal(await page.locator('.privacy-dialog').count(), 0)
+    assert.equal(await page.evaluate(() => localStorage.getItem('muu-sinh-player-progress')), beforePolicy)
+    await back(); await page.locator('.home-player').waitFor()
+    assert.equal(await page.evaluate(() => window.__nativeQA.listeners.size), 3)
+    console.log('PASS: MOCK-BRIDGE offline policy dialog closes on Back without navigation/save/listener changes')
+    if (policyOnly) {
+      await page.getByRole('button', { name: 'HỒ SƠ', exact: true }).click()
+      await page.locator('.save-data-panel summary').click()
+      await page.getByRole('button', { name: 'ĐẶT LẠI TIẾN TRÌNH', exact: true }).click()
+      await page.getByRole('dialog', { name: 'ĐẶT LẠI TIẾN TRÌNH?' }).waitFor()
+      await page.locator('.reset-confirm-label input').focus()
+      await back()
+      assert.equal(await page.locator('dialog[open]').count(), 1, 'First Back dismisses editing focus')
+      await back(); assert.equal(await page.locator('dialog[open]').count(), 0)
+      assert.equal(await page.evaluate(() => localStorage.getItem('muu-sinh-player-progress')), beforePolicy)
+      console.log('PASS: MOCK-BRIDGE recovery-aware reset dialog cancels on Back without deleting save')
+      return
+    }
     await page.getByRole('button', { name: 'KHÁM PHÁ THỊ TRẤN', exact: true }).click()
     await page.getByRole('button', { name: 'HỒ SƠ', exact: true }).click()
     await back(); await page.locator('.town-content').waitFor()
@@ -59,7 +95,7 @@ async function verifyNativeAdapter(browser, origin, baseState) {
     const untouched = await page.evaluate(() => localStorage.getItem('muu-sinh-player-progress'))
     await page.getByRole('button', { name: 'HỒ SƠ', exact: true }).click()
     await page.locator('.save-data-panel summary').click()
-    await page.getByRole('button', { name: 'XÓA TOÀN BỘ DỮ LIỆU', exact: true }).click()
+    await page.getByRole('button', { name: 'ĐẶT LẠI TIẾN TRÌNH', exact: true }).click()
     const confirmation = page.locator('.reset-confirm-label input')
     await confirmation.focus()
     await back()
@@ -78,14 +114,31 @@ async function verifyNativeAdapter(browser, origin, baseState) {
       await page.getByRole('button', { name: 'ĐI LÀM →', exact: true }).click()
       await page.getByRole('button', { name: 'BẮT ĐẦU', exact: true }).click()
       await page.clock.runFor(4000); await page.locator('canvas').waitFor()
+      await page.waitForFunction(() => window.__nativeQA.game?.deref()?.scene?.getScenes(true).length > 0)
       await back(); await page.locator('.native-pause[open]').waitFor()
       await page.clock.runFor(100)
+      await page.waitForFunction(() => { const game = window.__nativeQA.game?.deref(); return game?.isPaused && !game.loop.running })
       // A locator screenshot also captures the modal/backdrop above the canvas.
       // Isolate the canvas pixels, not the dialog compositor/blur animation.
-      const captureOptions = { animations: 'disabled', style: '.native-pause { visibility: hidden !important; } .native-pause::backdrop { background: transparent !important; backdrop-filter: none !important; }' }
+      // Remove CSS clipping only for capture: rounded-edge compositor pixels
+      // can vary by 1 RGB value although the engine/frame are fully asleep.
+      const captureOptions = { animations: 'disabled', style: '.native-pause { visibility: hidden !important; } .native-pause::backdrop { background: transparent !important; backdrop-filter: none !important; } .game-canvas-frame, .game-canvas-frame canvas { border-radius: 0 !important; overflow: visible !important; }' }
+      const engineState = () => page.evaluate(() => {
+        const game = window.__nativeQA.game.deref(), scene = game.scene.getScenes(true)[0]
+        return { paused: game.isPaused, running: game.loop.running, frame: game.loop.frame, score: scene.score, remaining: scene.remainingGameMs ?? scene.remainingMs }
+      })
+      const pausedState = await engineState()
       const frozen = await page.locator('canvas').screenshot(captureOptions)
       await page.clock.runFor(2000)
       const afterPause = await page.locator('canvas').screenshot(captureOptions)
+      assert.deepEqual(await engineState(), pausedState, `${name}: engine/timer/score changed during native pause`)
+      if (!afterPause.equals(frozen)) {
+        const fs = require('node:fs/promises')
+        await fs.mkdir('node_modules/.tmp/task-22d', { recursive: true })
+        await fs.writeFile('node_modules/.tmp/task-22d/pause-before.png', frozen)
+        await fs.writeFile('node_modules/.tmp/task-22d/pause-after.png', afterPause)
+        console.error('Paused engine:', await page.evaluate(() => { const game = window.__nativeQA.game.deref(); const scene = game.scene.getScenes(true)[0]; return { paused: game.isPaused, running: game.loop.running, frame: game.loop.frame, score: scene.score, remaining: scene.remainingGameMs ?? scene.remainingMs } }))
+      }
       assert.ok(afterPause.equals(frozen), `${name}: engine must not render during native pause`)
       await page.getByRole('button', { name: 'TIẾP TỤC', exact: true }).click()
       await page.clock.runFor(1000)

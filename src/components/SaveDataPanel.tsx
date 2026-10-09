@@ -84,7 +84,7 @@ export function SaveDataPanel({ onReinitialize }: { onReinitialize: () => void }
         <input ref={fileInput} className="save-file-input" type="file" accept="application/json,.json" aria-label="Chọn file sao lưu JSON"
           disabled={busy} onChange={(event) => { void selectFile(event) }} />
         <p className="save-status" role="status" aria-live="polite">{message}</p>
-        <button className="reset-data-link" type="button" disabled={busy} onClick={() => { setResetting(true); setConfirmation(''); setMessage('') }}>XÓA TOÀN BỘ DỮ LIỆU</button>
+        <button className="reset-data-link" type="button" disabled={busy} onClick={() => { setResetting(true); setConfirmation(''); setMessage('') }}>ĐẶT LẠI TIẾN TRÌNH</button>
         <small>Backup chứa tên và tiến trình. Chỉ chia sẻ file với người bạn tin tưởng.</small>
       </div>
     </details>
@@ -101,13 +101,13 @@ export function SaveDataPanel({ onReinitialize }: { onReinitialize: () => void }
       <div className="save-dialog-actions"><button className="secondary-button" type="button" onClick={cancel}>HỦY</button>
         <button className="primary-button" type="button" onClick={restore}>KHÔI PHỤC</button></div>
     </SaveDialog> : null}
-    {resetting ? <SaveDialog title="XÓA TOÀN BỘ DỮ LIỆU?" onCancel={cancel}>
-      <p className="save-warning">Thao tác này xóa hồ sơ, tiến trình, tiền, trang phục, thành tựu và các chuỗi ngày. Hãy tải file sao lưu trước khi tiếp tục.</p>
+    {resetting ? <SaveDialog title="ĐẶT LẠI TIẾN TRÌNH?" onCancel={cancel}>
+      <p className="save-warning">Hồ sơ và tiến trình đang dùng sẽ được đặt lại. Một bản recovery cục bộ của dữ liệu trước đó vẫn được giữ. Muốn xóa cả bản này, hãy xóa dữ liệu ứng dụng hoặc dữ liệu trang web trong cài đặt hệ thống. Hãy tải file sao lưu trước khi tiếp tục.</p>
       <label className="reset-confirm-label">Nhập {RESET_CONFIRMATION} để xác nhận
         <input value={confirmation} onChange={(event) => setConfirmation(event.target.value)} autoComplete="off" spellCheck={false} />
       </label>
       <div className="save-dialog-actions"><button className="secondary-button" type="button" onClick={cancel}>HỦY</button>
-        <button className="danger-button" type="button" disabled={confirmation.trim().normalize('NFC') !== RESET_CONFIRMATION} onClick={reset}>XÓA DỮ LIỆU</button></div>
+        <button className="danger-button" type="button" disabled={confirmation.trim().normalize('NFC') !== RESET_CONFIRMATION} onClick={reset}>ĐẶT LẠI</button></div>
     </SaveDialog> : null}
   </>
 }

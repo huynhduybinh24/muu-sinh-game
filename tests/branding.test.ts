@@ -29,6 +29,12 @@ describe('original game branding', () => {
     expect(contrast(brand.colors.muted, brand.colors.cream)).toBeGreaterThan(4.5)
     expect(contrast(brand.colors.success, '#FFFFFF')).toBeGreaterThan(4.5)
   })
+  it('keeps Town branding independent of outdated profession counts', () => {
+    const town = read('src/pages/TownPage.tsx')
+    expect(town).toContain('Một thị trấn · Mỗi ngày một nghề')
+    expect(town).not.toContain('Hai mươi câu chuyện')
+    expect(town).toContain('{townLocations.length} nghề')
+  })
   it.each(['horizontal', 'compact', 'emblem', 'light', 'dark', 'transparent'])('exports editable %s SVG and matching PNG', (variant) => {
     const svg = read(`public/branding/logo-${variant}.svg`)
     expect(svg).toContain('<path')

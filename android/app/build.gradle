@@ -1,5 +1,43 @@
 apply plugin: 'com.android.application'
 
+// Optional dedicated upload key, supplied through a private file OUTSIDE this repository.
+// No debug-key fallback. CI/owner release builds must set requireUploadSigning=true.
+def signingPath = System.getenv('MUU_SINH_SIGNING_PROPERTIES')
+def uploadProperties = new Properties()
+def uploadKeyStore = null
+if (signingPath) {
+    def signingFile = new File(signingPath).canonicalFile
+    def repository = rootProject.projectDir.parentFile.canonicalFile.toPath()
+    if (!signingFile.isFile() || signingFile.toPath().startsWith(repository)) {
+        throw new GradleException('Signing properties must be an existing private file outside the repository.')
+    }
+    signingFile.withInputStream { uploadProperties.load(it) }
+    if (['storeFile', 'storePassword', 'keyAlias', 'keyPassword'].any { !uploadProperties.getProperty(it)?.trim() }) {
+        throw new GradleException('Upload signing properties are incomplete.')
+    }
+    if (!new File(uploadProperties.getProperty('storeFile')).isAbsolute()) {
+        throw new GradleException('Upload keystore path must be absolute.')
+    }
+    uploadKeyStore = new File(uploadProperties.getProperty('storeFile')).canonicalFile
+    if (!uploadKeyStore.isAbsolute() || !uploadKeyStore.isFile() || uploadKeyStore.toPath().startsWith(repository)) {
+        throw new GradleException('Upload keystore must be an existing private file outside the repository.')
+    }
+    // Reject the Android debug certificate, not just an alias that can be renamed.
+    try {
+        def keyStore = java.security.KeyStore.getInstance(uploadProperties.getProperty('storeType', 'JKS'))
+        uploadKeyStore.withInputStream { keyStore.load(it, uploadProperties.getProperty('storePassword').toCharArray()) }
+        def certificate = keyStore.getCertificate(uploadProperties.getProperty('keyAlias'))
+        if (!(certificate instanceof java.security.cert.X509Certificate) ||
+            certificate.subjectX500Principal.name.toLowerCase().contains('cn=android debug') ||
+            !keyStore.isKeyEntry(uploadProperties.getProperty('keyAlias'))) {
+            throw new IllegalStateException()
+        }
+        certificate.checkValidity()
+    } catch (Exception ignored) {
+        throw new GradleException('Upload certificate validation failed. A dedicated non-debug upload key is required.')
+    }
+}
+
 android {
     namespace = "com.muusinh.game"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -16,12 +54,28 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        if (uploadKeyStore != null) {
+            upload {
+                storeFile uploadKeyStore
+                storePassword uploadProperties.getProperty('storePassword')
+                keyAlias uploadProperties.getProperty('keyAlias')
+                keyPassword uploadProperties.getProperty('keyPassword')
+                storeType uploadProperties.getProperty('storeType', 'JKS')
+            }
+        }
+    }
     buildTypes {
         release {
+            if (uploadKeyStore != null) signingConfig signingConfigs.upload
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+}
+
+if (providers.gradleProperty('requireUploadSigning').orNull == 'true' && uploadKeyStore == null) {
+    throw new GradleException('Upload signing is not configured. Set MUU_SINH_SIGNING_PROPERTIES to a private external properties file.')
 }
 
 repositories {
@@ -43,4 +97,3 @@ dependencies {
 }
 
 apply from: 'capacitor.build.gradle'
-

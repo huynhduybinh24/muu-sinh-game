@@ -16,9 +16,13 @@
     "branding:generate": "node scripts/generate-branding.cjs",
     "qa:branding": "node scripts/branding-qa.cjs",
     "release:check": "npm run lint && npm run test:run && npm run build && npm run qa:static",
+    "release": "npm run release:check",
     "mobile:sync": "npm run build && cap sync android",
     "mobile:open": "cap open android",
-    "mobile:run": "npm run mobile:sync && cap run android --no-sync"
+    "mobile:run": "npm run mobile:sync && cap run android --no-sync",
+    "mobile:bundle": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/android-release.ps1",
+    "qa:android-artifacts": "node scripts/verify-android-artifacts.cjs",
+    "qa:signing": "node scripts/signing-hygiene.cjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.3",

@@ -9,6 +9,7 @@ import { SaveDataPanel } from '../components/SaveDataPanel'
 import { ProductArtwork } from '../components/ProductArtwork'
 import { getShopItem } from '../data/shop'
 import { getLifestyle } from '../services/lifestyle'
+import { PrivacyPolicy } from '../components/PrivacyPolicy'
 
 interface ProfilePageProps {
   onHome: () => void
@@ -43,6 +44,7 @@ export function ProfilePage({ onHome, onCareer, onEdit, onWardrobe, onReinitiali
         <button className="secondary-button" type="button" onClick={onWardrobe}>TỦ ĐỒ</button>
       </div>
       <SaveDataPanel onReinitialize={onReinitialize} />
+      <PrivacyPolicy />
       <nav className="lifestyle-links" aria-label="Góc riêng"><button onClick={() => onLifestyle('devices')}>THIẾT BỊ</button><button onClick={() => onLifestyle('garage')}>GARA</button><button onClick={() => onLifestyle('room')}>PHÒNG CỦA TÔI</button></nav>
       {[life.phone,life.computer,life.vehicle].some(id => id !== null) && <section className="profile-lifestyle" aria-label="Đồ đang dùng">{[life.phone,life.computer,life.vehicle].filter(id => id !== null).map(id => {
         const item = getShopItem(id)!

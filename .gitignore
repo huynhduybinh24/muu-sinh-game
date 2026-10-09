@@ -64,3 +64,11 @@ signing.properties
 google-services.json
 *.apk
 *.aab
+*.apks
+*.p12
+*.pfx
+upload-signing.properties
+*signing*.properties
+*keystore*.properties
+key.properties
+*.key

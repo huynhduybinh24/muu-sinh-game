@@ -109,3 +109,14 @@
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+.privacy-policy { width: 100%; text-align: left; color: var(--brand-navy, #123653); }
+.privacy-policy summary { min-height: 44px; padding: 12px; cursor: pointer; font-weight: 700; }
+.privacy-policy article { padding: 0 12px 12px; line-height: 1.6; overflow-wrap: anywhere; }
+.privacy-policy a { display: inline-flex; align-items: center; min-height: 44px; color: inherit; font-weight: 700; }
+/* Keep navigation reachable when privacy/save disclosures expand on small phones. */
+.app-shell:has(.profile-content) { height: 100svh; min-height: 0; }
+.profile-content { min-height: 0; overflow-y: auto; padding-bottom: 12px; }
+.profile-content > * { flex-shrink: 0; }
+.app-shell:has(.profile-content) > .screen-header,
+.app-shell:has(.profile-content) > .screen-footer { flex-shrink: 0; }
+.privacy-dialog { width: min(calc(100% - 32px), 680px); max-height: calc(100svh - 48px); overflow-y: auto; padding: 20px; border: 1px solid var(--line); border-radius: 20px; color: var(--text); background: var(--surface); line-height: 1.6; }

@@ -313,3 +313,20 @@ Vite dev/production preview. `npm run branding:generate` uses the existing QA
 Playwright/browser installation; `npm run qa:branding` verifies production
 artwork, Home/navigation, offline results and PNG export. Production builds
 require neither browser tooling nor asset regeneration.
+
+## Android / Google Play release preparation
+
+See [TASK_23.md](TASK_23.md) and [release instructions](release-assets/RELEASE.md).
+Task 24 gates/evidence: [TASK_24.md](TASK_24.md). `npm run qa:signing` checks
+tracked private filenames before signed builds. The offline `/privacy-policy`
+HTML and Welcome/Profile links are DRAFTS pending owner/contact approval;
+do not deploy or submit them as a final policy yet. Regenerate both policy drafts
+with `node scripts/store-assets.cjs --policy-only`; verify with
+`npm run qa:pwa -- --privacy-only` (same browser setup as other PWA QA).
+Owner-approved ID: `com.muusinh.game`. `npm run mobile:bundle` requires a dedicated
+upload key configured outside the repository and an approved public certificate
+fingerprint; it builds/checks locally and never uploads. Without credentials,
+direct `:app:bundleRelease` is unsigned inspection only. Draft store/privacy
+deliverables are in `release-assets`; branding, contact/policy URL and physical
+Android QA still need owner approval. Backup JSON before switching signatures.
+Web/PWA builds still use `npm run build` and `dist`; no Cloudflare changes.

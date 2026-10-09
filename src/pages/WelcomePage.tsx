@@ -4,6 +4,7 @@ import { PlayerAvatar } from '../components/PlayerAvatar'
 import { defaultAppearance } from '../data/avatar'
 import { getPlayerNameError, normalizePlayerName } from '../services/playerProfile'
 import { BrandLogo } from '../components/BrandLogo'
+import { PrivacyPolicy } from '../components/PrivacyPolicy'
 
 interface WelcomePageProps { onContinue: (name: string) => void }
 
@@ -31,7 +32,8 @@ export function WelcomePage({ onContinue }: WelcomePageProps) {
         {error ? <p className="form-error" id="name-error" role="alert">{error}</p> : null}
         <button className="primary-button" type="submit">TIẾP TỤC →</button>
       </form>
-      <p className="privacy-note">Hồ sơ chỉ lưu trên thiết bị này. Không cần tài khoản.</p>
+      <p className="privacy-note">Hồ sơ lưu cục bộ. Không cần tài khoản. Xem chính sách về sao lưu và chia sẻ.</p>
+      <PrivacyPolicy />
     </ScreenShell>
   )
 }

@@ -13,6 +13,7 @@ const { verifyDailyFlows } = require('./daily-qa.cjs')
 const { verifySaveFlows } = require('./save-qa.cjs')
 const { verifyTownFlows } = require('./town-qa.cjs')
 const { verifyNativeAdapter } = require('./native-adapter-qa.cjs')
+const { verifyPrivacy } = require('./privacy-qa.cjs')
 
 const origin = process.env.PWA_QA_URL || 'http://127.0.0.1:4173'
 const sizes = [
@@ -215,15 +216,47 @@ async function main() {
       assert.equal(bytes.readUInt32BE(20), size)
     }
     console.log('PASS: production manifest, icon dimensions, and service-worker control')
+    if (process.argv.includes('--connectivity-only')) {
+      await context.setOffline(true)
+      await diagnostics.send('Network.emulateNetworkConditions', {
+        offline: true, latency: 0, downloadThroughput: 0, uploadThroughput: 0,
+      })
+      await page.reload()
+      await page.getByText('📴 ĐANG CHƠI OFFLINE').waitFor()
+      await page.clock.install({ time: new Date('2026-10-06T05:00:00Z') })
+      // Remove the page-session override first. The context transition is then
+      // the single effective offline→online edge and dispatches `online`.
+      await diagnostics.send('Network.emulateNetworkConditions', {
+        offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1,
+      })
+      await context.setOffline(false)
+      await page.waitForFunction(() => navigator.onLine)
+      await page.getByText('✓ ĐÃ KẾT NỐI LẠI').waitFor()
+      assert.deepEqual(errors, [])
+      console.log('PASS: offline→online browser edge shows reconnection status')
+      await context.close(); return
+    }
+    if (process.argv.includes('--privacy-only')) {
+      await verifyPrivacy(page, context, origin, artifacts)
+      await verifyNativeAdapter(browser, origin, await readProgress(page), { policyOnly: true })
+      assert.deepEqual(errors, [])
+      await context.close(); return
+    }
     if (process.argv.includes('--native-only')) {
       await completeProfile(page, 'Thợ kiểm thử native')
       await verifyNativeAdapter(browser, origin, await readProgress(page))
       await context.close(); return
     }
     if (process.argv.includes('--lifestyle-only')) {
+      // Independent from the file-only gate below; all full-suite checks remain.
       await completeProfile(page, 'Thợ mua sắm')
       await verifyShopFlows(browser, origin, artifacts, assertLayout, await readProgress(page))
       await verifyLifestyleFlows(browser, origin, artifacts, assertLayout, await readProgress(page))
+      await context.close(); return
+    }
+    if (process.argv.includes('--save-only')) {
+      await completeProfile(page, 'Thợ kiểm tra save')
+      await verifySaveFlows(browser, origin, artifacts, assertLayout, await readProgress(page))
       await context.close(); return
     }
     if (process.argv.includes('--games-only') || process.argv.includes('--professions-only')) await completeProfile(page, 'Thợ kiểm thử 26 nghề')
@@ -395,10 +428,11 @@ async function main() {
     await page.locator('canvas').waitFor()
     assert.equal(await page.locator('canvas').count(), 1)
     console.log('PASS: replay opens exactly one Phaser canvas without duplicating the tutorial')
-    await context.setOffline(false)
     await diagnostics.send('Network.emulateNetworkConditions', {
       offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1,
     })
+    await context.setOffline(false)
+    await page.waitForFunction(() => navigator.onLine)
     await page.getByText('✓ ĐÃ KẾT NỐI LẠI').waitFor()
     await page.evaluate(async () => {
       const registration = await navigator.serviceWorker.getRegistration()

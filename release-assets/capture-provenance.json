@@ -1,0 +1,51 @@
+{
+  "status": "DRAFT_PENDING_OWNER_BRAND_APPROVAL",
+  "method": "REAL_PRODUCTION_BROWSER_UI_NO_COMPOSITE_SCREENSHOTS",
+  "captures": [
+    {
+      "filename": "01-home.jpg",
+      "width": 1080,
+      "height": 1920,
+      "alt": "Nhân vật Mưu Sinh và trang chủ trò chơi"
+    },
+    {
+      "filename": "02-town.jpg",
+      "width": 1080,
+      "height": 1920,
+      "alt": "Thị trấn với các địa điểm nghề nghiệp"
+    },
+    {
+      "filename": "03-job-construction.jpg",
+      "width": 1080,
+      "height": 1920,
+      "alt": "Ca làm Phụ hồ trong trò chơi"
+    },
+    {
+      "filename": "03-job-sugarcane.jpg",
+      "width": 1080,
+      "height": 1920,
+      "alt": "Ca làm Bán nước mía trong trò chơi"
+    },
+    {
+      "filename": "04-shop.jpg",
+      "width": 1080,
+      "height": 1920,
+      "alt": "Cửa hàng trang phục và đồ dùng trong game"
+    },
+    {
+      "filename": "05-garage.jpg",
+      "width": 1080,
+      "height": 1920,
+      "alt": "Gara của nhân vật mới, chưa sở hữu phương tiện"
+    },
+    {
+      "filename": "06-room.jpg",
+      "width": 1080,
+      "height": 1920,
+      "alt": "Phòng riêng của nhân vật mới, chưa đặt đồ nội thất"
+    }
+  ],
+  "offline": "PASS",
+  "privacyEntry": "PASS_NO_SAVE_MUTATION",
+  "remoteRequests": []
+}

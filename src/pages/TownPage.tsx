@@ -61,7 +61,7 @@ export function TownPage({ dateKey, onHome, onCareer, onProfile, onPlay }: TownP
   const stats = selected ? progress.jobStats[selected.jobId] : null
   return <ScreenShell header={<button className="town-home" type="button" onClick={onHome}>← VỀ TRANG CHỦ</button>}
     contentClassName="town-content" footer={<BottomNav active="town" onHome={onHome} onCareer={onCareer} onProfile={onProfile} />}>
-    <div className="town-heading"><div><p className="eyebrow">Một thị trấn · Hai mươi câu chuyện</p><h1>THỊ TRẤN MƯU SINH</h1></div><span>{townLocations.length} nghề</span></div>
+    <div className="town-heading"><div><p className="eyebrow">Một thị trấn · Mỗi ngày một nghề</p><h1>THỊ TRẤN MƯU SINH</h1></div><span>{townLocations.length} nghề</span></div>
     <div className="town-toolbar"><p>Vuốt để khám phá · Chạm một địa điểm</p><button type="button" onClick={() => focusLocation(daily)}>TÌM NGHỀ HÔM NAY</button></div>
     <div className="town-scroll" ref={scroll} role="region" aria-label="Bản đồ thị trấn, cuộn ngang và dọc" tabIndex={0}>
       <div className="town-canvas" style={{ width: TOWN_SIZE.width, height: TOWN_SIZE.height }}>

@@ -44,6 +44,11 @@ async function verifyProductionAssets() {
   const precacheAssets = [...worker.matchAll(/url:"([^"]+)"/g)].map((match) => match[1])
   assert.ok(precacheAssets.includes('index.html'), 'App shell is not precached')
   assert.ok(precacheAssets.includes('manifest.webmanifest'), 'Manifest is not precached')
+  assert.ok(precacheAssets.includes('privacy-policy.html'), 'Offline privacy page is not precached')
+  const policy = (await verifyFile('privacy-policy.html')).toString()
+  assert.ok(policy.includes('<html lang="vi">'))
+  assert.ok(policy.includes('Chính sách quyền riêng tư — MƯU SINH'))
+  assert.ok(!/<script|https?:\/\//.test(policy), 'Privacy page must stay local and script-free')
   for (const asset of precacheAssets) await verifyFile(asset)
   const workboxModules = [...worker.matchAll(/"\.\/(workbox-[^"]+)"/g)]
   for (const match of workboxModules) await verifyFile(`${match[1]}.js`)
