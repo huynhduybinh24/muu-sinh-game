@@ -39,9 +39,13 @@ configuration. Approved external locations (not secret values):
 - Properties: `C:\Users\THIS PC\muu-sinh-secure\signing.properties`
 - Alias: `muu-sinh-upload`
 
-The directory was created and ACL checked: only owner and SYSTEM have explicit
-FullControl; inherited permissions removed. No key/password/config generated.
-Password configuration remains BLOCKED. Do not generate a key until it exists.
+Task 25: owner created the key/config locally. Directory ACL is protected and
+both files inherit access only for owner and SYSTEM. The missing Java `keyAlias`
+entry was repaired to `muu-sinh-upload`; passwords and keystore preserved.
+RSA3072/non-debug certificate, private-key usability and signed AAB verified.
+PUBLIC upload certificate SHA256:
+`4a91b78971b08cce0212e37548d7e055fadbc86ae23834554eec601f62c214de`.
+The key already exists: do not execute generation below again or overwrite it.
 Owner must choose strong passwords privately and protect the key. Use Android Studio's
 Generate Signed Bundle workflow or [Android signing documentation](https://developer.android.com/studio/publish/app-signing).
 Do not use an Android debug key. Enroll in Play App Signing after checking the
@@ -102,7 +106,7 @@ and chat. Set only the file path and PUBLIC certificate fingerprint as env vars:
 ```powershell
 $env:JAVA_HOME = 'C:/Program Files/Java/jdk-21.0.12'
 $env:MUU_SINH_SIGNING_PROPERTIES = 'C:/Users/THIS PC/muu-sinh-secure/signing.properties'
-$env:MUU_SINH_UPLOAD_CERT_SHA256 = 'OWNER_APPROVED_PUBLIC_CERTIFICATE_SHA256'
+$env:MUU_SINH_UPLOAD_CERT_SHA256 = '4a91b78971b08cce0212e37548d7e055fadbc86ae23834554eec601f62c214de'
 $env:BUNDLETOOL_JAR = 'C:/your-private-tools/bundletool-all-1.18.3.jar'
 npm run mobile:bundle
 ```
