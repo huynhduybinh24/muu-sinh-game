@@ -6,6 +6,8 @@ const path = require('node:path')
 const os = require('node:os')
 const { verifyNewJobActions } = require('./new-jobs-qa.cjs')
 const { verifyNativeGestures } = require('./native-gestures-qa.cjs')
+const { verifyExpansionActions } = require('./expansion-jobs-qa.cjs')
+const { verifyProfessionActions } = require('./professions-jobs-qa.cjs')
 
 async function main() {
   const { createServer } = await import('vite')
@@ -42,6 +44,73 @@ async function main() {
     }
 
     await page.clock.install()
+    if (process.argv.includes('--lifestyle-only')) {
+      const jobs = ['sugarcane','construction','shipper','noodle','barber','carwash','rubber','mechanic','coffee','fishing','banhmi','gas','cargo','cleaning','electrician','florist','security','photographer','cashier','harvest','it','accountant','police','doctor','teacher','taxi']
+      for (const job of jobs) {
+        const equipped = await run('startLifestyle',[job])
+        const reward = page.getByRole('button',{name:'Đóng quà hôm nay',exact:true})
+        if (await reward.count()) await reward.click()
+        const state = await run('lifestyleVisualSnapshot')
+        assert.equal(state.avatarCount,1); assert.ok(state.motionTweens <= 1)
+        assert.deepEqual(state.appearance,equipped.appearance)
+        assert.deepEqual(state.lifestyle,equipped.lifestyle)
+        assert.equal(state.visualParticles,24)
+        assert.ok(state.avatarCommands.length > 0)
+        if (job === 'shipper') assert.ok(state.avatarCommands.includes(0xb891ad),'Owned scooter color not drawn')
+        if (job === 'it') assert.equal(state.computer.id,'life-electronics-laptop')
+        if (job === 'taxi') assert.ok(state.carCommands.includes(0x81afa6),'Owned car color not drawn')
+        await capture(`lifestyle-${job}`); await run('checkShutdown')
+        await page.emulateMedia({reducedMotion:'reduce'})
+        await run('startLifestyle',[job]); if (await reward.count()) await reward.click(); await run('exerciseVisualFx')
+        assert.equal((await run('snapshot')).motionTweens,0)
+        assert.equal((await run('snapshot')).activeParticles,0)
+        await run('checkShutdown'); await page.emulateMedia({reducedMotion:'no-preference'})
+      }
+      const variants = [
+        ['life-shoes-sandals','life-accessory-beanie','life-accessory-bracelet'],
+        ['life-shoes-boots','life-accessory-helmet','life-tools-gloves'],
+        ['life-shoes-loafers','life-accessory-cap','life-tools-apron'],
+      ]
+      for (let index = 0; index < variants.length; index++) {
+        const identity = await run('startLifestyle',['construction',variants[index]])
+        const reward = page.getByRole('button',{name:'Đóng quà hôm nay',exact:true})
+        if (await reward.count()) await reward.click()
+        assert.deepEqual((await run('snapshot')).lifestyle,identity.lifestyle)
+        await capture(`lifestyle-variant-${index}`); await run('checkShutdown')
+      }
+      const fallback = await run('startLifestyle',['shipper'])
+      fallback.lifestyle.vehicle='life-vehicle-compact'
+      await start('shipper',fallback)
+      assert.ok((await run('lifestyleVisualSnapshot')).avatarCommands.includes(0xf5c64c),'Incompatible car changed Shipper vehicle')
+      await run('checkShutdown')
+      fallback.lifestyle.vehicle='life-vehicle-scooter'
+      await start('taxi',fallback)
+      assert.ok((await run('lifestyleVisualSnapshot')).carCommands.includes(0xedc76d),'Incompatible scooter changed Taxi vehicle')
+      await run('checkShutdown')
+      console.log('PASS: all 26 real scenes draw purchased clothing/accessories, compatible scooter/car and owned IT device, one avatar/24 bounded particles, reduced motion and clean shutdown')
+      await run('dispose'); assert.deepEqual(errors,[]); return
+    }
+    if (process.argv.includes('--professions-only')) {
+      await verifyProfessionActions(page, run, start, capture)
+      await run('dispose'); assert.deepEqual(errors, []); return
+    }
+    if (process.argv.includes('--expansion-only') || process.argv.includes('--outfits-only')) {
+      if (!process.argv.includes('--outfits-only')) await verifyExpansionActions(page, run, start, capture)
+      for (const job of ['banhmi','gas','cargo','cleaning','electrician','florist','security','photographer','cashier','harvest']) {
+        await run('startEquipped', [job])
+        const reward = page.getByRole('button', { name: 'Đóng quà hôm nay', exact: true })
+        if (await reward.count()) await reward.click()
+        assert.deepEqual((await run('snapshot')).appearance, { gender: 'female', skinToneId: 'deep', hairId: 'long', shirtId: 'rose', pantsId: 'plum' })
+        await capture(`equipped-${job}`); await run('checkShutdown')
+        await page.emulateMedia({ reducedMotion: 'reduce' }); await start(job); await run('exerciseVisualFx')
+        assert.equal((await run('snapshot')).motionTweens, 0); assert.equal((await run('snapshot')).activeParticles, 0)
+        await run('checkShutdown'); await page.emulateMedia({ reducedMotion: 'no-preference' })
+      }
+      console.log('PASS: all ten new scenes reuse paid equipment, reduced-motion settings and bounded FX with clean teardown')
+      await run('dispose'); assert.deepEqual(errors, [])
+      return
+    }
+    await verifyProfessionActions(page, run, start, capture)
     await verifyNativeGestures(page, run, start)
     await page.clock.resume()
     await start('sugarcane')
@@ -144,7 +213,7 @@ async function main() {
     await start('shipper')
     assert.equal((await run('snapshot')).appearance.shirtId, 'blue')
     await run('checkShutdown')
-    for (const job of ['sugarcane', 'construction', 'shipper', 'noodle', 'barber', 'carwash', 'rubber', 'mechanic', 'coffee', 'fishing']) {
+    for (const job of ['sugarcane', 'construction', 'shipper', 'noodle', 'barber', 'carwash', 'rubber', 'mechanic', 'coffee', 'fishing', 'banhmi', 'gas', 'cargo', 'cleaning', 'electrician', 'florist', 'security', 'photographer', 'cashier', 'harvest']) {
       await start(job, null)
       assert.equal((await run('snapshot')).appearance.shirtId, 'coral')
       await run('checkShutdown')
@@ -247,7 +316,8 @@ async function main() {
       console.log(`PASS: ${job} scene, real actions, scoring/reactions, 45s timer, result metadata, avatar, replay/cleanup`)
     }
     await verifyNewJobActions(page, run, start, capture)
-    for (const job of ['sugarcane', 'construction', 'shipper', 'noodle', 'barber', 'carwash', 'rubber', 'mechanic', 'coffee', 'fishing']) {
+    await verifyExpansionActions(page, run, start, capture)
+    for (const job of ['sugarcane', 'construction', 'shipper', 'noodle', 'barber', 'carwash', 'rubber', 'mechanic', 'coffee', 'fishing', 'banhmi', 'gas', 'cargo', 'cleaning', 'electrician', 'florist', 'security', 'photographer', 'cashier', 'harvest']) {
       await run('startEquipped', [job])
       const close = page.getByRole('button', { name: 'Đóng quà hôm nay', exact: true })
       if (await close.count()) await close.click()
@@ -257,7 +327,7 @@ async function main() {
       await capture(`equipped-${job}`)
       await run('checkShutdown')
     }
-    console.log('PASS: real store purchases/equipment pass the latest paid outfit to all ten Phaser scenes without duplicate avatars')
+    console.log('PASS: real store purchases/equipment pass the latest paid outfit to all twenty Phaser scenes without duplicate avatars')
     await page.emulateMedia({ reducedMotion: 'reduce' })
     for (const job of ['sugarcane', 'construction', 'shipper', 'noodle', 'barber', 'carwash', 'rubber', 'mechanic', 'coffee', 'fishing']) {
       await start(job)
@@ -275,7 +345,7 @@ async function main() {
     assert.equal(bounded.visualParticles, 24)
     assert.ok(bounded.activeParticles <= 24)
     await run('checkShutdown')
-    console.log('PASS: bounded visual pool after repeated bursts, reduced motion in all ten jobs, and particle cleanup')
+    console.log('PASS: bounded visual pool after repeated bursts, reduced motion in all twenty jobs, and particle cleanup')
     await run('dispose')
     assert.deepEqual(errors, [])
     console.log('PASS: replay/new game uses fresh appearance; legacy/missing profile renders defaults in all jobs; no duplicate avatars or browser errors')

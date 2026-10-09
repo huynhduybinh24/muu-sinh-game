@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { SoundToggle } from './SoundToggle'
+import { BrandLogo } from './BrandLogo'
 
 interface ScreenShellProps {
   children: ReactNode
@@ -17,6 +18,7 @@ export function ScreenShell({
   return (
     <main className="app-shell">
       <header className="screen-header">
+        {contentClassName !== 'home-content' ? <BrandLogo variant="emblem" className="screen-brand-mark" decorative /> : null}
         <div className="screen-header-content">{header}</div>
         <SoundToggle />
       </header>

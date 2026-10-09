@@ -13,6 +13,8 @@
     "qa:static": "node scripts/static-qa.cjs",
     "qa:pwa": "node scripts/run-pwa-qa.cjs",
     "qa:avatar": "node scripts/avatar-qa.cjs",
+    "branding:generate": "node scripts/generate-branding.cjs",
+    "qa:branding": "node scripts/branding-qa.cjs",
     "release:check": "npm run lint && npm run test:run && npm run build && npm run qa:static",
     "mobile:sync": "npm run build && cap sync android",
     "mobile:open": "cap open android",

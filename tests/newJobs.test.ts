@@ -83,7 +83,7 @@ describe('ten-job integration and compatibility', () => {
       expect(getDailyMissionDefinitions(date)).toEqual(getDailyMissionDefinitions(date, [dailyMissionEpochs[0]], undefined, [dailyJobEpochs[0]]))
     }
     const dates = Array.from({ length: 30 }, (_, i) => `2026-11-${String(i + 1).padStart(2, '0')}`)
-    expect(new Set(dates.map((date) => getDailyJobId(date)))).toEqual(new Set(jobs.map(({ id }) => id)))
+    expect(new Set(dates.map((date) => getDailyJobId(date)))).toEqual(new Set(jobs.slice(0, 10).map(({ id }) => id)))
     expect(dailyJobEpochs[1].activeFrom).toBe('2026-11-01')
   })
   it.each(added)('%s updates Career, XP, achievements, metadata missions and share data', (jobId) => {

@@ -87,19 +87,23 @@ describe('centralized progress and claims', () => {
     expect(claimMission(completed(), 'play-3', '2026-10-08').totalDailyMissionsClaimed).toBe(0)
   })
   it.each(jobs.map((job) => [job.id] as const))('measures %s metadata only for the scheduled job and reliable field', (jobId) => {
-    const key = Array.from({ length: 90 }, (_, i) => {
+    const key = Array.from({ length: 365 }, (_, i) => {
       const day = new Date(2026, 9, 1 + i)
       return `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`
     }).find((day) => getDailyJobId(day) === jobId && getDailyMissionDefinitions(day).some(({ id }) => id === 'daily-work'))!
     expect(key).toBeDefined()
     const mission = getDailyMissionDefinitions(key).find(({ id }) => id === 'daily-work')!
-    const metadata = { customersServed: 2, successfulBricks: 2, deliveries: 2, vehiclesWashed: 2, treesTapped: 2, vehiclesRepaired: 2, fishCaught: 2 }
+    const metadata = { customersServed: 2, successfulBricks: 2, deliveries: 2, vehiclesWashed: 2, treesTapped: 2, vehiclesRepaired: 2, fishCaught: 2,
+      vehiclesServed: 2, packagesSorted: 2, streetsCleaned: 2, circuitsFixed: 2, bouquetsMade: 2, correctDetections: 2, photosTaken: 2, fruitsHarvested: 2,
+      bugsFixed: 2, invoicesProcessed: 2, incidentsResolved: 2, patientsHelped: 2, lessonsCompleted: 2, tripsCompleted: 2 }
     const view = (p: PlayerProgress) => getMissionViews(p.dailyMissions, key).find(({ id }) => id === mission.id)!
     const wrong = jobs.find((job) => job.id !== jobId)!.id
     expect(view(updateDailyMissionProgress(fresh(), result({ jobId: wrong, metadata }), key)).progress).toBe(0)
     expect(view(updateDailyMissionProgress(fresh(), result({ jobId }), key)).progress).toBe(0)
     expect(view(updateDailyMissionProgress(fresh(), result({ jobId, metadata }), key)).progress).toBe(2)
-    expect(view(updateDailyMissionProgress(fresh(), result({ jobId, metadata: { customersServed: NaN, successfulBricks: -1, deliveries: Infinity, vehiclesWashed: -10, treesTapped: NaN, vehiclesRepaired: -1, fishCaught: Infinity } }), key)).progress).toBe(0)
+    expect(view(updateDailyMissionProgress(fresh(), result({ jobId, metadata: { customersServed: NaN, successfulBricks: -1, deliveries: Infinity, vehiclesWashed: -10, treesTapped: NaN, vehiclesRepaired: -1, fishCaught: Infinity,
+      vehiclesServed: NaN, packagesSorted: -1, streetsCleaned: Infinity, circuitsFixed: -10, bouquetsMade: NaN, correctDetections: -1, photosTaken: Infinity, fruitsHarvested: NaN,
+      bugsFixed: NaN, invoicesProcessed: -1, incidentsResolved: Infinity, patientsHelped: -10, lessonsCompleted: NaN, tripsCompleted: -1 } }), key)).progress).toBe(0)
   })
   it('rejects incomplete/unknown claims and awards money/XP once without job-income inflation', () => {
     const before = syncDailyMissions(fresh(), date)

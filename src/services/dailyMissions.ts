@@ -59,10 +59,24 @@ const count = (value: number | undefined) => value !== undefined && Number.isFin
 function missionIncrement(mission: MissionDefinition, result: GameResult): number {
   if (mission.jobId && mission.jobId !== result.jobId) return 0
   switch (mission.type) {
+    case 'FIX_BUGS': return result.jobId === 'it' ? count(result.metadata?.bugsFixed) : 0
+    case 'BALANCE_INVOICES': return result.jobId === 'accountant' ? count(result.metadata?.invoicesProcessed) : 0
+    case 'RESOLVE_TRAFFIC': return result.jobId === 'police' ? count(result.metadata?.incidentsResolved) : 0
+    case 'HELP_PATIENTS': return result.jobId === 'doctor' ? count(result.metadata?.patientsHelped) : 0
+    case 'TEACH_LESSONS': return result.jobId === 'teacher' ? count(result.metadata?.lessonsCompleted) : 0
+    case 'TAXI_TRIPS': return result.jobId === 'taxi' ? count(result.metadata?.tripsCompleted) : 0
     case 'PLAY_GAMES': case 'PLAY_JOB': return 1
     case 'SCORE_TOTAL': case 'SCORE_SINGLE': return count(result.score)
     case 'EARN_MONEY': return count(result.earnedMoney)
-    case 'SERVE_CUSTOMERS': return ['sugarcane', 'noodle', 'barber', 'coffee'].includes(result.jobId) ? count(result.metadata?.customersServed) : 0
+    case 'SERVE_CUSTOMERS': return ['sugarcane', 'noodle', 'barber', 'coffee', 'banhmi', 'cashier'].includes(result.jobId) ? count(result.metadata?.customersServed) : 0
+    case 'FILL_VEHICLES': return result.jobId === 'gas' ? count(result.metadata?.vehiclesServed) : 0
+    case 'SORT_PACKAGES': return result.jobId === 'cargo' ? count(result.metadata?.packagesSorted) : 0
+    case 'CLEAN_STREETS': return result.jobId === 'cleaning' ? count(result.metadata?.streetsCleaned) : 0
+    case 'FIX_CIRCUITS': return result.jobId === 'electrician' ? count(result.metadata?.circuitsFixed) : 0
+    case 'MAKE_BOUQUETS': return result.jobId === 'florist' ? count(result.metadata?.bouquetsMade) : 0
+    case 'DETECT_INCIDENTS': return result.jobId === 'security' ? count(result.metadata?.correctDetections) : 0
+    case 'TAKE_PHOTOS': return result.jobId === 'photographer' ? count(result.metadata?.photosTaken) : 0
+    case 'HARVEST_FRUITS': return result.jobId === 'harvest' ? count(result.metadata?.fruitsHarvested) : 0
     case 'SUCCESSFUL_BRICKS': return result.jobId === 'construction' ? count(result.metadata?.successfulBricks) : 0
     case 'DELIVERIES': return result.jobId === 'shipper' ? count(result.metadata?.deliveries) : 0
     case 'WASH_VEHICLES': return result.jobId === 'carwash' ? count(result.metadata?.vehiclesWashed) : 0

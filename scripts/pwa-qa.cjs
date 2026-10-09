@@ -8,6 +8,7 @@ const path = require('node:path')
 const http = require('node:http')
 const { completeProfile, verifyProfileFlows, dismissReward } = require('./profile-qa.cjs')
 const { verifyShopFlows } = require('./shop-qa.cjs')
+const { verifyLifestyleFlows } = require('./lifestyle-qa.cjs')
 const { verifyDailyFlows } = require('./daily-qa.cjs')
 const { verifySaveFlows } = require('./save-qa.cjs')
 const { verifyTownFlows } = require('./town-qa.cjs')
@@ -25,6 +26,22 @@ const dailyCases = [
   { date: '2026-10-14', id: 'barber' }, { date: '2026-10-15', id: 'carwash' },
   { date: '2026-11-06', id: 'rubber' }, { date: '2026-11-07', id: 'mechanic' },
   { date: '2026-11-08', id: 'coffee' }, { date: '2026-11-09', id: 'fishing' },
+  { date: '2026-12-09', id: 'banhmi' },
+  { date: '2026-12-10', id: 'cargo' },
+  { date: '2026-12-11', id: 'cleaning' },
+  { date: '2026-12-12', id: 'electrician' },
+  { date: '2026-12-13', id: 'florist' },
+  { date: '2026-12-14', id: 'security' },
+  { date: '2026-12-15', id: 'photographer' },
+  { date: '2026-12-16', id: 'cashier' },
+  { date: '2026-12-17', id: 'harvest' },
+  { date: '2026-12-28', id: 'gas' },
+  { date: '2027-01-28', id: 'it' },
+  { date: '2027-01-29', id: 'accountant' },
+  { date: '2027-03-04', id: 'police' },
+  { date: '2027-03-05', id: 'doctor' },
+  { date: '2027-02-01', id: 'teacher' },
+  { date: '2027-02-02', id: 'taxi' },
 ]
 
 async function assertLayout(page, label) {
@@ -198,17 +215,32 @@ async function main() {
       assert.equal(bytes.readUInt32BE(20), size)
     }
     console.log('PASS: production manifest, icon dimensions, and service-worker control')
-    await verifyProfileFlows(browser, page, origin, artifacts, assertLayout)
-    await page.getByRole('button', { name: 'CỬA HÀNG', exact: true }).click()
-    await page.getByRole('tab', { name: 'ÁO', exact: true }).click()
-    assert.equal(await page.locator('[data-item-id="shirt-blue"]').getByRole('button', { name: 'KHÔNG ĐỦ TIỀN', exact: true }).isDisabled(), true)
-    assert.equal(await page.locator('[data-item-id="shirt-rose"]').getByRole('button', { name: 'MỞ Ở LEVEL 5', exact: true }).isDisabled(), true)
-    await page.getByRole('button', { name: 'TRANG CHỦ', exact: true }).click()
-    await verifyShopFlows(browser, origin, artifacts, assertLayout, await readProgress(page))
-    await verifyDailyFlows(browser, origin, artifacts, assertLayout, await readProgress(page))
-    await verifySaveFlows(browser, origin, artifacts, assertLayout, await readProgress(page))
-    await verifyTownFlows(browser, origin, artifacts, assertLayout, await readProgress(page))
-    await verifyNativeAdapter(browser, origin, await readProgress(page))
+    if (process.argv.includes('--native-only')) {
+      await completeProfile(page, 'Thợ kiểm thử native')
+      await verifyNativeAdapter(browser, origin, await readProgress(page))
+      await context.close(); return
+    }
+    if (process.argv.includes('--lifestyle-only')) {
+      await completeProfile(page, 'Thợ mua sắm')
+      await verifyShopFlows(browser, origin, artifacts, assertLayout, await readProgress(page))
+      await verifyLifestyleFlows(browser, origin, artifacts, assertLayout, await readProgress(page))
+      await context.close(); return
+    }
+    if (process.argv.includes('--games-only') || process.argv.includes('--professions-only')) await completeProfile(page, 'Thợ kiểm thử 26 nghề')
+    else {
+      await verifyProfileFlows(browser, page, origin, artifacts, assertLayout)
+      await page.getByRole('button', { name: 'CỬA HÀNG', exact: true }).click()
+      await page.getByRole('tab', { name: 'ÁO', exact: true }).click()
+      assert.equal(await page.locator('[data-item-id="shirt-blue"]').getByRole('button', { name: 'KHÔNG ĐỦ TIỀN', exact: true }).isDisabled(), true)
+      assert.equal(await page.locator('[data-item-id="shirt-rose"]').getByRole('button', { name: 'MỞ Ở LEVEL 5', exact: true }).isDisabled(), true)
+      await page.getByRole('button', { name: 'TRANG CHỦ', exact: true }).click()
+      await verifyShopFlows(browser, origin, artifacts, assertLayout, await readProgress(page))
+      await verifyLifestyleFlows(browser, origin, artifacts, assertLayout, await readProgress(page))
+      await verifyDailyFlows(browser, origin, artifacts, assertLayout, await readProgress(page))
+      await verifySaveFlows(browser, origin, artifacts, assertLayout, await readProgress(page))
+      await verifyTownFlows(browser, origin, artifacts, assertLayout, await readProgress(page))
+      await verifyNativeAdapter(browser, origin, await readProgress(page))
+    }
     if (process.argv.includes('--town-only')) return
     if (process.argv.includes('--daily-only')) {
       await context.close()
@@ -237,16 +269,18 @@ async function main() {
     console.log('PASS: offline reload preserves progress and preferences')
 
     await page.clock.install({ time: new Date('2026-10-06T05:00:00Z') })
+    assert.equal(dailyCases.length, 26, 'The full production suite must cover 26 jobs')
+    const cases = process.argv.includes('--professions-only') ? dailyCases.slice(20) : dailyCases
     const jobsSeen = new Set()
-    for (let index = 0; index < dailyCases.length; index++) {
+    for (let index = 0; index < cases.length; index++) {
       const size = sizes[index % sizes.length]
-      const daily = dailyCases[index]
+      const daily = cases[index]
       await page.setViewportSize(size)
       await page.clock.setFixedTime(new Date(`${daily.date}T05:00:00Z`))
       // Re-enter Home so the daily date is read again without touching app storage.
       await page.getByRole('button', { name: 'SỰ NGHIỆP', exact: true }).click()
       await page.getByRole('heading', { name: 'SỰ NGHIỆP', exact: true }).waitFor()
-      assert.equal(await page.locator('.career-job-card').count(), 10)
+      assert.equal(await page.locator('.career-job-card').count(), 26)
       await assertLayout(page, 'Career')
       await page.screenshot({ path: path.join(artifacts, `career-${daily.id}-${size.width}.png`) })
       await page.getByRole('button', { name: '← VỀ TRANG CHỦ' }).click()
@@ -332,7 +366,7 @@ async function main() {
       console.log(`PASS: ${job} offline at ${size.width}×${size.height}; timer, result, career, PNG export and replay`)
       await page.getByRole('button', { name: 'VỀ TRANG CHỦ →' }).click()
     }
-    assert.equal(jobsSeen.size, 10, 'All ten jobs must be checked')
+    assert.equal(jobsSeen.size, process.argv.includes('--professions-only') ? 6 : 26, 'Every requested production case must be checked')
     const persisted = await readProgress(page)
     await page.reload()
     await page.locator('.home-player').waitFor()

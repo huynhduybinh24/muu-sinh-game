@@ -27,6 +27,13 @@ function validatePayload(data: Record<string, unknown>, version: number): boolea
     if (!isSaveRecord(profile) || typeof profile.playerName !== 'string' || (profile.playerName !== '' && getPlayerNameError(profile.playerName))) return false
     if (profile.createdAt !== '' && !saveDateValid(profile.createdAt)) return false
     if (!isSaveRecord(profile.appearance) || Object.values(profile.appearance).some((value) => typeof value !== 'string')) return false
+    if ('lifestyle' in profile) {
+      const life = profile.lifestyle
+      const selections = (value: unknown) => isSaveRecord(value) && Object.keys(value).length <= 16
+        && Object.values(value).every(id => id === null || (typeof id === 'string' && id.length <= 80))
+      if (!isSaveRecord(life) || !selections(life.equipment) || !selections(life.room)) return false
+      for (const key of ['phone', 'computer', 'vehicle']) if (life[key] !== null && (typeof life[key] !== 'string' || String(life[key]).length > 80)) return false
+    }
   }
   if ('jobStats' in data) {
     if (!isSaveRecord(data.jobStats) || Object.keys(data.jobStats).length > 64) return false

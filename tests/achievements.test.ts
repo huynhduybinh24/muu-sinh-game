@@ -39,15 +39,15 @@ describe('achievement thresholds', () => {
     expect(getNewAchievementUnlocks(progress, unlockedAt).map((achievement) => achievement.id)).not.toContain(id)
   })
 
-  it('requires all available distinct jobs for the collection achievement', () => {
+  it('preserves the original ten distinct jobs for the collection achievement', () => {
     const progress = freshProgress()
     progress.completedJobs = ['sugarcane', 'construction']
     expect(getNewAchievementUnlocks(progress, unlockedAt)).toEqual([])
     progress.completedJobs.push('shipper')
     expect(getNewAchievementUnlocks(progress, unlockedAt)).toEqual([])
-    progress.completedJobs = jobs.slice(0, -1).map((job) => job.id)
+    progress.completedJobs = jobs.slice(0, 9).map((job) => job.id)
     expect(getNewAchievementUnlocks(progress, unlockedAt)).toEqual([])
-    progress.completedJobs.push(jobs[jobs.length - 1].id)
+    progress.completedJobs.push(jobs[9].id)
     expect(getNewAchievementUnlocks(progress, unlockedAt)).toEqual([{ id: 'all-jobs', unlockedAt }])
     progress.achievements = [{ id: 'all-jobs', unlockedAt }]
     expect(getNewAchievementUnlocks(progress, unlockedAt)).toEqual([])

@@ -1,4 +1,4 @@
-export type AppScreen = 'home' | 'reveal' | 'game' | 'result' | 'career' | 'profile' | 'creator' | 'shop' | 'wardrobe' | 'missions' | 'town'
+export type AppScreen = 'home' | 'reveal' | 'game' | 'result' | 'career' | 'profile' | 'creator' | 'shop' | 'wardrobe' | 'missions' | 'town' | 'devices' | 'garage' | 'room'
 export interface ScreenNavigation { screen: AppScreen; history: AppScreen[] }
 export const initialNavigation: ScreenNavigation = { screen: 'home', history: [] }
 export function navigateScreen(state: ScreenNavigation, screen: AppScreen): ScreenNavigation {

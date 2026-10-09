@@ -10,7 +10,22 @@ export const TownScenery = memo(function TownScenery() {
       <g id="town-lamp"><ellipse cy="28" rx="13" ry="5" fill="#455e62" opacity=".1" /><path d="M0 28V-12H13" fill="none" stroke="#78918d" strokeWidth="4" /><path d="M7-12H20L17-4H10Z" fill="#fff0b4" stroke="#8e9882" /></g>
       <g id="town-bench"><path d="M-24 0H24V8H-24Z" fill="#be9b76" /><path d="M-25-11H25V-5H-25Z" fill="#d6b58b" /><path d="M-18 8V16M18 8V16" stroke="#8a8b79" strokeWidth="4" /></g>
     </defs>
-    <rect width="720" height="1220" rx="30" fill="url(#town-grass)" />
+    <rect width={TOWN_SIZE.width} height={TOWN_SIZE.height} rx="30" fill="url(#town-grass)" />
+    {[{ y: 1200, name: 'CHỢ MỚI · BÁNH MÌ, HOA & SIÊU THỊ', color: '#f7e4b5' },
+      { y: 1460, name: 'PHỐ MỚI · XĂNG, BẢO VỆ & GÓC ẢNH', color: '#d4e6e0' },
+      { y: 1720, name: 'HẺM XANH & XÓM THỢ MỚI', color: '#e3dfc9' },
+      { y: 1980, name: 'MIỀN QUÊ · VƯỜN TRÁI CÂY', color: '#d7e6b4' },
+      { y: 2240, name: 'PHỐ NGHỀ · IT, KẾ TOÁN & NGÃ TƯ', color: '#dde6da' },
+      { y: 2500, name: 'CỘNG ĐỒNG · BỆNH VIỆN, TRƯỜNG & TAXI', color: '#d4e6e0' }].map(({ y, name, color }) => <g key={y}>
+      <rect x="27" y={y} width="666" height="195" rx="30" fill={color} />
+      <path d={`M42 ${y + 224}H677`} stroke="#e9e7cc" strokeWidth="42" />
+      <path d={`M50 ${y + 224}H671`} stroke="#fff9e4" strokeWidth="3" strokeDasharray="13 13" />
+      <rect x="163" y={y - 31} width="394" height="29" rx="14" fill="#fffbe9" />
+      <text x="360" y={y - 11} textAnchor="middle" fill="#60785f" fontWeight="850" fontSize="13">{name}</text>
+      <use href="#town-tree" x="50" y={y + 192} /><use href="#town-tree" x="671" y={y + 192} />
+      <use href="#town-lamp" x="355" y={y + 224} />
+    </g>)}
+    <path d="M359 1180V2800" stroke="#e9e7cc" strokeWidth="42" /><path d="M359 1180V2800" stroke="#fff9e4" strokeWidth="3" strokeDasharray="13 13" />
     <path d="M22 126Q30 114 54 118H670Q699 122 699 146V1120Q691 1196 616 1199H104Q21 1198 21 1120Z" fill="#edf1d3" opacity=".5" />
     {townDistricts.slice(0, 3).map((district, i) => <rect key={district.id} x="27" y={126 + i * 260} width="666" height="195" rx="30" fill={district.color} />)}
     <rect x="27" y="898" width="310" height="248" rx="32" fill="#bfd699" />

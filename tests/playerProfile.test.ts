@@ -32,7 +32,7 @@ describe('appearance defaults and recovery', () => {
       .toEqual({ ...defaultAppearance, gender: 'female', hairId: 'bun', shirtId: 'mint' })
   })
   it('has the requested option counts with no duplicate IDs', () => {
-    expect(Object.values(avatarOptions).map((options) => options.length)).toEqual([2, 4, 6, 10, 6])
+    expect(Object.values(avatarOptions).map((options) => options.length)).toEqual([2, 4, 8, 16, 10])
     for (const options of Object.values(avatarOptions)) {
       expect(new Set(options.map((option) => option.id)).size).toBe(options.length)
     }

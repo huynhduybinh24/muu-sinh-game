@@ -10,4 +10,10 @@ export const dailyJobEpochs: readonly DailyJobEpoch[] = [{
 }, {
   version: 'ten-jobs-v2', activeFrom: '2026-11-01',
   jobIds: ['sugarcane', 'construction', 'shipper', 'noodle', 'barber', 'carwash', 'rubber', 'mechanic', 'coffee', 'fishing'],
+}, {
+  version: 'twenty-jobs-v3', activeFrom: '2026-12-01',
+  jobIds: ['sugarcane', 'construction', 'shipper', 'noodle', 'barber', 'carwash', 'rubber', 'mechanic', 'coffee', 'fishing', 'banhmi', 'gas', 'cargo', 'cleaning', 'electrician', 'florist', 'security', 'photographer', 'cashier', 'harvest'],
+}, {
+  version: 'twenty-six-jobs-v4', activeFrom: '2027-01-01',
+  jobIds: ['sugarcane', 'construction', 'shipper', 'noodle', 'barber', 'carwash', 'rubber', 'mechanic', 'coffee', 'fishing', 'banhmi', 'gas', 'cargo', 'cleaning', 'electrician', 'florist', 'security', 'photographer', 'cashier', 'harvest', 'it', 'accountant', 'police', 'doctor', 'teacher', 'taxi'],
 }]

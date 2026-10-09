@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#123653</color>
+    <color name="colorPrimaryDark">#123653</color>
+    <color name="colorAccent">#FFBE35</color>
+    <color name="brand_splash_background">#FFF5DF</color>
+    <bool name="brand_light_system_bars">true</bool>
+</resources>

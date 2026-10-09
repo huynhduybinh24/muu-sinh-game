@@ -43,7 +43,7 @@ async function verifyShopFlows(browser, origin, artifacts, assertLayout, baseSta
     await page.getByRole('heading', { name: 'CỬA HÀNG', exact: true }).waitFor()
     for (const size of sizes) {
       await page.setViewportSize(size)
-      for (const [tab, count] of [['TÓC', 6], ['ÁO', 10], ['QUẦN', 6]]) {
+      for (const [tab, count] of [['TÓC', 8], ['ÁO', 16], ['QUẦN', 10]]) {
         await page.getByRole('tab', { name: tab, exact: true }).click()
         assert.equal(await page.locator('.shop-item').count(), count)
         await page.locator('.shop-item').last().scrollIntoViewIfNeeded()
@@ -61,6 +61,7 @@ async function verifyShopFlows(browser, origin, artifacts, assertLayout, baseSta
     assert.deepEqual(await readSave(page), beforePreview, 'Preview changed stored equipment')
     assert.ok((await page.locator('.shop-identity svg').innerHTML()).includes('#e6a1b7'))
     await rose.getByRole('button', { name: 'MUA', exact: true }).click()
+    await page.getByRole('dialog').getByRole('button', { name: 'XÁC NHẬN MUA', exact: true }).click()
     const bought = await readSave(page)
     assert.equal(bought.state.money, 1_250_000)
     assert.equal(bought.state.totalMoneySpent, 750_000)
@@ -111,7 +112,7 @@ async function verifyShopFlows(browser, origin, artifacts, assertLayout, baseSta
     await page.locator('.home-player').waitFor()
     assert.deepEqual(await readSave(page), offline)
     assert.deepEqual(errors, [])
-    console.log('PASS: v3 paid-outfit migration/level, 22 shop items, 3 mobile sizes/tabs/scrolling, preview, buy/equip, wardrobe, achievements and offline persistence')
+    console.log('PASS: v3 paid-outfit migration/level, 34 clothing items, 3 mobile sizes/tabs/scrolling, preview, confirmed buy/equip, wardrobe, achievements and offline persistence')
   } finally { await context.close() }
 }
 module.exports = { verifyShopFlows }

@@ -29,6 +29,8 @@ export const avatarOptions: AvatarOptions = {
     { id: 'bun', label: 'Búi cao', color: '#49312c' },
     { id: 'curls', label: 'Xoăn vui', color: '#382e34' },
     { id: 'long', label: 'Tóc dài', color: '#49312c' },
+    { id: 'wave', label: 'Gợn sóng', color: '#684735' },
+    { id: 'braid', label: 'Tết gọn', color: '#352c37' },
   ],
   shirtId: [
     { id: 'coral', label: 'Cam san hô', color: '#f47564' },
@@ -41,6 +43,12 @@ export const avatarOptions: AvatarOptions = {
     { id: 'charcoal', label: 'Đen cá tính', color: '#404455' },
     { id: 'ocean', label: 'Xanh đại dương', color: '#278b9f' },
     { id: 'rose', label: 'Hồng ánh mai', color: '#e6a1b7' },
+    { id: 'polo', label: 'Polo phố nhỏ', color: '#597f91' },
+    { id: 'linen', label: 'Sơ mi vải mộc', color: '#e8d7b5' },
+    { id: 'hoodie', label: 'Hoodie mùa mưa', color: '#9b86b5' },
+    { id: 'denim-jacket', label: 'Áo khoác denim', color: '#547493' },
+    { id: 'raincoat', label: 'Áo gió nắng vàng', color: '#dbb34f' },
+    { id: 'blazer', label: 'Blazer chiều phố', color: '#596371' },
   ],
   pantsId: [
     { id: 'denim', label: 'Jeans xanh', color: '#587baf' },
@@ -49,6 +57,10 @@ export const avatarOptions: AvatarOptions = {
     { id: 'forest', label: 'Xanh rừng', color: '#557967' },
     { id: 'charcoal', label: 'Xám thanh lịch', color: '#565769' },
     { id: 'plum', label: 'Tím mận', color: '#775a83' },
+    { id: 'shorts', label: 'Short dạo phố', color: '#c19270' },
+    { id: 'chinos', label: 'Chino đất đỏ', color: '#a86e52' },
+    { id: 'jogger', label: 'Jogger xanh xám', color: '#718d85' },
+    { id: 'formal', label: 'Quần tây lịch thiệp', color: '#454d65' },
   ],
 }
 

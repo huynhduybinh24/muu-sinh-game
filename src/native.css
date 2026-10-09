@@ -1,5 +1,5 @@
 /* Capacitor 8 supplies native insets even on WebViews with broken env() support. */
-html.native-android { background: #fffaf0; }
+html.native-android { background: var(--brand-cream, #FFF5DF); }
 .native-android .app-shell {
   padding-top: max(22px, var(--safe-area-inset-top, env(safe-area-inset-top, 0px)));
   padding-right: max(16px, var(--safe-area-inset-right, env(safe-area-inset-right, 0px)));

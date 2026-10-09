@@ -1,5 +1,6 @@
 import { avatarOptions, defaultAppearance } from '../data/avatar'
 import type { PlayerAppearance, PlayerProfile } from '../types/profile'
+import { readLifestyle } from './lifestyle'
 
 export const PLAYER_NAME_LIMITS = { min: 2, max: 20 } as const
 
@@ -47,6 +48,7 @@ export function readPlayerProfile(value: unknown): PlayerProfile {
         ? source.createdAt : '1970-01-01T00:00:00.000Z'
       : '',
     appearance: readAppearance(source.appearance),
+    ...(source.lifestyle === undefined ? {} : { lifestyle: readLifestyle(source.lifestyle) }),
   }
 }
 

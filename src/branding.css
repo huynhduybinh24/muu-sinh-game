@@ -1,0 +1,69 @@
+@import './brand-tokens.css';
+
+:root {
+  --background: #DBEDEA;
+  --surface: #FFFCF4;
+  --primary: var(--brand-action);
+  --accent: var(--brand-gold);
+  --text: var(--brand-navy);
+  --muted: var(--brand-muted);
+  --success: var(--brand-success);
+  --ink-soft: #34566B;
+  --red-soft: #FFE5D6;
+  --yellow-soft: #FFEBB8;
+  --cream: var(--brand-cream);
+  --line: #D4E5DF;
+  --shadow-soft: 0 3px 0 #12365309, 0 8px 22px #1236530D;
+}
+.app-shell { background: radial-gradient(ellipse at 105% 0%, #FFE4A8, transparent 38%), linear-gradient(165deg, var(--brand-cream), #F1FBF8 65%, #E4F1EF); }
+.app-shell::before { border-color: #18C8BC12; }
+.brand-logo { display: block; max-width: 100%; height: auto; }
+.screen-brand-mark { width: 28px; height: 28px; flex: 0 0 28px; }
+.share-card-brand .brand-logo { width: min(100%, 250px); margin: 0 auto; }
+.home-brand { width: 196px; max-width: 60%; margin: 0; line-height: 0; }
+.home-brand .brand-logo { width: 100%; animation: brand-arrive 320ms ease-out both; }
+.home-shop-link { min-height: 44px; color: var(--brand-action); }
+.welcome-brand { margin: 8px auto 16px; width: min(290px, 90%); text-shadow: none; }
+.brand-loading { align-items: center; justify-content: center; gap: 24px; }
+.brand-loading .brand-logo { width: 280px; }
+.primary-button { background: linear-gradient(160deg, #CE522A, var(--brand-action)); border: 1px solid #E47C43; box-shadow: 0 4px 0 #86331E, 0 8px 16px #BC421F24, inset 0 1px 0 #FFFFFF40; text-shadow: 0 1px 0 #71301E; }
+.secondary-button { color: var(--brand-navy); border-color: var(--line); background: linear-gradient(145deg, #FFFDF5, #F0F8F3); }
+.bottom-nav { background: #FFFDF5; border-color: #D4E5DF; box-shadow: var(--shadow-soft); }
+.bottom-nav button[aria-current='page'] { background: linear-gradient(135deg, #FFEBBD, #FFE0BE); color: var(--brand-action); }
+.day-pill, .level-badge { color: #6A460A; background: linear-gradient(135deg, #FFEAB1, var(--brand-gold)); }
+.xp-track > span, .achievement-progress > span { background: linear-gradient(90deg, var(--brand-teal), var(--brand-success)); transition: width 240ms ease-out; }
+.career-play, .home-missions-preview button { color: var(--brand-action); }
+.home-wallet strong { color: var(--brand-navy); }
+.home-daily-card { border-color: #EACB7F; background: linear-gradient(150deg, #FFFDF7, #FFF0CD); box-shadow: 0 4px 0 #D7B57A40, var(--shadow-soft); }
+.home-town-button { color: var(--brand-navy); background: #DFF5ED; border-color: #92CFC3; }
+.shop-tabs button[aria-selected='true'], .item-action { color: var(--brand-navy); background: linear-gradient(145deg, #FFE5A2, var(--brand-gold)); }
+.shop-item--selected { border-color: var(--brand-orange); box-shadow: 0 0 0 2px #FFBE3540, var(--shadow-soft); }
+.shop-identity, .profile-identity, .avatar-stage { background: linear-gradient(145deg, #DFF6EF, #E5F0F9); }
+.achievement-card--unlocked, .daily-mission-card--claimed { background-color: #E1F6ED; border-color: #80CDB5; }
+.daily-reward-modal { background: radial-gradient(circle at 50% 0%, #FFDEA0, transparent 58%), var(--brand-cream); }
+.home-player { position: relative; min-height: 175px; padding: 12px 14px 34px; overflow: hidden; isolation: isolate; border: 1px solid #FFFFFF; background: #CEF3EF url('/branding/town-backdrop.svg') center bottom / cover no-repeat; box-shadow: 0 4px 0 #78B5A129, var(--shadow-soft); }
+.home-player .avatar-link { flex: 0 0 125px; align-self: end; filter: drop-shadow(0 4px 2px #12365320); }
+.home-player .player-avatar { max-width: 125px; }
+.home-player > div { padding: 10px; border-radius: 16px; background: #FFFCF4EB; }
+.home-player .eyebrow { font-size: .58rem; letter-spacing: .04em; margin-bottom: 4px; color: var(--brand-success); }
+.home-player h2 { overflow-wrap: anywhere; font-size: 1.1rem; }
+.home-life-invitation { position: absolute; bottom: 6px; left: 0; right: 0; margin: 0; text-align: center; padding: 5px 2px; font-weight: 750; font-size: .7rem; color: var(--brand-navy); background: #FFF5DFE8; }
+.player-spark { color: #B97B0C; animation: brand-spark 650ms ease-out both; }
+.home-destinations { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin: 0 0 12px; }
+.home-destinations button { min-height: 64px; padding: 7px 2px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border: 1px solid #D1E5DD; border-radius: 15px; color: var(--brand-navy); background: linear-gradient(150deg, #FFFEF9, #EDF8F3); box-shadow: 0 3px 0 #B9D0C72B; font: inherit; font-size: .62rem; font-weight: 800; cursor: pointer; }
+.app-shell:has(.home-content) { height: 100svh; min-height: 0; }
+.home-content { min-height: 0; overflow-y: auto; scrollbar-width: thin; padding: 5px 2px 8px; }
+.home-content > * { flex-shrink: 0; }
+.app-shell:has(.home-content) .screen-header, .app-shell:has(.home-content) .screen-footer { flex-shrink: 0; }
+.screen-content:not(.game-content) { animation: brand-panel 160ms ease-out both; }
+button:not(:disabled) { transition: transform 100ms ease-out, box-shadow 100ms ease-out; }
+button:not(:disabled):active { transform: translateY(2px); }
+.achievement-toast, .level-up-toast { animation: brand-panel 220ms ease-out both; }
+@keyframes brand-arrive { from { opacity: 0; transform: translateY(6px) scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes brand-panel { from { opacity: .6; } to { opacity: 1; } }
+@keyframes brand-spark { from { transform: scale(.6) rotate(-20deg); opacity: 0; } 50% { transform: scale(1.15); opacity: 1; } to { transform: none; opacity: 1; } }
+@media (max-width: 360px) { .home-brand { width: 170px; } .home-player .avatar-link { flex-basis: 112px; } .home-player .player-avatar { width: 112px; height: 112px; } }
+@media (prefers-reduced-motion: reduce) {
+  .brand-logo, .screen-content, .player-spark, .achievement-toast, .level-up-toast { animation: none !important; }
+  button, .xp-track > span, .achievement-progress > span { transition: none !important; }
+}

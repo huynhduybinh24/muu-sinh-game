@@ -18,6 +18,22 @@ vi.mock('../src/game/scenes/MechanicScene', () => ({ MechanicScene: class Mechan
 vi.mock('../src/game/scenes/CoffeeScene', () => ({ CoffeeScene: class CoffeeScene extends SceneStub {} }))
 vi.mock('../src/game/scenes/FishingScene', () => ({ FishingScene: class FishingScene extends SceneStub {} }))
 import { createGameConfig } from '../src/game/config/createGameConfig'
+vi.mock('../src/game/scenes/ItScene', () => ({ ItScene: class ItScene extends SceneStub {} }))
+vi.mock('../src/game/scenes/AccountantScene', () => ({ AccountantScene: class AccountantScene extends SceneStub {} }))
+vi.mock('../src/game/scenes/PoliceScene', () => ({ PoliceScene: class PoliceScene extends SceneStub {} }))
+vi.mock('../src/game/scenes/DoctorScene', () => ({ DoctorScene: class DoctorScene extends SceneStub {} }))
+vi.mock('../src/game/scenes/TeacherScene', () => ({ TeacherScene: class TeacherScene extends SceneStub {} }))
+vi.mock('../src/game/scenes/TaxiScene', () => ({ TaxiScene: class TaxiScene extends SceneStub {} }))
+vi.mock('../src/game/scenes/BanhmiScene', () => ({ BanhmiScene: class BanhmiScene extends SceneStub {} }))
+vi.mock('../src/game/scenes/GasScene', () => ({ GasScene: class GasScene extends SceneStub {} }))
+vi.mock('../src/game/scenes/CargoScene', () => ({ CargoScene: class CargoScene extends SceneStub {} }))
+vi.mock('../src/game/scenes/CleaningScene', () => ({ CleaningScene: class CleaningScene extends SceneStub {} }))
+vi.mock('../src/game/scenes/ElectricianScene', () => ({ ElectricianScene: class ElectricianScene extends SceneStub {} }))
+vi.mock('../src/game/scenes/FloristScene', () => ({ FloristScene: class FloristScene extends SceneStub {} }))
+vi.mock('../src/game/scenes/SecurityScene', () => ({ SecurityScene: class SecurityScene extends SceneStub {} }))
+vi.mock('../src/game/scenes/PhotographerScene', () => ({ PhotographerScene: class PhotographerScene extends SceneStub {} }))
+vi.mock('../src/game/scenes/CashierScene', () => ({ CashierScene: class CashierScene extends SceneStub {} }))
+vi.mock('../src/game/scenes/HarvestScene', () => ({ HarvestScene: class HarvestScene extends SceneStub {} }))
 
 describe('React → Phaser scene routing', () => {
   it.each(jobs)('$id creates its own scene with the unchanged callback and fresh profile', (job) => {

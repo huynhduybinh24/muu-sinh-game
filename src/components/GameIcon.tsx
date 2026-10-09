@@ -3,6 +3,22 @@ import type { JobId } from '../types/job'
 
 export type GameIconName = JobId | 'home' | 'career' | 'profile' | 'gift'
 const drawings: Record<GameIconName, ReactNode> = {
+  it: <><path d="M9 14H55V43H9Z" fill="#99b9c5" /><path d="M23 21L17 27L23 33M41 21L47 27L41 33M34 20L29 35M26 43V50M38 43V50M17 53H47" /></>,
+  accountant: <><path d="M13 9H51V55H13Z" fill="#a9cbbb" /><path d="M20 17H44V27H20Z" fill="#f2f0cf" /><path d="M21 35H25M32 35H36M43 35H46M21 43H25M32 43H36M43 43H46" /></>,
+  police: <><path d="M21 8H43V56H21Z" fill="#779097" /><circle cx="32" cy="18" r="6" fill="#df998c" /><circle cx="32" cy="32" r="6" fill="#ebd08a" /><circle cx="32" cy="46" r="6" fill="#a1c88c" /></>,
+  doctor: <><path d="M9 17H55V54H9ZM23 8H41V17" fill="#c1ded4" /><path d="M28 25H36V33H44V41H36V49H28V41H20V33H28Z" fill="#cc9387" /></>,
+  teacher: <><path d="M8 14Q23 8 32 17Q41 8 56 14V51Q41 45 32 54Q23 45 8 51Z" fill="#e5cca0" /><path d="M32 17V54M15 23H24M15 31H24M40 23H49M40 31H49" /></>,
+  taxi: <><path d="M10 29L17 17H47L54 29V49H10Z" fill="#eac572" /><path d="M19 21H44L48 30H15Z" fill="#c9e2d8" /><path d="M24 9H40V17M16 49V55M48 49V55M16 38H22M42 38H48" /></>,
+  banhmi: <><ellipse cx="32" cy="34" rx="23" ry="14" fill="#e5b66b" /><path d="M15 38H50" stroke="#7d9e6d" strokeWidth="5" /><path d="M19 24L25 30M29 21L35 27M40 24L46 30" stroke="#fff0c9" /></>,
+  gas: <><path d="M13 15H38V53H13Z" fill="#d79174" /><path d="M19 21H32V33H19Z" fill="#c4ddd7" /><path d="M38 27Q52 23 50 48Q50 57 41 49M49 27L54 19L49 13" /></>,
+  cargo: <><path d="M12 19H52V53H12Z" fill="#cca16b" /><path d="M12 19L24 10H42L52 19M32 19V53M25 10L32 19" stroke="#fff0bb" /><path d="M38 40H46M42 36V44" /></>,
+  cleaning: <><path d="M46 10L25 43" stroke="#b79769" strokeWidth="5" /><path d="M21 33L38 43L29 56L11 46Z" fill="#e1bc72" /><path d="M16 43L25 49M21 38L31 44" /></>,
+  electrician: <><path d="M21 38Q9 20 23 13Q44 2 48 25Q49 34 41 38V49H21Z" fill="#f1cf7b" /><path d="M22 45H41M26 53H37M32 43V29L25 23M32 29L39 22" /></>,
+  florist: <><path d="M21 32L32 56L44 32" stroke="#8cab76" strokeWidth="4" /><circle cx="21" cy="25" r="11" fill="#de94a3" /><circle cx="43" cy="25" r="11" fill="#e7bf69" /><circle cx="32" cy="17" r="11" fill="#bba6d4" /><path d="M18 39L32 58L46 39Z" fill="#f0dcaf" /></>,
+  security: <><path d="M13 16L32 9L51 16V32Q49 48 32 56Q15 48 13 32Z" fill="#91a7c1" /><path d="M22 31L29 38L44 23" stroke="#eef5d7" strokeWidth="5" /></>,
+  photographer: <><path d="M10 24H54V51H10Z" fill="#8cabc1" /><path d="M19 24V17H32V24" fill="#8cabc1" /><circle cx="33" cy="37" r="11" fill="#eef5db" /><circle cx="33" cy="37" r="5" fill="#7795ad" /></>,
+  cashier: <><path d="M12 32H52V52H12Z" fill="#95b39c" /><path d="M22 14H48V35H22Z" fill="#84a59b" /><path d="M27 20H43V28H27Z" fill="#dff0c9" /><path d="M19 42H27M34 42H44" /></>,
+  harvest: <><path d="M16 25Q16 12 33 16Q53 19 48 39Q42 56 26 49Q11 44 16 25Z" fill="#eac16d" /><path d="M32 17Q28 5 47 9Q45 20 32 17Z" fill="#93b778" /><path d="M22 27Q18 38 29 43" stroke="#ffedb0" /></>,
   rubber: <><path d="M24 21H41V54H24Z" fill="#b49472" /><circle cx="31" cy="16" r="13" fill="#99ba81" /><path d="M26 30L39 39" stroke="#fff3ca" /><path d="M37 42H51L48 55H40Z" fill="#e6ebd8" /></>,
   mechanic: <><path d="M19 14L23 21L32 18L32 10Q45 16 39 28L21 52L12 44L31 24Q17 27 19 14Z" fill="#91b2bd" /><circle cx="18" cy="44" r="3" /></>,
   coffee: <><path d="M16 29H46V50Q31 57 16 50Z" fill="#c5a184" /><path d="M21 19H41V30H21ZM17 15H45" fill="#a8b3ac" /><path d="M47 33Q60 33 55 45H47M28 7L31 12" /><path d="M18 45H44" stroke="#f7ddac" /></>,

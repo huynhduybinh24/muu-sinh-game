@@ -3,6 +3,7 @@ import { ScreenShell } from '../components/ScreenShell'
 import { PlayerAvatar } from '../components/PlayerAvatar'
 import { defaultAppearance } from '../data/avatar'
 import { getPlayerNameError, normalizePlayerName } from '../services/playerProfile'
+import { BrandLogo } from '../components/BrandLogo'
 
 interface WelcomePageProps { onContinue: (name: string) => void }
 
@@ -18,7 +19,7 @@ export function WelcomePage({ onContinue }: WelcomePageProps) {
   return (
     <ScreenShell header={<span>Chào bạn mới!</span>} contentClassName="welcome-content">
       <p className="eyebrow">Mỗi ngày một nghề · Mỗi ngày một niềm vui</p>
-      <h1 className="welcome-brand">MƯU SINH</h1>
+      <h1 className="welcome-brand" aria-label="MƯU SINH"><BrandLogo variant="compact" decorative /></h1>
       <div className="avatar-stage welcome-avatar"><PlayerAvatar appearance={defaultAppearance} size={190} /></div>
       <form className="name-form" onSubmit={submit}>
         <h2><label htmlFor="player-name">Bạn tên gì?</label></h2>

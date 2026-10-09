@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { avatarOptions, defaultAppearance } from '../src/data/avatar'
-import { getShopItem, itemCategories, shopItems, starterItemIds } from '../src/data/shop'
+import { getShopItem, isClothingItem, itemCategories, shopItems, starterItemIds } from '../src/data/shop'
 import { getNewAchievementUnlocks } from '../src/data/achievements'
 import { ownsItem, canAffordItem, equipItem, purchaseItem, readOwnedItems } from '../src/services/inventory'
 import { getGameXp, getLevelProgress, getLevelThreshold, migrateLegacyXp } from '../src/services/level'
@@ -14,15 +14,15 @@ const item = getShopItem('shirt-blue')!
 const funded = () => ({ ...migratePersistedProgress(undefined), money: 2_000_000, xp: getLevelThreshold(5) })
 
 describe('shop catalog', () => {
-  it('has 6 hair, 10 shirts, 6 pants, unique valid IDs and shared avatar values', () => {
-    expect(shopItems).toHaveLength(22)
-    expect(new Set(shopItems.map((entry) => entry.id)).size).toBe(22)
+  it('retains original clothing and extends shared avatar values with unique valid IDs', () => {
+    expect(shopItems).toHaveLength(100)
+    expect(new Set(shopItems.map((entry) => entry.id)).size).toBe(100)
     for (const category of ['hair', 'shirt', 'pants'] as const) {
       const key = itemCategories[category].appearanceKey
       expect(shopItems.filter((entry) => entry.category === category).length).toBe(avatarOptions[key].length)
     }
     for (const entry of shopItems) {
-      expect(avatarOptions[itemCategories[entry.category].appearanceKey].some((option) => option.id === entry.appearanceValue)).toBe(true)
+      if (isClothingItem(entry)) expect(avatarOptions[itemCategories[entry.category].appearanceKey].some((option) => option.id === entry.appearanceValue)).toBe(true)
       expect(Number.isInteger(entry.price) && entry.price >= 0).toBe(true)
       expect(entry.unlockLevel).toBeGreaterThanOrEqual(1)
       expect(['common', 'rare', 'epic']).toContain(entry.rarity)

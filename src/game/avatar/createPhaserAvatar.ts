@@ -29,9 +29,10 @@ export function createPhaserAvatar(scene: Phaser.Scene, data: PhaserAvatarData, 
   const shadow = scene.add.ellipse(0, options.riding ? 20 : 2, 68 * scale, 12 * scale, 0x353044, 0.16)
   const graphics = scene.add.graphics()
   drawAvatar(graphics, data, options.riding ?? false)
-  if (options.riding) drawScooter(graphics)
+  if (options.riding) drawScooter(graphics, data)
   const motion = scene.add.container(0, baseY, [graphics]).setScale(scale).setName('avatar-motion')
   container.add([shadow, motion])
+  if (data.lifestyle) container.setData('lifestyle', data.lifestyle)
   const nameTag = options.nameTag && data.playerName ? scene.add.text(0, -33, getAvatarNameTag(data.playerName), {
     fontFamily: 'Arial, sans-serif', fontSize: '10px', color: '#ffffff',
     backgroundColor: '#353044', padding: { x: 4, y: 2 },

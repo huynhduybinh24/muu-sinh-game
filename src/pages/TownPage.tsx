@@ -11,11 +11,15 @@ import { jobsById } from '../data/jobs'
 import { formatMoney } from '../services/formatters'
 import { useProgressStore } from '../store/progressStore'
 import type { TownLaunch, TownLocation } from '../types/town'
+import { getLifestyle } from '../services/lifestyle'
+import { getShopItem } from '../data/shop'
+import { ProductArtwork } from '../components/ProductArtwork'
 
 const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
 interface TownPageProps { dateKey: string; onHome: () => void; onCareer: () => void; onProfile: () => void; onPlay: (launch: TownLaunch) => void }
 export function TownPage({ dateKey, onHome, onCareer, onProfile, onPlay }: TownPageProps) {
   const progress = useProgressStore()
+  const vehicleId = getLifestyle(progress.profile).vehicle
   const daily = getTownDailyLocation(dateKey)
   const [selected, setSelected] = useState<TownLocation | null>(null)
   const [position, setPosition] = useState(TOWN_START)
@@ -57,11 +61,12 @@ export function TownPage({ dateKey, onHome, onCareer, onProfile, onPlay }: TownP
   const stats = selected ? progress.jobStats[selected.jobId] : null
   return <ScreenShell header={<button className="town-home" type="button" onClick={onHome}>← VỀ TRANG CHỦ</button>}
     contentClassName="town-content" footer={<BottomNav active="town" onHome={onHome} onCareer={onCareer} onProfile={onProfile} />}>
-    <div className="town-heading"><div><p className="eyebrow">Một thị trấn · Mười câu chuyện</p><h1>THỊ TRẤN MƯU SINH</h1></div><span>10 nghề</span></div>
+    <div className="town-heading"><div><p className="eyebrow">Một thị trấn · Hai mươi câu chuyện</p><h1>THỊ TRẤN MƯU SINH</h1></div><span>{townLocations.length} nghề</span></div>
     <div className="town-toolbar"><p>Vuốt để khám phá · Chạm một địa điểm</p><button type="button" onClick={() => focusLocation(daily)}>TÌM NGHỀ HÔM NAY</button></div>
     <div className="town-scroll" ref={scroll} role="region" aria-label="Bản đồ thị trấn, cuộn ngang và dọc" tabIndex={0}>
       <div className="town-canvas" style={{ width: TOWN_SIZE.width, height: TOWN_SIZE.height }}>
         <TownScenery />
+        {vehicleId && <div className="town-vehicle" aria-label="Xe của bạn đậu ở bến"><ProductArtwork item={getShopItem(vehicleId)!} size={82} /></div>}
         {townLocations.map((location) => {
           const job = jobsById[location.jobId]
           const district = townDistricts.find((entry) => entry.id === location.districtId)!
@@ -78,12 +83,12 @@ export function TownPage({ dateKey, onHome, onCareer, onProfile, onPlay }: TownP
         })}
         <div className={`town-player${walking ? ' town-player--walking' : ''}`} data-x={position.x} data-y={position.y}
           style={{ transform: `translate3d(${position.x - 31}px, ${position.y - 75}px, 0)` }} aria-label={`Nhân vật trên bản đồ của ${progress.profile.playerName}`}>
-          <PlayerAvatar appearance={getTownAppearance(progress.profile.appearance)} size={62} state={walking ? 'static' : 'idle'} />
+          <PlayerAvatar appearance={getTownAppearance(progress.profile.appearance)} lifestyle={progress.profile.lifestyle} size={62} state={walking ? 'static' : 'idle'} />
         </div>
       </div>
     </div>
     <p className="town-travel-status" role="status" aria-live="polite">{walking && selected ? `Đang đến ${selected.name}…` : 'Chơi tự do nhận lương và XP; chọn nghề hôm nay để tính chuỗi.'}</p>
-    <details className="town-directory"><summary>DANH SÁCH 10 NGHỀ</summary><div>
+    <details className="town-directory"><summary>DANH SÁCH {townLocations.length} NGHỀ</summary><div>
       {townDistricts.map((district) => <section key={district.id} aria-label={district.name}><h2>{district.name}</h2>
         {townLocations.filter((location) => location.districtId === district.id).map((location) => <button key={location.id} type="button"
           onClick={(event) => selectLocation(location, event.currentTarget)} aria-label={`Chọn ${jobsById[location.jobId].name}`}>

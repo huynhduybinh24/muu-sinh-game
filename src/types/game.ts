@@ -31,6 +31,28 @@ export type AchievementId =
   | 'mechanic-10'
   | 'coffee-10'
   | 'fishing-10'
+  | 'banhmi-10'
+  | 'gas-10'
+  | 'cargo-10'
+  | 'cleaning-10'
+  | 'electrician-10'
+  | 'florist-10'
+  | 'security-10'
+  | 'photographer-10'
+  | 'cashier-10'
+  | 'harvest-10'
+  | 'it-10'
+  | 'accountant-10'
+  | 'police-10'
+  | 'doctor-10'
+  | 'teacher-10'
+  | 'taxi-10'
+  | 'first-purchase'
+  | 'complete-outfit'
+  | 'first-vehicle'
+  | 'first-smartphone'
+  | 'furnished-room'
+  | 'collector-30'
 
 export interface AchievementUnlock {
   id: AchievementId
@@ -45,6 +67,18 @@ export interface JobCareerStats {
 }
 
 export interface GameResultMetadata {
+  bugsFixed?: number
+  perfectFixes?: number
+  invoicesProcessed?: number
+  perfectBalances?: number
+  incidentsResolved?: number
+  safeDecisions?: number
+  patientsHelped?: number
+  perfectCare?: number
+  lessonsCompleted?: number
+  correctAnswers?: number
+  tripsCompleted?: number
+  fiveStarTrips?: number
   customersServed?: number
   successfulBricks?: number
   deliveries?: number
@@ -57,6 +91,23 @@ export interface GameResultMetadata {
   perfectBrews?: number
   fishCaught?: number
   rareFishCaught?: number
+  vehiclesServed?: number
+  perfectFills?: number
+  packagesSorted?: number
+  perfectSorts?: number
+  streetsCleaned?: number
+  trashCollected?: number
+  circuitsFixed?: number
+  perfectCircuits?: number
+  bouquetsMade?: number
+  perfectBouquets?: number
+  incidentsHandled?: number
+  correctDetections?: number
+  photosTaken?: number
+  perfectPhotos?: number
+  correctCheckouts?: number
+  fruitsHarvested?: number
+  basketsCompleted?: number
 }
 
 export interface GameResult {

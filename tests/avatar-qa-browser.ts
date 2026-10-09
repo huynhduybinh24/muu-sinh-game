@@ -86,6 +86,7 @@ export function snapshot() {
     sceneKey: scene.sys.settings.key,
     avatarCount: descendants(scene.children.list).filter((object) => object.name === 'player-avatar').length,
     appearance: avatar.getData('appearance') as unknown,
+    lifestyle: avatar.getData('lifestyle') as unknown,
     state: avatar.getData('avatarState') as unknown,
     reactions: [...reactions],
     anchor: { x: anchor.x, y: anchor.y, angle: anchor.angle, scaleX: anchor.scaleX, scaleY: anchor.scaleY },
@@ -144,6 +145,26 @@ export async function startEquipped(jobId: JobId): Promise<void> {
   }
   await start(jobId, useProgressStore.getState().profile)
 }
+export async function startLifestyle(jobId: JobId, variants: readonly string[] = []): Promise<PlayerProfile> {
+  useProgressStore.getState().resetProgress()
+  useProgressStore.getState().createProfile('Thợ phố nhỏ', { ...defaultAppearance, gender: 'female', skinToneId: 'deep' })
+  useProgressStore.setState({ money: 100_000_000, xp: getLevelThreshold(5) })
+  const vehicle = jobId === 'taxi' ? 'life-vehicle-compact' : 'life-vehicle-scooter'
+  for (const id of ['hair-braid','shirt-hoodie','pants-shorts','life-shoes-sneakers','life-accessory-bucket','life-accessory-round','life-accessory-daypack','life-tools-thermos','life-electronics-laptop',vehicle,...variants]) {
+    if (useProgressStore.getState().purchaseItem(id).status !== 'purchased' || !useProgressStore.getState().equipItem(id)) throw new Error(`Could not equip lifestyle ${id}`)
+  }
+  const profile = useProgressStore.getState().profile
+  await start(jobId, profile)
+  return profile
+}
+export function lifestyleVisualSnapshot() {
+  if (!scene) throw new Error('Scene not ready')
+  const avatar = getAvatar()
+  const commands = descendants(avatar.list).filter((object): object is Phaser.GameObjects.Graphics => object instanceof Phaser.GameObjects.Graphics).flatMap(object => object.commandBuffer)
+  const car = scene.children.list.find((object): object is Phaser.GameObjects.Graphics => object.name === 'taxi-car' && object instanceof Phaser.GameObjects.Graphics)
+  const computer: unknown = Reflect.get(scene, 'computer')
+  return { ...snapshot(), avatarCommands: commands, carCommands: car?.commandBuffer ?? [], computer }
+}
 export function cutHair(index: number): void {
   const section = scene?.children.list.find((object) => object.getData('hairSection') === index)
   if (!section) throw new Error('Hair section missing')
@@ -158,4 +179,29 @@ export function checkShutdown(): void {
     throw new Error('Avatar survived scene shutdown')
   }
   if (scene.children.list.some((object) => object.name === 'visual-particle')) throw new Error('Particles survived scene shutdown')
+}
+
+/** Read-only diagnostics in the QA module; never included in production builds. */
+export function expansionSnapshot() {
+  if (!scene) throw new Error('Scene not ready')
+  const field = (name: string): unknown => Reflect.get(scene!, name)
+  const point = (name: string) => {
+    const object = field(name)
+    return object instanceof Phaser.GameObjects.Container ? { x: object.x, y: object.y } : null
+  }
+  return {
+    ...snapshot(), order: field('order'), requested: field('requested'), target: field('target'), amount: field('amount'),
+    ticket: field('ticket'), invoice: field('invoice'), stage: field('stage'), step: field('step'), options: field('options'),
+    request: field('request'), requests: field('requests'), chosen: field('chosen'), question: field('question'), student: field('student'),
+    node: field('node'), pickup: field('pickup'), obstacle: field('obstacle'), moving: field('moving'), mood: field('mood'),
+    green: typeof field('green') === 'function' ? (field('green') as () => boolean).call(scene) : field('green'),
+    destination: field('destination'), box: point('box'), right: field('right'), flowers: field('flowers'),
+    incident: field('incident'), remaining: field('remaining'), elapsed: field('elapsed'), phase: field('phase'), subject: point('subject'),
+    products: field('products'), choices: field('choices'), total: field('total'), payment: field('payment'),
+    fruitKinds: field('fruitKinds'), active: field('active'), pointerId: field('pointerId'), filling: field('filling'),
+    metadata: Reflect.get(scene, 'metadata') instanceof Function ? Reflect.get(scene, 'metadata').call(scene) as unknown
+      : Reflect.get(scene, 'resultMetadata').call(scene) as unknown,
+    texts: scene.children.list.filter((object): object is Phaser.GameObjects.Text => object instanceof Phaser.GameObjects.Text)
+      .map(({ text, x, y, visible }) => ({ text, x, y, visible })),
+  }
 }

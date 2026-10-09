@@ -13,6 +13,22 @@ export const missionTemplates: Record<MissionId, MissionDefinition> = {
   'play-8': { id: 'play-8', type: 'PLAY_GAMES', title: 'Siêng làm siêng có', description: 'Hoàn thành 8 ca hôm nay, kể cả chơi lại.', target: 8, rewardMoney: 25_000, rewardXp: 60 },
 }
 export const jobMissionMetrics: Record<JobId, { type: MissionType; target: number; description: string }> = {
+  it: { type: 'FIX_BUGS', target: 12, description: 'Giải quyết 12 ticket bug.' },
+  accountant: { type: 'BALANCE_INVOICES', target: 12, description: 'Cân sổ 12 hóa đơn.' },
+  police: { type: 'RESOLVE_TRAFFIC', target: 15, description: 'Giải quyết an toàn 15 lượt xe.' },
+  doctor: { type: 'HELP_PATIENTS', target: 12, description: 'Giúp 12 khách trong bệnh viện hoạt hình.' },
+  teacher: { type: 'TEACH_LESSONS', target: 12, description: 'Hoàn thành 12 tiết học vui.' },
+  taxi: { type: 'TAXI_TRIPS', target: 9, description: 'Chở khách hoàn thành 9 chuyến taxi.' },
+  banhmi: { type: 'SERVE_CUSTOMERS', target: 18, description: 'Hoàn thành 18 khách bánh mì.' },
+  gas: { type: 'FILL_VEHICLES', target: 12, description: 'Hoàn thành 12 xe đổ xăng.' },
+  cargo: { type: 'SORT_PACKAGES', target: 18, description: 'Hoàn thành 18 kiện hàng.' },
+  cleaning: { type: 'CLEAN_STREETS', target: 9, description: 'Hoàn thành 9 đoạn phố.' },
+  electrician: { type: 'FIX_CIRCUITS', target: 12, description: 'Hoàn thành 12 mạch điện.' },
+  florist: { type: 'MAKE_BOUQUETS', target: 12, description: 'Hoàn thành 12 bó hoa.' },
+  security: { type: 'DETECT_INCIDENTS', target: 18, description: 'Hoàn thành 18 sự cố.' },
+  photographer: { type: 'TAKE_PHOTOS', target: 18, description: 'Hoàn thành 18 bức ảnh.' },
+  cashier: { type: 'SERVE_CUSTOMERS', target: 15, description: 'Hoàn thành 15 khách thanh toán.' },
+  harvest: { type: 'HARVEST_FRUITS', target: 30, description: 'Hoàn thành 30 quả chín.' },
   sugarcane: { type: 'SERVE_CUSTOMERS', target: 18, description: 'Phục vụ 18 khách nước mía.' },
   construction: { type: 'SUCCESSFUL_BRICKS', target: 30, description: 'Xếp thành công 30 viên gạch.' },
   shipper: { type: 'DELIVERIES', target: 15, description: 'Giao thành công 15 đơn hàng.' },
@@ -31,5 +47,11 @@ export const dailyMissionEpochs: readonly MissionEpoch[] = [{
 }, {
   // Same frozen template pools; only the newly activated Daily Job metadata expands.
   version: 'missions-v2', activeFrom: '2026-11-01',
+  pools: [['play-3', 'earn-75k'], ['daily-shifts', 'daily-work'], ['score-6000', 'score-1500', 'play-8']],
+}, {
+  version: 'missions-v3', activeFrom: '2026-12-01',
+  pools: [['play-3', 'earn-75k'], ['daily-shifts', 'daily-work'], ['score-6000', 'score-1500', 'play-8']],
+}, {
+  version: 'missions-v4', activeFrom: '2027-01-01',
   pools: [['play-3', 'earn-75k'], ['daily-shifts', 'daily-work'], ['score-6000', 'score-1500', 'play-8']],
 }]

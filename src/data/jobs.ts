@@ -47,6 +47,22 @@ export const jobs: readonly Job[] = [
   { id: 'mechanic', name: 'Sửa xe', description: 'Nghe triệu chứng, chọn đúng dụng cụ. Xe khỏe, khách vui!', difficulty: 'Dễ thở', duration: 45, sceneKey: 'MechanicScene', icon: '🔧' },
   { id: 'coffee', name: 'Pha cà phê', description: 'Đúng sữa, đúng nhịp phin. Một ly cà phê đánh thức cả phố.', difficulty: 'Hơi cực', duration: 45, sceneKey: 'CoffeeScene', icon: '☕' },
   { id: 'fishing', name: 'Đánh cá', description: 'Canh cá cắn, giật cần đúng nhịp. Cá quý đang chờ dưới nước!', difficulty: 'Hơi cực', duration: 45, sceneKey: 'FishingScene', icon: '🎣' },
+  { id: 'banhmi', name: 'Bán bánh mì', description: 'Lắp đúng ổ bánh theo món khách gọi, nhanh tay nhận thêm thưởng.', difficulty: 'Hơi cực', duration: 45, sceneKey: 'BanhmiScene', icon: '🥖' },
+  { id: 'gas', name: 'Đổ xăng', description: 'Chọn đúng xăng, giữ vòi bơm và thả gần mức khách yêu cầu.', difficulty: 'Hơi cực', duration: 45, sceneKey: 'GasScene', icon: '⛽' },
+  { id: 'cargo', name: 'Bốc hàng', description: 'Kéo kiện đúng xe theo ký hiệu, giao liên tiếp để tạo combo.', difficulty: 'Hơi cực', duration: 45, sceneKey: 'CargoScene', icon: '📦' },
+  { id: 'cleaning', name: 'Quét đường', description: 'Kéo chổi gom rác, tránh miệng cống và làm sạch từng đoạn phố.', difficulty: 'Dễ thở', duration: 45, sceneKey: 'CleaningScene', icon: '🧹' },
+  { id: 'electrician', name: 'Thợ điện', description: 'Nối các đầu cùng màu trong bảng mạch giả tưởng để bật sáng đèn.', difficulty: 'Hơi cực', duration: 45, sceneKey: 'ElectricianScene', icon: '💡' },
+  { id: 'florist', name: 'Bán hoa', description: 'Kéo hoa đúng vị trí, chọn nơ và gói bó hoa theo mẫu khách yêu cầu.', difficulty: 'Hơi cực', duration: 45, sceneKey: 'FloristScene', icon: '💐' },
+  { id: 'security', name: 'Bảo vệ', description: 'Quan sát bốn ô camera, báo đúng dấu hiệu bất thường của đồ vật.', difficulty: 'Hơi cực', duration: 45, sceneKey: 'SecurityScene', icon: '🛡️' },
+  { id: 'photographer', name: 'Chụp ảnh', description: 'Kéo khung ngắm theo chú chim, giữ yên và bấm máy đúng khoảnh khắc.', difficulty: 'Hơi cực', duration: 45, sceneKey: 'PhotographerScene', icon: '📷' },
+  { id: 'cashier', name: 'Thu ngân', description: 'Quét từng món, cộng tiền và chọn đúng tiền thối cho khách.', difficulty: 'Hơi cực', duration: 45, sceneKey: 'CashierScene', icon: '🛒' },
+  { id: 'harvest', name: 'Thu hoạch trái cây', description: 'Hái quả vàng chín, tránh quả xanh và ong; đủ năm quả được thưởng giỏ.', difficulty: 'Dễ thở', duration: 45, sceneKey: 'HarvestScene', icon: '🥭' },
+ { id: 'it', name: 'Lập trình viên', description: 'Tìm lỗi logic, chọn cách sửa rồi nối các bước để đóng ticket.', difficulty: 'Hơi cực', duration: 45, sceneKey: 'ItScene', icon: '💻' },
+ { id: 'accountant', name: 'Kế toán', description: 'Kiểm tra hóa đơn, cộng tổng và đối chiếu giao dịch để cân sổ.', difficulty: 'Hơi cực', duration: 45, sceneKey: 'AccountantScene', icon: '🧮' },
+ { id: 'police', name: 'Công an', description: 'Điều khiển ngã tư giả tưởng, ngăn vượt đỏ và ưu tiên xe cần đi trước.', difficulty: 'Hơi cực', duration: 45, sceneKey: 'PoliceScene', icon: '🚦' },
+ { id: 'doctor', name: 'Bác sĩ', description: 'Ưu tiên ký hiệu trong bệnh viện hoạt hình, ghép đồ vật và câu đố chăm sóc.', difficulty: 'Hơi cực', duration: 45, sceneKey: 'DoctorScene', icon: '🏥' },
+ { id: 'teacher', name: 'Giáo viên', description: 'Soạn bài, đáp yêu cầu học sinh và giải câu hỏi vui trong lớp.', difficulty: 'Hơi cực', duration: 45, sceneKey: 'TeacherScene', icon: '📚' },
+ { id: 'taxi', name: 'Tài xế', description: 'Nhận cuốc, đón và chở khách trên phố, giữ an toàn và mức hài lòng.', difficulty: 'Hơi cực', duration: 45, sceneKey: 'TaxiScene', icon: '🚕' },
 ]
 
 export const jobsById = Object.fromEntries(

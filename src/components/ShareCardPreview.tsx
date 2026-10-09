@@ -4,6 +4,7 @@ import { formatMoney } from '../services/formatters'
 import { getResultMessage } from '../services/resultCalculator'
 import type { GameResult } from '../types/game'
 import type { Job } from '../types/job'
+import { BrandLogo } from './BrandLogo'
 
 interface ShareCardPreviewProps {
   job: Job
@@ -30,10 +31,7 @@ export function ShareCardPreview({ job, result }: ShareCardPreviewProps) {
 
   return (
     <article className="share-card-preview" style={style} aria-label="Thẻ kết quả chia sẻ">
-      <div className="share-card-brand">
-        <strong>MƯU SINH</strong>
-        <span>MỖI NGÀY 1 NGHỀ</span>
-      </div>
+      <div className="share-card-brand"><BrandLogo /></div>
       <div className="share-card-icon" aria-hidden="true">{job.icon}</div>
       <span className="share-card-label">NGHỀ HÔM NAY</span>
       <h1>{job.name}</h1>

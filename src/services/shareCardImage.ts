@@ -6,6 +6,7 @@ import type { GameResult } from '../types/game'
 import type { Job } from '../types/job'
 import { isNativePlatform } from './platform'
 import { shareNativeFile, saveNativeFile } from './nativeFiles'
+import { expansionIcons } from '../data/expansionIcons'
 
 const CARD_WIDTH = 1080
 const CARD_HEIGHT = 1350
@@ -60,7 +61,11 @@ function drawFallbackSymbol(
   context.fillStyle = accent
   context.lineWidth = 16
 
-  if (jobId === 'sugarcane') {
+  const expansionIcon = expansionIcons[jobId]
+  if (expansionIcon) {
+    context.translate(418, 257); context.scale(3.8, 3.8); context.lineWidth = 3.5
+    context.lineCap = 'round'; context.lineJoin = 'round'; context.stroke(new Path2D(expansionIcon))
+  } else if (jobId === 'sugarcane') {
     context.strokeRect(440, 300, 200, 205)
     context.fillRect(458, 425, 164, 60)
     context.beginPath()
@@ -113,7 +118,19 @@ function drawFallbackSymbol(
   context.restore()
 }
 
-export function createShareCardBlob(result: GameResult, job: Job): Promise<Blob> {
+async function loadBrandImage(): Promise<HTMLImageElement | null> {
+  try {
+    const image = new Image()
+    image.src = '/branding/logo-horizontal.png'
+    await image.decode()
+    return image
+  } catch {
+    // Keep PNG export usable with older offline caches or unavailable artwork.
+    return null
+  }
+}
+
+export async function createShareCardBlob(result: GameResult, job: Job): Promise<Blob> {
   const canvas = document.createElement('canvas')
   canvas.width = CARD_WIDTH
   canvas.height = CARD_HEIGHT
@@ -140,11 +157,18 @@ export function createShareCardBlob(result: GameResult, job: Job): Promise<Blob>
 
   context.textAlign = 'center'
   context.fillStyle = theme.dark
-  context.font = '900 88px Arial, sans-serif'
+  context.font = '800 88px "Segoe UI", system-ui, sans-serif'
   context.fillText('MƯU SINH', 540, 130)
   context.fillStyle = theme.accent
-  context.font = '800 34px Arial, sans-serif'
+  context.font = '800 34px "Segoe UI", system-ui, sans-serif'
   context.fillText('MỖI NGÀY 1 NGHỀ', 540, 182)
+  const brandImage = await loadBrandImage()
+  if (brandImage) {
+    context.fillStyle = '#FFF5DF'
+    roundedRect(context, 152, 22, 776, 185, 30)
+    context.fill()
+    context.drawImage(brandImage, 180, 22, 720, 210)
+  }
 
   context.fillStyle = '#ffffff'
   roundedRect(context, 362, 230, 356, 310, 92)
@@ -157,10 +181,10 @@ export function createShareCardBlob(result: GameResult, job: Job): Promise<Blob>
   context.fillText(job.icon, 540, 415)
 
   context.fillStyle = '#756e60'
-  context.font = '800 28px Arial, sans-serif'
+  context.font = '800 28px "Segoe UI", system-ui, sans-serif'
   context.fillText('NGHỀ HÔM NAY', 540, 590)
   context.fillStyle = theme.dark
-  context.font = '900 62px Arial, sans-serif'
+  context.font = '800 62px "Segoe UI", system-ui, sans-serif'
   context.fillText(job.name.toLocaleUpperCase('vi-VN'), 540, 660)
 
   const statCards = [
@@ -174,10 +198,10 @@ export function createShareCardBlob(result: GameResult, job: Job): Promise<Blob>
     roundedRect(context, x, 710, 282, 160, 34)
     context.fill()
     context.fillStyle = index === 0 ? theme.accentSoft : '#786f60'
-    context.font = '800 22px Arial, sans-serif'
+    context.font = '800 22px "Segoe UI", system-ui, sans-serif'
     context.fillText(stat.label, x + 141, 758)
     context.fillStyle = index === 0 ? '#ffffff' : theme.dark
-    context.font = '900 32px Arial, sans-serif'
+    context.font = '800 32px "Segoe UI", system-ui, sans-serif'
     context.fillText(stat.value, x + 141, 820)
   })
 
@@ -185,12 +209,11 @@ export function createShareCardBlob(result: GameResult, job: Job): Promise<Blob>
   roundedRect(context, 205, 910, 670, 100, 30)
   context.fill()
   context.fillStyle = '#ffffff'
-  context.font = '800 29px Arial, sans-serif'
-  context.font = `800 ${viralStat.detail ? 25 : 29}px Arial, sans-serif`
+  context.font = `800 ${viralStat.detail ? 25 : 29}px "Segoe UI", system-ui, sans-serif`
   context.fillText(`${viralStat.label}: ${viralStat.value}${viralStat.detail ? ` · ${viralStat.detail}` : ''}`, 540, 973)
 
   context.fillStyle = theme.dark
-  context.font = 'italic 800 38px Arial, sans-serif'
+  context.font = 'italic 800 38px "Segoe UI", system-ui, sans-serif'
   drawCenteredWrappedText(
     context,
     `“${getResultMessage(result.score)}”`,
@@ -201,7 +224,7 @@ export function createShareCardBlob(result: GameResult, job: Job): Promise<Blob>
   )
 
   context.fillStyle = '#756e60'
-  context.font = '700 30px Arial, sans-serif'
+  context.font = '700 30px "Segoe UI", system-ui, sans-serif'
   context.fillText('Hôm nay bạn làm nghề gì?', 540, 1268)
   context.fillStyle = theme.accent
   context.fillRect(390, 1305, 300, 8)

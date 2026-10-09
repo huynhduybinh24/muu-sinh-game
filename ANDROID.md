@@ -89,11 +89,14 @@ hardware Back/predictive Back, cold launch offline, restart persistence, JSON
 export/restore, PNG chooser delivery and Unicode filenames/content. Profile Android
 WebView rendering/heap with Chrome remote debugging/Android Studio before tuning.
 
-Current host check: Node 22 and JDK 21 present; Android Studio, SDK/adb and SDK
-environment configuration not found at standard locations. Gradle 8.14.3 wrapper
-downloaded, but `assembleDebug` fails establishing Java NIO loopback (including
-retry without JVM args), before SDK validation. Fix local Java/loopback restrictions
-and install/configure SDK in Android Studio. No APK or device/emulator validation.
+Current host check: Node 22 and Oracle JDK 21.0.12 are present. Official Google
+Android command-line tools 22.0, SDK Platform 36 revision 2, Build Tools 36.0.0
+and Platform Tools 37.0.1 are installed under `%LOCALAPPDATA%\Android\Sdk` without
+Android Studio. User SDK environment variables and ignored `local.properties` are
+configured. The earlier Gradle loopback/lock failures were caused by the restricted
+runner context: the unchanged Gradle 8.14.3 wrapper and AGP 8.13.0 run normally
+outside that restriction. `assembleDebug` passes and produces the verified debug
+APK; no device was connected for installation QA.
 Latest stable CLI currently has 3 moderate dev-only audit entries through its
 iOS xcode/uuid dependency chain; production dependency audit is clean. Do not
 use a breaking `npm audit fix --force`; recheck upstream before publication.

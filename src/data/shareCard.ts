@@ -11,6 +11,22 @@ export interface ShareCardTheme {
 }
 
 export const shareCardThemes: Record<JobId, ShareCardTheme> = {
+  it: { accent: '#527fa5', accentSoft: '#f1ecd9', dark: '#304f4b', statLabel: 'Bug đã sửa', metadataKey: 'bugsFixed', fallbackSymbol: 'LẬP TRÌNH VIÊN' },
+  accountant: { accent: '#548f7f', accentSoft: '#f1ecd9', dark: '#304f4b', statLabel: 'Phiếu đã xử lý', metadataKey: 'invoicesProcessed', fallbackSymbol: 'KẾ TOÁN' },
+  police: { accent: '#517497', accentSoft: '#f1ecd9', dark: '#304f4b', statLabel: 'Lượt xe giải quyết', metadataKey: 'incidentsResolved', fallbackSymbol: 'CÔNG AN' },
+  doctor: { accent: '#66a7a1', accentSoft: '#f1ecd9', dark: '#304f4b', statLabel: 'Khách đã giúp', metadataKey: 'patientsHelped', fallbackSymbol: 'BÁC SĨ' },
+  teacher: { accent: '#a18152', accentSoft: '#f1ecd9', dark: '#304f4b', statLabel: 'Tiết học hoàn thành', metadataKey: 'lessonsCompleted', fallbackSymbol: 'GIÁO VIÊN' },
+  taxi: { accent: '#c39e54', accentSoft: '#f1ecd9', dark: '#304f4b', statLabel: 'Chuyến đã hoàn thành', metadataKey: 'tripsCompleted', fallbackSymbol: 'TÀI XẾ' },
+  banhmi: { accent: '#c68b48', accentSoft: '#f5ecd3', dark: '#304f4b', statLabel: 'Bánh mì', metadataKey: 'customersServed', fallbackSymbol: 'BÁN BÁNH MÌ' },
+  gas: { accent: '#cf7958', accentSoft: '#f5ecd3', dark: '#304f4b', statLabel: 'Xăng', metadataKey: 'vehiclesServed', fallbackSymbol: 'ĐỔ XĂNG' },
+  cargo: { accent: '#83975d', accentSoft: '#f5ecd3', dark: '#304f4b', statLabel: 'Kiện hàng', metadataKey: 'packagesSorted', fallbackSymbol: 'BỐC HÀNG' },
+  cleaning: { accent: '#559989', accentSoft: '#f5ecd3', dark: '#304f4b', statLabel: 'Đoạn phố sạch', metadataKey: 'streetsCleaned', fallbackSymbol: 'QUÉT ĐƯỜNG' },
+  electrician: { accent: '#d1a347', accentSoft: '#f5ecd3', dark: '#304f4b', statLabel: 'Mạch đã sửa', metadataKey: 'circuitsFixed', fallbackSymbol: 'THỢ ĐIỆN' },
+  florist: { accent: '#b76e95', accentSoft: '#f5ecd3', dark: '#304f4b', statLabel: 'Bó hoa', metadataKey: 'bouquetsMade', fallbackSymbol: 'BÁN HOA' },
+  security: { accent: '#647e9b', accentSoft: '#f5ecd3', dark: '#304f4b', statLabel: 'Sự cố phát hiện', metadataKey: 'correctDetections', fallbackSymbol: 'BẢO VỆ' },
+  photographer: { accent: '#647fb0', accentSoft: '#f5ecd3', dark: '#304f4b', statLabel: 'Ảnh đã chụp', metadataKey: 'photosTaken', fallbackSymbol: 'CHỤP ẢNH' },
+  cashier: { accent: '#5d9980', accentSoft: '#f5ecd3', dark: '#304f4b', statLabel: 'Khách thanh toán', metadataKey: 'customersServed', fallbackSymbol: 'THU NGÂN' },
+  harvest: { accent: '#b39a43', accentSoft: '#f5ecd3', dark: '#304f4b', statLabel: 'Quả đã hái', metadataKey: 'fruitsHarvested', fallbackSymbol: 'THU HOẠCH TRÁI CÂY' },
   rubber: { accent: '#59885a', accentSoft: '#e3f0cf', dark: '#324f36', statLabel: 'Cây đã cạo', metadataKey: 'treesTapped', fallbackSymbol: 'CAO SU' },
   mechanic: { accent: '#55859a', accentSoft: '#dfedf2', dark: '#324854', statLabel: 'Xe đã sửa', metadataKey: 'vehiclesRepaired', fallbackSymbol: 'CỜ LÊ' },
   coffee: { accent: '#99705a', accentSoft: '#f8e9cc', dark: '#594036', statLabel: 'Ly cà phê đã phục vụ', metadataKey: 'customersServed', fallbackSymbol: 'PHIN' },

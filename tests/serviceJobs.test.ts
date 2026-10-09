@@ -13,16 +13,16 @@ import { CARWASH_CONFIG, distanceToScrubPath, getCleanliness } from '../src/game
 import { getFastBonus } from '../src/game/config/serviceJobConfig'
 
 describe('six-job catalog and progression', () => {
-  it('has six unique playable jobs with tutorials, themes and 45-second rounds', () => {
-    expect(jobs.map((job) => job.id)).toEqual(['sugarcane', 'construction', 'shipper', 'noodle', 'barber', 'carwash', 'rubber', 'mechanic', 'coffee', 'fishing'])
-    expect(new Set(jobs.map((job) => job.sceneKey)).size).toBe(10)
+  it('has twenty-six unique playable jobs with tutorials, themes and 45-second rounds', () => {
+    expect(jobs.map((job) => job.id)).toEqual(['sugarcane', 'construction', 'shipper', 'noodle', 'barber', 'carwash', 'rubber', 'mechanic', 'coffee', 'fishing', 'banhmi', 'gas', 'cargo', 'cleaning', 'electrician', 'florist', 'security', 'photographer', 'cashier', 'harvest', 'it', 'accountant', 'police', 'doctor', 'teacher', 'taxi'])
+    expect(new Set(jobs.map((job) => job.sceneKey)).size).toBe(26)
     for (const job of jobs) {
       expect(job.duration).toBe(45)
       expect(jobsById[job.id]).toBe(job)
       expect(tutorials[job.id].steps.length).toBeGreaterThanOrEqual(3)
       expect(shareCardThemes[job.id]).toBeDefined()
     }
-    expect(achievements).toHaveLength(24)
+    expect(achievements).toHaveLength(46)
   })
   it('daily selection covers all six jobs deterministically', () => {
     const dates = Array.from({ length: 28 }, (_, index) => `2026-10-${String(index + 1).padStart(2, '0')}`)

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="330" viewBox="0 0 720 330" role="img" aria-labelledby="title"><title id="title">Phố nhỏ Việt Nam — phông nền Mưu Sinh</title><defs>
+ <linearGradient id="gold" x2=".25" y2="1"><stop stop-color="#FFF09C"/><stop offset=".5" stop-color="#FFBE35"/><stop offset="1" stop-color="#FF793E"/></linearGradient>
+ <linearGradient id="road" x2="0" y2="1"><stop stop-color="#FFDA75"/><stop offset=".55" stop-color="#FF793E"/><stop offset="1" stop-color="#DC5725"/></linearGradient>
+ <linearGradient id="sky" x2=".3" y2="1"><stop stop-color="#18C8BC"/><stop offset="1" stop-color="#1686AD"/></linearGradient>
+ </defs><rect width="720" height="330" fill="#CEF3EF"/><circle cx="580" cy="76" r="42" fill="#FFDE85"/><path d="M0 99 Q80 38 147 99 Q223 17 314 87 Q421 41 474 106 Q621 25 720 104 V260 H0 Z" fill="#FFFFFF" opacity=".55"/>
+ <path d="M0 276 Q220 223 420 271 T720 258 V330 H0 Z" fill="#79C5AC"/>
+ <g stroke="#123653" stroke-width="4" stroke-linejoin="round">
+ <path d="M30 265 V159 H145 V265 Z" fill="#FFE7A4"/><path d="M20 159 L87 122 L155 159 Z" fill="#FF793E"/>
+ <path d="M36 183 H139 V204 H36 Z" fill="#FFF5DF"/><path d="M36 183 H56 V204 H36 M76 183 H96 V204 H76 M116 183 H136 V204 H116" fill="#FF793E" stroke="none"/>
+ <path d="M51 226 H76 V265 H51 Z M101 224 H124 V243 H101 Z" fill="#1C8D9C"/>
+ <path d="M534 271 V170 H652 V271 Z" fill="#FFE7A4"/><path d="M525 170 L593 133 L661 170 Z" fill="#FF793E"/><path d="M555 200 H577 V225 H555 Z M610 200 H631 V225 H610 Z M579 237 H605 V271 H579 Z" fill="#1C8D9C"/>
+ <path d="M645 271 V218 H705 V271 Z" fill="#FFF5DF"/><path d="M637 218 L675 190 L714 218 Z" fill="#FFAE57"/>
+ </g><g fill="#269B81"><circle cx="185" cy="225" r="28"/><circle cx="169" cy="233" r="22"/><circle cx="688" cy="258" r="25"/></g><path d="M183 244 V286 M687 274 V299" stroke="#123653" stroke-width="6"/><path d="M264 330 Q346 249 490 262 L559 330 Z" fill="#FFF0C9"/><path d="M326 330 Q385 282 464 276" stroke="#FFBE35" stroke-width="5" stroke-dasharray="18 16" fill="none"/></svg>

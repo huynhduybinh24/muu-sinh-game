@@ -22,7 +22,7 @@ async function verifyNativeAdapter(browser, origin, baseState) {
           if (method === 'removeListener') listeners.delete(options.callbackId)
         },
       }
-    }, baseState)
+    }, { ...baseState, money: 2_000_000, xp: 900 })
     const page = await context.newPage()
     const errors = []
     page.on('pageerror', (error) => errors.push(error.message))
@@ -39,6 +39,22 @@ async function verifyNativeAdapter(browser, origin, baseState) {
     await back(); await page.locator('.town-content').waitFor()
     await back(); await page.locator('.home-player').waitFor()
     await back(); assert.equal(await page.evaluate(() => window.__nativeQA.minimized), 1)
+    for (const [button,heading] of [['THIẾT BỊ','THIẾT BỊ CỦA TÔI'],['GARA','GARA CỦA TÔI'],['PHÒNG CỦA TÔI','PHÒNG CỦA TÔI']]) {
+      await page.getByRole('button',{name:'HỒ SƠ',exact:true}).click()
+      await page.getByRole('button',{name:button,exact:true}).click()
+      await page.getByRole('heading',{name:heading,exact:true}).waitFor()
+      await back(); await page.getByRole('heading',{name:'HỒ SƠ',exact:true}).waitFor()
+      await back(); await page.locator('.home-player').waitFor()
+    }
+    await page.getByRole('button',{name:'CỬA HÀNG',exact:true}).click()
+    await page.getByRole('tab',{name:'ĐIỆN THOẠI',exact:true}).click()
+    const purchaseBefore = await page.evaluate(() => localStorage.getItem('muu-sinh-player-progress'))
+    await page.locator('[data-item-id="life-phone-daily"]').getByRole('button',{name:'MUA',exact:true}).click()
+    await back(); assert.equal(await page.locator('dialog[open]').count(),0)
+    assert.equal(await page.evaluate(() => localStorage.getItem('muu-sinh-player-progress')),purchaseBefore)
+    await back(); await page.locator('.home-player').waitFor()
+    assert.equal(await page.evaluate(() => window.__nativeQA.listeners.size),3)
+    console.log('PASS: MOCK-BRIDGE lifestyle history and Back cancels purchase without spending or extra native listeners')
     // Back cancels destructive dialogs; it must not reset data or leave the screen.
     const untouched = await page.evaluate(() => localStorage.getItem('muu-sinh-player-progress'))
     await page.getByRole('button', { name: 'HỒ SƠ', exact: true }).click()
@@ -54,7 +70,7 @@ async function verifyNativeAdapter(browser, origin, baseState) {
     assert.equal(await page.evaluate(() => localStorage.getItem('muu-sinh-player-progress')), untouched)
     await back(); await page.locator('.home-player').waitFor()
     const before = await page.evaluate(() => JSON.parse(localStorage.getItem('muu-sinh-player-progress')).state.totalGamesPlayed)
-    for (const name of ['Bán nước mía', 'Phụ hồ', 'Shipper', 'Bán hủ tiếu', 'Cắt tóc', 'Rửa xe', 'Cạo cao su', 'Sửa xe', 'Pha cà phê', 'Đánh cá']) {
+    for (const name of ['Bán nước mía', 'Phụ hồ', 'Shipper', 'Bán hủ tiếu', 'Cắt tóc', 'Rửa xe', 'Cạo cao su', 'Sửa xe', 'Pha cà phê', 'Đánh cá', 'Bán bánh mì', 'Đổ xăng', 'Bốc hàng', 'Quét đường', 'Thợ điện', 'Bán hoa', 'Bảo vệ', 'Chụp ảnh', 'Thu ngân', 'Thu hoạch trái cây', 'Lập trình viên', 'Kế toán', 'Công an', 'Bác sĩ', 'Giáo viên', 'Tài xế']) {
       await page.getByRole('button', { name: 'KHÁM PHÁ THỊ TRẤN', exact: true }).click()
       await page.locator('.town-directory summary').click()
       await page.getByRole('button', { name: `Chọn ${name}`, exact: true }).click(); await page.clock.runFor(650)
@@ -64,9 +80,13 @@ async function verifyNativeAdapter(browser, origin, baseState) {
       await page.clock.runFor(4000); await page.locator('canvas').waitFor()
       await back(); await page.locator('.native-pause[open]').waitFor()
       await page.clock.runFor(100)
-      const frozen = await page.locator('canvas').screenshot({ animations: 'disabled' })
+      // A locator screenshot also captures the modal/backdrop above the canvas.
+      // Isolate the canvas pixels, not the dialog compositor/blur animation.
+      const captureOptions = { animations: 'disabled', style: '.native-pause { visibility: hidden !important; } .native-pause::backdrop { background: transparent !important; backdrop-filter: none !important; }' }
+      const frozen = await page.locator('canvas').screenshot(captureOptions)
       await page.clock.runFor(2000)
-      assert.deepEqual(await page.locator('canvas').screenshot({ animations: 'disabled' }), frozen, `${name}: engine must not render during native pause`)
+      const afterPause = await page.locator('canvas').screenshot(captureOptions)
+      assert.ok(afterPause.equals(frozen), `${name}: engine must not render during native pause`)
       await page.getByRole('button', { name: 'TIẾP TỤC', exact: true }).click()
       await page.clock.runFor(1000)
       assert.equal(await page.locator('canvas').count(), 1)
@@ -76,10 +96,11 @@ async function verifyNativeAdapter(browser, origin, baseState) {
       await page.locator('.town-content').waitFor(); await page.clock.runFor(32)
       assert.equal(await page.locator('canvas').count(), 0)
       await back(); await page.locator('.home-player').waitFor()
+      console.log(`PASS: MOCK-BRIDGE ${name} pause/resume/back/teardown`)
     }
     assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem('muu-sinh-player-progress')).state.totalGamesPlayed), before)
     assert.deepEqual(errors, [])
-    console.log('PASS: MOCK-BRIDGE browser integration (not device): no native SW/install CTA, Back editing/dialog/history/minimize, ten games freeze/resume, clean paused teardown and no false results')
+    console.log('PASS: MOCK-BRIDGE browser integration (not device): no native SW/install CTA, Back editing/dialog/history/minimize, twenty-six games freeze/resume, clean paused teardown and no false results')
   } finally { await context.close() }
 }
 module.exports = { verifyNativeAdapter }

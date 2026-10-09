@@ -3,6 +3,8 @@ import { jobsById } from './data/jobs'
 import { AchievementToast } from './components/AchievementToast'
 import { LevelUpToast } from './components/LevelUpToast'
 import { ShopPage } from './pages/ShopPage'
+import { LifestylePage } from './pages/LifestylePage'
+import type { ItemCategory } from './types/shop'
 import { getLevelProgress } from './services/level'
 import { DailyRewardModal } from './components/DailyRewardModal'
 import { DailyMissionsPage } from './pages/DailyMissionsPage'
@@ -33,11 +35,15 @@ import './daily.css'
 import './polish.css'
 import './save.css'
 import './town.css'
+import './lifestyle.css'
+import './branding.css'
+import { BrandLogo } from './components/BrandLogo'
 
 const GamePage = lazy(() => import('./pages/GamePage').then((module) => ({ default: module.GamePage })))
 
 function App() {
   const [navigation, setNavigation] = useState(initialNavigation)
+  const [shopCategory, setShopCategory] = useState<ItemCategory>('hair')
   const screen = navigation.screen
   const setScreen = (next: AppScreen) => setNavigation((current) => navigateScreen(current, next))
   const [gamePaused, setGamePaused] = useState(false)
@@ -149,6 +155,7 @@ function App() {
       playerName={profile.playerName || pendingName}
       initialAppearance={profile.appearance}
       ownedItemIds={ownedItemIds}
+      lifestyle={profile.lifestyle}
       editing={Boolean(profile.playerName)}
       onBack={() => profile.playerName ? setScreen('profile') : setPendingName('')}
       onSave={(appearance) => {
@@ -161,10 +168,13 @@ function App() {
         }
       }} />
   } else if (screen === 'profile') {
-    page = <ProfilePage onHome={() => setScreen('home')} onCareer={() => setScreen('career')} onEdit={() => setScreen('creator')} onWardrobe={() => setScreen('wardrobe')} onReinitialize={reinitializeApp} />
+    page = <ProfilePage onHome={() => setScreen('home')} onCareer={() => setScreen('career')} onEdit={() => setScreen('creator')} onWardrobe={() => setScreen('wardrobe')} onReinitialize={reinitializeApp} onLifestyle={setScreen} />
+  } else if (screen === 'devices' || screen === 'garage' || screen === 'room') {
+    page = <LifestylePage view={screen} onHome={() => setScreen('home')} onCareer={() => setScreen('career')} onProfile={() => setScreen('profile')} onView={setScreen} onAchievements={queueAchievements}
+      onShop={(category) => { setShopCategory(category); setScreen('shop') }} />
   } else if (screen === 'shop' || screen === 'wardrobe') {
-    page = <ShopPage key={screen} wardrobe={screen === 'wardrobe'} onHome={() => setScreen('home')}
-      onCareer={() => setScreen('career')} onProfile={() => setScreen('profile')} onAchievements={queueAchievements} />
+    page = <ShopPage key={screen} wardrobe={screen === 'wardrobe'} initialCategory={screen === 'wardrobe' ? 'hair' : shopCategory} onHome={() => setScreen('home')}
+      onCareer={() => setScreen('career')} onProfile={() => setScreen('profile')} onAchievements={queueAchievements} onLifestyle={setScreen} />
   } else if (screen === 'missions') {
     page = <DailyMissionsPage dateKey={localDateKey} onHome={() => setScreen('home')} onCareer={() => setScreen('career')}
       onProfile={() => setScreen('profile')} onClaim={(id) => handleRewardAction(() => useProgressStore.getState().claimMission(id))} />
@@ -174,7 +184,7 @@ function App() {
     page = <TownPage dateKey={localDateKey} onHome={() => setScreen('home')} onCareer={() => setScreen('career')} onProfile={() => setScreen('profile')}
       onPlay={({ jobId, mode }) => startJob(jobId, mode)} />
   } else if (screen === 'game' && currentJob) {
-    page = <Suspense fallback={<main className="app-shell"><p role="status">Đang mở ca làm…</p></main>}><GamePage job={currentJob} paused={gamePaused} onComplete={handleGameComplete} /></Suspense>
+    page = <Suspense fallback={<main className="app-shell brand-loading"><BrandLogo variant="compact" /><p role="status">Đang mở ca làm…</p></main>}><GamePage job={currentJob} paused={gamePaused} onComplete={handleGameComplete} /></Suspense>
   } else if (screen === 'result' && result) {
     page = (
       <ResultPage
@@ -198,8 +208,9 @@ function App() {
         onStart={handleStartDaily}
         onCareer={() => setScreen('career')}
         onProfile={() => setScreen('profile')}
-        onShop={() => setScreen('shop')}
+        onShop={() => { setShopCategory('hair'); setScreen('shop') }}
         onTown={() => setScreen('town')}
+        onLifestyle={setScreen}
         onMissions={() => setScreen('missions')}
         onReward={() => setDismissedRewardDate('')}
         onInstall={pwaInstall.install}

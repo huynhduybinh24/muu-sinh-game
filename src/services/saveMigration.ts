@@ -6,6 +6,7 @@ import { migrateLegacyXp } from './level'
 import { readDailyMissions } from './dailyMissions'
 import { isLocalDateKey } from './dailyChallenge'
 import { readPlayerProfile } from './playerProfile'
+import { readLifestyle } from './lifestyle'
 import type { AchievementId, JobCareerStats, PlayerPreferences, PlayerProgress } from '../types/game'
 import type { JobId } from '../types/job'
 import type { PlayerSaveData } from '../types/save'
@@ -114,7 +115,8 @@ export function migratePersistedProgress(value: unknown, fromVersion?: number): 
   return {
     ...initialProgress,
     ...initialPreferences,
-    profile: { ...profile, appearance: ownedAppearance(profile.appearance, ownedItemIds) },
+    profile: { ...profile, appearance: ownedAppearance(profile.appearance, ownedItemIds),
+      ...(profile.lifestyle ? { lifestyle: readLifestyle(profile.lifestyle, ownedItemIds) } : {}) },
     money,
     reputation: safeNumber(source.reputation, initialProgress.reputation),
     energy: safeNumber(source.energy, initialProgress.energy),

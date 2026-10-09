@@ -53,7 +53,7 @@ async function verifyProductionAssets() {
   assert.ok(appAsset, 'Missing app JavaScript')
   const appBundles = precacheAssets.filter((asset) => asset.endsWith('.js'))
   const bundle = (await Promise.all(appBundles.map(async (asset) => (await verifyFile(asset)).toString()))).join('\n')
-  for (const scene of ['SugarcaneScene', 'ConstructionScene', 'ShipperScene', 'NoodleScene', 'BarberScene', 'CarwashScene', 'RubberScene', 'MechanicScene', 'CoffeeScene', 'FishingScene']) {
+  for (const scene of ['SugarcaneScene', 'ConstructionScene', 'ShipperScene', 'NoodleScene', 'BarberScene', 'CarwashScene', 'RubberScene', 'MechanicScene', 'CoffeeScene', 'FishingScene', 'BanhmiScene', 'GasScene', 'CargoScene', 'CleaningScene', 'ElectricianScene', 'FloristScene', 'SecurityScene', 'PhotographerScene', 'CashierScene', 'HarvestScene', 'ItScene', 'AccountantScene', 'PoliceScene', 'DoctorScene', 'TeacherScene', 'TaxiScene']) {
     assert.ok(bundle.includes(scene), `${scene} missing from production bundle`)
   }
   console.log(`PASS: production HTML, manifest, icons, service worker, all scenes, and ${checked.size} local assets`)

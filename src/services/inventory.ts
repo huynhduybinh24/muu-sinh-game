@@ -1,5 +1,6 @@
 import { defaultAppearance } from '../data/avatar'
-import { getShopItem, isItemEquipped, itemCategories, shopItems, starterItemIds, withItem } from '../data/shop'
+import { getShopItem, isClothingItem, isItemEquipped, itemCategories, shopItems, starterItemIds, withItem } from '../data/shop'
+import { isProductEquipped, previewLifestyle } from './lifestyle'
 import { getLevelProgress } from './level'
 import type { PlayerAppearance } from '../types/profile'
 import type { PlayerProgress } from '../types/game'
@@ -8,12 +9,14 @@ import type { ItemId, ShopItem, PurchaseStatus } from '../types/shop'
 export function ownsItem(owned: readonly ItemId[], id: string): boolean { return owned.some((itemId) => itemId === id) }
 export function canUseAppearanceOption(key: keyof PlayerAppearance, value: PlayerAppearance[keyof PlayerAppearance], owned: readonly ItemId[]): boolean {
   return key === 'gender' || key === 'skinToneId' || shopItems.some((item) =>
-    itemCategories[item.category].appearanceKey === key && item.appearanceValue === value && ownsItem(owned, item.id))
+    isClothingItem(item) && itemCategories[item.category].appearanceKey === key && item.appearanceValue === value && ownsItem(owned, item.id))
 }
 export function canAffordItem(money: number, item: ShopItem): boolean { return Number.isFinite(money) && money >= item.price }
 export function readOwnedItems(value: unknown, legacyAppearance?: PlayerAppearance): ItemId[] {
   const valid = Array.isArray(value) ? value.filter((id): id is ItemId => typeof id === 'string' && Boolean(getShopItem(id))) : []
-  const grandfathered = legacyAppearance ? shopItems.filter((item) => isItemEquipped(legacyAppearance, item)).map((item) => item.id) : []
+  // Only the original 22 clothes existed before inventory v4; new premiums cannot be grandfathered.
+  const legacyIds = ['crop','swoop','bob','bun','curls','long','coral','mint','blue','sunshine','lavender','cream','cherry','charcoal','ocean','rose','denim','navy','sand','forest','plum']
+  const grandfathered = legacyAppearance ? shopItems.filter((item) => isClothingItem(item) && legacyIds.includes(item.appearanceValue) && isItemEquipped(legacyAppearance, item)).map((item) => item.id) : []
   return [...new Set([...starterItemIds, ...valid, ...grandfathered])]
 }
 export function ownedAppearance(appearance: PlayerAppearance, owned: readonly ItemId[]): PlayerAppearance {
@@ -46,5 +49,8 @@ export function purchaseItem(progress: PlayerProgress, itemId: string): { status
 export function equipItem(progress: PlayerProgress, itemId: string): PlayerProgress {
   const item = getShopItem(itemId)
   if (!item || !ownsItem(progress.ownedItemIds, item.id)) return progress
-  return { ...progress, profile: { ...progress.profile, appearance: withItem(progress.profile.appearance, item) } }
+  if (isProductEquipped(progress.profile, item)) return progress
+  return { ...progress, profile: isClothingItem(item)
+    ? { ...progress.profile, appearance: withItem(progress.profile.appearance, item) }
+    : previewLifestyle(progress.profile, item) }
 }

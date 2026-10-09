@@ -1,12 +1,14 @@
 import { getAvatarOption } from '../../data/avatar'
 import { readPlayerProfile } from '../../services/playerProfile'
 import type { PlayerAppearance } from '../../types/profile'
+import type { LifestyleState } from '../../types/shop'
 
 export type AvatarState = 'idle' | 'work' | 'success' | 'fail' | 'move'
 
 export interface PhaserAvatarData {
   playerName: string
   appearance: PlayerAppearance
+  lifestyle?: LifestyleState
   colors: { skin: number; hair: number; shirt: number; pants: number }
 }
 
@@ -18,6 +20,7 @@ export function getPhaserAvatarData(profile?: unknown): PhaserAvatarData {
   return {
     playerName: normalized.playerName,
     appearance,
+    ...(normalized.lifestyle ? { lifestyle: normalized.lifestyle } : {}),
     colors: {
       skin: color(getAvatarOption('skinToneId', appearance.skinToneId).color),
       hair: color(getAvatarOption('hairId', appearance.hairId).color),

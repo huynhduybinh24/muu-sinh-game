@@ -8,6 +8,7 @@ import { getMissionViews } from '../services/dailyMissions'
 import { getDailyRewardStatus } from '../services/dailyRewards'
 import type { Job } from '../types/job'
 import { GameIcon } from '../components/GameIcon'
+import { BrandLogo } from '../components/BrandLogo'
 
 interface HomePageProps {
   dailyJob: Job
@@ -22,16 +23,17 @@ interface HomePageProps {
   onMissions: () => void
   onReward: () => void
   onTown: () => void
+  onLifestyle: (view: 'garage' | 'room') => void
 }
 
-export function HomePage({ dailyJob, localDateKey, canInstall, showIosInstallHint, onStart, onCareer, onProfile, onInstall, onShop, onMissions, onReward, onTown }: HomePageProps) {
+export function HomePage({ dailyJob, localDateKey, canInstall, showIosInstallHint, onStart, onCareer, onProfile, onInstall, onShop, onMissions, onReward, onTown, onLifestyle }: HomePageProps) {
   const progress = useProgressStore()
   const completedToday = progress.lastCompletedDate === localDateKey
   const missions = getMissionViews(progress.dailyMissions, localDateKey)
   const reward = getDailyRewardStatus(progress, localDateKey)
 
   return (
-    <ScreenShell header={<><h1 className="home-brand" aria-label="MƯU SINH">MƯU SINH<span> Mỗi ngày một nghề</span></h1>
+    <ScreenShell header={<><h1 className="home-brand" aria-label="MƯU SINH"><BrandLogo decorative /></h1>
       <button className="home-shop-link" type="button" onClick={onShop}>CỬA HÀNG</button></>}
       contentClassName="home-content"
       footer={<>
@@ -42,11 +44,12 @@ export function HomePage({ dailyJob, localDateKey, canInstall, showIosInstallHin
       </>}>
       <section className="home-player" aria-label="Người chơi">
         <button className="avatar-link" type="button" onClick={onProfile} aria-label="Mở hồ sơ của bạn">
-          <PlayerAvatar appearance={progress.profile.appearance} size={105} />
+          <PlayerAvatar appearance={progress.profile.appearance} lifestyle={progress.profile.lifestyle} size={125} />
         </button>
-        <div><p className="eyebrow">Hôm nay, mình cùng cố lên!</p><h2>{progress.profile.playerName}</h2>
+        <div><p className="eyebrow">Phố nhỏ, ước mơ lớn</p><h2>{progress.profile.playerName}</h2>
           <LevelProgress xp={progress.xp} /></div>
         <span className="player-spark" aria-hidden="true">✦</span>
+        <p className="home-life-invitation">Đi làm, kiếm tiền, nâng cấp cuộc sống.</p>
       </section>
       <div className="home-wallet" aria-label="Tiến trình người chơi">
         <div><span>💵 TIỀN</span><strong>{formatMoney(progress.money)}</strong></div>
@@ -65,6 +68,12 @@ export function HomePage({ dailyJob, localDateKey, canInstall, showIosInstallHin
         <div className="home-job-actions"><button className="primary-button" type="button" onClick={onStart}>{completedToday ? 'CHƠI LẠI' : 'ĐI LÀM'} →</button>
           <button className="home-town-button" type="button" onClick={onTown} aria-label="KHÁM PHÁ THỊ TRẤN"><GameIcon name="home" size={26} /><span>KHÁM PHÁ<br />THỊ TRẤN</span></button></div>
       </section>
+      <nav className="home-destinations" aria-label="Khám phá cuộc sống">
+        <button type="button" onClick={onShop}><GameIcon name="gift" size={28} /><span>Mua sắm</span></button>
+        <button type="button" onClick={() => onLifestyle('garage')}><GameIcon name="carwash" size={28} /><span>Gara</span></button>
+        <button type="button" onClick={() => onLifestyle('room')}><GameIcon name="home" size={28} /><span>Nhà của tôi</span></button>
+        <button type="button" onClick={onCareer}><GameIcon name="career" size={28} /><span>Nghề & thành tựu</span></button>
+      </nav>
       <section className="home-daily-extras" aria-label="Nhiệm vụ và quà hôm nay">
         <div className="home-missions-preview">
           <div><h2>NHIỆM VỤ HÔM NAY</h2><button type="button" onClick={onMissions}>XEM TẤT CẢ</button></div>

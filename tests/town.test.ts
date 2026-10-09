@@ -11,12 +11,12 @@ import { useProgressStore, migratePersistedProgress } from '../src/store/progres
 
 beforeEach(() => useProgressStore.getState().resetProgress())
 describe('typed town map', () => {
-  it('maps exactly ten unique locations, every supported job and the five neighborhoods', () => {
-    expect(townLocations).toHaveLength(10)
-    expect(new Set(townLocations.map(({ id }) => id)).size).toBe(10)
+  it('maps exactly twenty-six unique locations, every supported job and the five neighborhoods', () => {
+    expect(townLocations).toHaveLength(26)
+    expect(new Set(townLocations.map(({ id }) => id)).size).toBe(26)
     expect(new Set(townLocations.map(({ jobId }) => jobId))).toEqual(new Set(jobs.map(({ id }) => id)))
     expect(townDistricts.map(({ id }) => id)).toEqual(['market', 'downtown', 'work', 'countryside', 'riverside'])
-    expect(townDistricts.map((district) => townLocations.filter(({ districtId }) => districtId === district.id).length)).toEqual([3, 2, 3, 1, 1])
+    expect(townDistricts.map((district) => townLocations.filter(({ districtId }) => districtId === district.id).length)).toEqual([6, 11, 6, 2, 1])
     for (const location of townLocations) {
       expect(townDistricts.some(({ id }) => id === location.districtId)).toBe(true)
       expect(location.description.length).toBeGreaterThan(10)

@@ -104,7 +104,7 @@ async function verifySaveFlows(browser, origin, artifacts, assertLayout, baseSta
     await page.getByRole('button', { name: 'XEM TẤT CẢ', exact: true }).click()
     assert.equal(await page.getByRole('button', { name: '✓ ĐÃ NHẬN', exact: true }).count(), 3)
     await page.getByRole('button', { name: 'SỰ NGHIỆP', exact: true }).click()
-    assert.equal(await page.locator('.career-job-card').count(), 10)
+    assert.equal(await page.locator('.career-job-card').count(), 26)
     assert.equal(await page.getByText('Mở khóa 7/10/2026').count(), 3)
     await page.getByRole('button', { name: 'TRANG CHỦ', exact: true }).click()
     await page.getByRole('button', { name: 'CỬA HÀNG', exact: true }).click()

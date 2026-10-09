@@ -4,7 +4,7 @@ const config: CapacitorConfig = {
   appId: 'com.muusinh.game', // Provisional: confirm ownership before publication.
   appName: 'Mưu Sinh',
   webDir: 'dist',
-  backgroundColor: '#fffaf0',
+  backgroundColor: '#FFF5DF',
   plugins: {
     SystemBars: { insetsHandling: 'css', style: 'LIGHT', hidden: false },
   },

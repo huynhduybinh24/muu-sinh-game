@@ -4,6 +4,22 @@ const { dismissReward } = require('./profile-qa.cjs')
 const jobs = [
   ['sugarcane', 'Bán nước mía'], ['construction', 'Phụ hồ'], ['shipper', 'Shipper'], ['noodle', 'Bán hủ tiếu'], ['barber', 'Cắt tóc'],
   ['carwash', 'Rửa xe'], ['rubber', 'Cạo cao su'], ['mechanic', 'Sửa xe'], ['coffee', 'Pha cà phê'], ['fishing', 'Đánh cá'],
+  ['banhmi', 'Bán bánh mì'],
+  ['gas', 'Đổ xăng'],
+  ['cargo', 'Bốc hàng'],
+  ['cleaning', 'Quét đường'],
+  ['electrician', 'Thợ điện'],
+  ['florist', 'Bán hoa'],
+  ['security', 'Bảo vệ'],
+  ['photographer', 'Chụp ảnh'],
+  ['cashier', 'Thu ngân'],
+  ['harvest', 'Thu hoạch trái cây'],
+  ['it', 'Lập trình viên'],
+  ['accountant', 'Kế toán'],
+  ['police', 'Công an'],
+  ['doctor', 'Bác sĩ'],
+  ['teacher', 'Giáo viên'],
+  ['taxi', 'Tài xế'],
 ]
 const sizes = [{ width: 360, height: 800 }, { width: 390, height: 844 }, { width: 412, height: 915 }, { width: 1280, height: 900 }]
 const readSave = (page) => page.evaluate(() => JSON.parse(localStorage.getItem('muu-sinh-player-progress')))
@@ -31,7 +47,7 @@ async function verifyTownFlows(browser, origin, artifacts, assertLayout, baseSta
     const before = await readSave(page)
     const homeAvatar = await page.locator('.home-player .player-avatar svg').innerHTML()
     await openTown(page)
-    assert.equal(await page.locator('.town-location').count(), 10)
+    assert.equal(await page.locator('.town-location').count(), 26)
     assert.equal(await page.locator('.town-location[data-daily="true"]').getAttribute('data-job-id'), 'sugarcane')
     assert.equal(await page.locator('canvas').count(), 0)
     assert.equal(await page.evaluate(() => performance.getEntriesByType('resource').some(({ name }) => /\/GamePage-.*\.js/.test(name))), false, 'Town must not load gameplay JS into the page')
@@ -64,16 +80,16 @@ async function verifyTownFlows(browser, origin, artifacts, assertLayout, baseSta
       await page.getByRole('button', { name: 'ĐÓNG', exact: true }).click()
     }
     assert.deepEqual(await readSave(page), before, 'Exploring locations must not change progress')
-    console.log('PASS: Town mobile/desktop layout, native touch pan, ten panels, saved avatar and unchanged exploration progress')
+    console.log('PASS: Town mobile/desktop layout, native touch pan, twenty-six panels, saved avatar and unchanged exploration progress')
     await page.locator('.town-directory summary').click()
-    assert.equal(await page.locator('.town-directory button').count(), 10)
+    assert.equal(await page.locator('.town-directory button').count(), 26)
     await page.emulateMedia({ reducedMotion: 'reduce' })
     await page.getByRole('button', { name: 'Chọn Đánh cá', exact: true }).click()
     await page.getByRole('dialog').waitFor()
     assert.equal(await page.locator('.town-player').evaluate((element) => getComputedStyle(element).transitionDuration), '0s')
     await page.getByRole('button', { name: 'ĐÓNG', exact: true }).click()
     await context.setOffline(true)
-    // All ten are immediately reachable through the existing reveal flow, before Nov activation.
+    // All twenty-six are immediately reachable before their Daily epoch activation.
     for (const [id, name] of jobs) {
       await page.getByRole('button', { name: `Chọn ${name}`, exact: true }).click()
       await page.getByRole('dialog').getByRole('button', { name: 'ĐI LÀM', exact: true }).click()
@@ -91,7 +107,7 @@ async function verifyTownFlows(browser, origin, artifacts, assertLayout, baseSta
       await page.locator('.town-directory summary').click()
       assert.equal(await page.locator('canvas').count(), 0)
     }
-    console.log('PASS: Town launches all ten mini-games offline before November activation, with one canvas and clean navigation')
+    console.log('PASS: Town launches all twenty-six mini-games offline before epoch activation, with one canvas and clean navigation')
     // Free play of today's job must never falsely complete Daily, even after replay.
     await page.getByRole('button', { name: 'Chọn Bán nước mía', exact: true }).click()
     assert.equal(await page.getByRole('radio', { name: 'Chơi tự do', exact: true }).isChecked(), true)
@@ -143,9 +159,9 @@ async function verifyTownFlows(browser, origin, artifacts, assertLayout, baseSta
     await page.getByRole('button', { name: 'TRANG CHỦ', exact: true }).click(); await openTown(page)
     assert.equal(await page.locator('.town-player .player-avatar svg').innerHTML(), equippedAvatar)
     await page.getByRole('button', { name: 'SỰ NGHIỆP', exact: true }).click()
-    assert.equal(await page.locator('.career-job-card').count(), 10)
+    assert.equal(await page.locator('.career-job-card').count(), 26)
     assert.deepEqual(errors, [])
-    console.log('PASS: Town 10 locations/5 districts, touch pan, mobile/desktop, panels/avatar travel, accessible list/reduced motion, lazy Phaser, offline routing, free/replay vs daily, Career and Profile/Shop avatar')
+    console.log('PASS: Town 26 locations/5 districts, touch pan, mobile/desktop, panels/avatar travel, accessible list/reduced motion, lazy Phaser, offline routing, free/replay vs daily, Career and Profile/Shop avatar')
   } finally { await context.close() }
 }
 module.exports = { verifyTownFlows }

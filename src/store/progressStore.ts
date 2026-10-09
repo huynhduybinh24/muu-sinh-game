@@ -6,6 +6,7 @@ import { emptyJobStats, initialProgress, initialPreferences, migratePersistedPro
 import { gameStateStorage } from '../services/saveStorage'
 import { SAVE_VERSION, SAVE_KEY } from '../data/save'
 import { equipItem as applyEquipment, ownedAppearance, purchaseItem as applyPurchase } from '../services/inventory'
+import { removeEquipment } from '../services/lifestyle'
 import { claimMission as applyMissionClaim, syncDailyMissions } from '../services/dailyMissions'
 import { claimDailyReward as applyDailyRewardClaim } from '../services/dailyRewards'
 import type { PurchaseStatus } from '../types/shop'
@@ -30,6 +31,7 @@ interface ProgressStore extends PlayerProgress, PlayerPreferences {
   claimDailyReward: (dateKey?: string) => { claimed: boolean; newAchievements: AchievementUnlock[] }
   purchaseItem: (id: string) => { status: PurchaseStatus; newAchievements: AchievementUnlock[] }
   equipItem: (id: string) => boolean
+  unequipItem: (id: string) => boolean
   createProfile: (name: string, appearance: PlayerAppearance) => boolean
   updateAppearance: (appearance: PlayerAppearance) => void
   selectJob: (jobId: JobId) => void
@@ -85,14 +87,22 @@ export const useProgressStore = create<ProgressStore>()(
         set((state) => {
           const updated = applyEquipment(state, id)
           equipped = updated !== state
-          return updated
+          if (!equipped) return state
+          const newAchievements = getNewAchievementUnlocks(updated, new Date().toISOString())
+          return { ...updated, achievements: [...updated.achievements, ...newAchievements] }
         })
         return equipped
+      },
+      unequipItem: (id) => {
+        let removed = false
+        set((state) => { const updated = removeEquipment(state, id); removed = updated !== state; return updated })
+        return removed
       },
       createProfile: (name, appearance) => {
         if (getPlayerNameError(name)) return false
         set((state) => ({
           profile: {
+            ...state.profile,
             playerName: normalizePlayerName(name),
             createdAt: state.profile.createdAt || new Date().toISOString(),
             appearance: ownedAppearance(readAppearance(appearance), state.ownedItemIds),

@@ -1,5 +1,7 @@
 import Phaser from 'phaser'
 import type { PhaserAvatarData } from './avatarData'
+import { drawEquipment } from './drawEquipment'
+import { compatibleVehicle } from '../../services/lifestyle'
 
 const OUTLINE = 0x353044
 const SHOES = 0x36394f
@@ -15,7 +17,8 @@ function drawHair(graphics: Phaser.GameObjects.Graphics, data: PhaserAvatarData,
     return
   }
   graphics.fillEllipse(0, -119, 59, 28)
-  if (hairId === 'swoop') graphics.fillTriangle(-27, -119, 26, -119, -17, -96)
+  if (hairId === 'swoop' || hairId === 'wave') graphics.fillTriangle(-27, -119, 26, -119, -17, -96)
+  if (hairId === 'braid') for (let i = 0; i < 5; i++) graphics.fillCircle(28, -111 + i * 9, 7)
   if (hairId === 'crop') graphics.fillRect(-26, -118, 52, 12)
   if (hairId === 'bob' || hairId === 'long') {
     graphics.fillRoundedRect(-32, -115, 10, hairId === 'long' ? 52 : 34, 5)
@@ -32,6 +35,7 @@ function drawHair(graphics: Phaser.GameObjects.Graphics, data: PhaserAvatarData,
 
 export function drawAvatar(graphics: Phaser.GameObjects.Graphics, data: PhaserAvatarData, riding: boolean): void {
   const { skin, shirt, pants } = data.colors
+  drawEquipment(graphics, data.lifestyle, true, riding)
   drawHair(graphics, data, true)
   graphics.fillStyle(pants)
   graphics.lineStyle(1.5, OUTLINE, 0.45)
@@ -44,6 +48,7 @@ export function drawAvatar(graphics: Phaser.GameObjects.Graphics, data: PhaserAv
     graphics.strokeRoundedRect(-20, -39, 17, 34, 5).strokeRoundedRect(3, -39, 17, 34, 5)
   }
   graphics.fillStyle(SHOES)
+  if (!riding && data.appearance.pantsId === 'shorts') graphics.fillStyle(skin).fillRect(-20, -20, 17, 15).fillRect(3, -20, 17, 15).fillStyle(SHOES)
   const feetY = riding ? -16 : -5
   graphics.fillRoundedRect(-24, feetY, 22, 9, 4)
   graphics.fillRoundedRect(2, feetY, 22, 9, 4)
@@ -60,6 +65,8 @@ export function drawAvatar(graphics: Phaser.GameObjects.Graphics, data: PhaserAv
   graphics.lineStyle(1.5, 0xffffff, 0.3).lineBetween(-20, -45, -20, -57)
   if (data.appearance.gender === 'female') graphics.fillTriangle(-24, -34, 24, -34, 0, -53)
   graphics.fillStyle(0xffffff, 0.65).fillTriangle(-12, -60, -4, -60, -8, -51)
+  if (['polo', 'linen', 'blazer'].includes(data.appearance.shirtId)) graphics.fillStyle(0xf5ecd7).fillTriangle(-13, -70, 0, -63, -7, -57).fillTriangle(13, -70, 0, -63, 7, -57).lineStyle(1.5, OUTLINE).lineBetween(0, -60, 0, -34)
+  if (['hoodie', 'denim-jacket', 'raincoat'].includes(data.appearance.shirtId)) graphics.lineStyle(2, 0xf5ecd7).lineBetween(0, -63, 0, -34).lineBetween(-13, -43, 13, -43)
   graphics.fillStyle(skin)
   graphics.fillCircle(-28, -95, 6)
   graphics.fillCircle(28, -95, 6)
@@ -79,13 +86,16 @@ export function drawAvatar(graphics: Phaser.GameObjects.Graphics, data: PhaserAv
   if (data.appearance.gender === 'female') {
     graphics.lineBetween(-13, -99, -16, -102).lineBetween(13, -99, 16, -102)
   }
+  drawEquipment(graphics, data.lifestyle, false, riding, skin)
 }
 
-export function drawScooter(graphics: Phaser.GameObjects.Graphics): void {
+export function drawScooter(graphics: Phaser.GameObjects.Graphics, data?: PhaserAvatarData): void {
+  const selected = data ? compatibleVehicle(data, 'shipper') : undefined
+  const vehicleColor = selected?.color ? Number.parseInt(selected.color.slice(1), 16) : 0xf5c64c
   graphics.fillStyle(OUTLINE)
   graphics.fillCircle(-28, -3, 11).fillCircle(30, -3, 11)
   graphics.fillStyle(0xb4c5d6).fillCircle(-28, -3, 5).fillCircle(30, -3, 5)
-  graphics.fillStyle(0xf5c64c).lineStyle(2, OUTLINE)
+  graphics.fillStyle(vehicleColor).lineStyle(2, OUTLINE)
   graphics.fillRoundedRect(-40, -26, 59, 19, 8).strokeRoundedRect(-40, -26, 59, 19, 8)
   graphics.fillRoundedRect(21, -41, 15, 33, 5).strokeRoundedRect(21, -41, 15, 33, 5)
   graphics.fillStyle(OUTLINE).fillRoundedRect(-22, -34, 35, 7, 3)

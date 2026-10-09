@@ -1,0 +1,14 @@
+{
+  "name": "MƯU SINH",
+  "tagline": "Mỗi Ngày Một Nghề",
+  "colors": {
+    "gold": "#FFBE35",
+    "orange": "#FF793E",
+    "teal": "#18C8BC",
+    "navy": "#123653",
+    "cream": "#FFF5DF",
+    "action": "#BC421F",
+    "muted": "#52667A",
+    "success": "#08756F"
+  }
+}

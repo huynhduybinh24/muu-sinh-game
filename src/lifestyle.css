@@ -1,0 +1,30 @@
+.lifestyle-links { display:flex; flex-wrap:wrap; gap:8px; }
+.lifestyle-links button { min-height:44px; flex:1; padding:10px 8px; border:1px solid #ccddd5; border-radius:14px; background:#eef6ef; color:#476d63; font:inherit; font-size:.65rem; font-weight:850; cursor:pointer; }
+.shop-tabs { display:flex; overflow-x:auto; padding:2px 0 8px; scroll-snap-type:x proximity; }
+.shop-tabs button { flex:0 0 auto; padding:10px 14px; scroll-snap-align:start; }
+.shop-content .shop-item { background:linear-gradient(150deg,#fffdf8,#f5f0e5); padding:12px 9px; transition:transform .15s, border-color .15s; }
+.shop-item--owned { border-color:#d2e1d3; }
+.shop-content .item-preview { min-height:120px; background:radial-gradient(ellipse at 45% 35%,#fff9df,#dcebe0); overflow:hidden; }
+.shop-content .item-action:not(:disabled) { background:#46786a; color:#fff8e8; }
+.shop-content .item-rarity { color:#637e72; }
+.shop-filters { padding:12px; background:#f3f4ec; border-radius:16px; }
+.shop-filters summary { cursor:pointer; font-weight:850; font-size:.72rem; min-height:44px; display:flex; align-items:center; }
+.shop-filters > div { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding-top:12px; }
+.shop-filters label { display:grid; gap:5px; font-size:.7rem; min-width:0; }
+.shop-filters input[type=search], .shop-filters select { width:100%; min-width:0; min-height:44px; border:1px solid #cbd9d3; border-radius:10px; padding:8px; background:#fffdf8; font:inherit; }
+.shop-filters .shop-affordable { display:flex; align-items:center; gap:8px; grid-column:1/-1; min-height:44px; }
+.shop-empty { text-align:center; padding:24px; color:#697d73; font-size:.85rem; }
+.product-preview { display:flex; gap:12px; align-items:center; padding:12px; border-radius:20px; background:linear-gradient(130deg,#f6e4c8,#e0eee5); }
+.product-preview > div { min-width:0; }
+.product-preview strong { font-size:.85rem; }
+.product-preview p { font-size:.72rem; line-height:1.5; }
+.product-art { max-width:100%; flex-shrink:0; }
+.purchase-dialog { width:min(370px,calc(100% - 24px)); border:0; border-radius:24px; padding:24px; text-align:center; background:#fffaf0; color:#405d59; }
+.purchase-dialog::backdrop { background:#253a4480; }
+.purchase-dialog h2 { font-size:1.15rem; }.purchase-dialog strong { display:block; }.purchase-dialog > div { display:flex; gap:12px; }.purchase-dialog button { flex:1; padding:12px 6px; font-size:.75rem; min-height:48px; }
+.life-content { gap:16px; }.life-intro { padding:18px; border-radius:24px; background:linear-gradient(120deg,#e4efe4,#f6e8cb); }.life-intro p { font-size:.8rem; line-height:1.6; }
+.life-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }.life-card { border-radius:20px; background:#fffaf0; padding:12px; text-align:center; box-shadow:var(--shadow-soft); }.life-card h2 { font-size:.8rem; }.life-card button { width:100%; min-height:44px; border:0; border-radius:12px; background:#4b7b6a; color:#fffaf0; font:inherit; font-size:.72rem; font-weight:800; }.life-card button:disabled { opacity:.6; }.life-card small { display:block; margin:8px; color:#677b72; }
+.room-art { width:100%; height:auto; border-radius:24px; background:#e6eedf; }.room-slots { display:grid; gap:10px; }.room-slots label { display:grid; grid-template-columns:90px minmax(0,1fr); align-items:center; gap:8px; font-size:.75rem; }.room-slots select { min-width:0; width:100%; min-height:44px; border:1px solid #d0dcd1; border-radius:12px; background:#fffdf4; font:inherit; padding:8px; }
+.room-scene { position:relative; }.room-avatar { position:absolute; left:40%; top:48%; width:17%; pointer-events:none; }.room-avatar .player-avatar { width:100% !important; }
+.profile-lifestyle { display:flex; justify-content:space-around; gap:10px; padding:12px; background:#eef4e9; border-radius:18px; }.profile-lifestyle > div { display:grid; justify-items:center; min-width:0; font-size:.65rem; text-align:center; }.town-vehicle { position:absolute; left:285px; top:1070px; pointer-events:none; }.town-vehicle svg { width:82px; height:82px; }
+@media(prefers-reduced-motion:reduce) { .shop-content .shop-item { transition:none; } }

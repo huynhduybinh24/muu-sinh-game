@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108" role="img" aria-labelledby="title"><title id="title">MƯU SINH — biểu tượng ứng dụng</title><defs>
+ <linearGradient id="gold" x2=".25" y2="1"><stop stop-color="#FFF09C"/><stop offset=".5" stop-color="#FFBE35"/><stop offset="1" stop-color="#FF793E"/></linearGradient>
+ <linearGradient id="road" x2="0" y2="1"><stop stop-color="#FFDA75"/><stop offset=".55" stop-color="#FF793E"/><stop offset="1" stop-color="#DC5725"/></linearGradient>
+ <linearGradient id="sky" x2=".3" y2="1"><stop stop-color="#18C8BC"/><stop offset="1" stop-color="#1686AD"/></linearGradient>
+ </defs><g transform="translate(29.68 30.68) scale(0.19)"><g stroke-linejoin="round">
+ <path d="M207 47 A29 29 0 1 1 149 47 A29 29 0 1 1 207 47 Z" fill="url(#gold)" stroke="#123653" stroke-width="7"/>
+ <circle cx="178" cy="47" r="22" fill="none" stroke="#FFEAAA" stroke-width="3"/>
+ <path d="M178 31 L183 41 L194 43 L186 51 L188 63 L178 57 L168 63 L170 51 L162 43 L173 41 Z" fill="#FFF2A4" stroke="#E59B1D" stroke-width="2"/>
+ <path d="M24 219 L45 81 Q47 69 59 65 L85 57 Q96 54 103 66 L131 116 L158 71 Q165 58 178 63 L204 74 Q215 77 216 89 L236 220 Q237 232 223 230 L191 223 Q183 221 183 212 L175 148 L145 201 Q141 208 132 208 L123 208 Q115 208 111 200 L80 147 L70 213 Q69 222 60 225 L38 230 Q22 233 24 219 Z" transform="translate(0 5)" fill="#123653" stroke="#123653" stroke-width="12"/>
+ <path d="M24 219 L45 81 Q47 69 59 65 L85 57 Q96 54 103 66 L131 116 L158 71 Q165 58 178 63 L204 74 Q215 77 216 89 L236 220 Q237 232 223 230 L191 223 Q183 221 183 212 L175 148 L145 201 Q141 208 132 208 L123 208 Q115 208 111 200 L80 147 L70 213 Q69 222 60 225 L38 230 Q22 233 24 219 Z" fill="url(#gold)" stroke="#123653" stroke-width="9"/>
+ <path d="M34 216 L55 85 Q55 80 63 77 L88 70 M194 89 L206 97 L221 215" fill="none" stroke="#FFF2BD" stroke-width="4" stroke-linecap="round"/>
+
+ <path d="M73 148 Q133 137 181 78 L166 73 Q160 70 167 64 L198 43 Q203 40 205 46 L217 80 Q219 88 212 85 L198 81 Q159 150 84 177 Z" fill="url(#road)" stroke="#123653" stroke-width="7"/>
+ <path d="M84 161 Q144 146 188 84" fill="none" stroke="#FFF5DF" stroke-width="4" stroke-linecap="round" stroke-dasharray="9 11"/>
+ </g></g></svg>

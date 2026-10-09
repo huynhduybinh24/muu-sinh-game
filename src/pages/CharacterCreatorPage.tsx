@@ -3,7 +3,7 @@ import { ScreenShell } from '../components/ScreenShell'
 import { PlayerAvatar } from '../components/PlayerAvatar'
 import { appearanceKeys, appearanceLabels, avatarOptions } from '../data/avatar'
 import type { PlayerAppearance } from '../types/profile'
-import type { ItemId } from '../types/shop'
+import type { ItemId, LifestyleState } from '../types/shop'
 import { starterItemIds } from '../data/shop'
 import { canUseAppearanceOption, ownedAppearance } from '../services/inventory'
 
@@ -14,9 +14,10 @@ interface CharacterCreatorPageProps {
   onBack: () => void
   editing?: boolean
   ownedItemIds?: readonly ItemId[]
+  lifestyle?: LifestyleState
 }
 
-export function CharacterCreatorPage({ playerName, initialAppearance, onSave, onBack, editing = false, ownedItemIds = starterItemIds }: CharacterCreatorPageProps) {
+export function CharacterCreatorPage({ playerName, initialAppearance, onSave, onBack, editing = false, ownedItemIds = starterItemIds, lifestyle }: CharacterCreatorPageProps) {
   const [appearance, setAppearance] = useState<PlayerAppearance>(() => ownedAppearance(initialAppearance, ownedItemIds))
   const availableOptions = <Key extends keyof PlayerAppearance>(key: Key) =>
     avatarOptions[key].filter((option) => canUseAppearanceOption(key, option.id, ownedItemIds))
@@ -34,7 +35,7 @@ export function CharacterCreatorPage({ playerName, initialAppearance, onSave, on
       </>}>
       <div className="page-heading"><p className="eyebrow">Xin chào, {playerName}!</p><h1>TẠO NHÂN VẬT</h1></div>
       <div className="avatar-stage creator-avatar"><span className="stage-spark stage-spark--one">✦</span>
-        <PlayerAvatar appearance={appearance} size={140} /><span className="stage-spark stage-spark--two">✧</span>
+        <PlayerAvatar appearance={appearance} lifestyle={lifestyle} size={140} /><span className="stage-spark stage-spark--two">✧</span>
       </div>
       <div className="appearance-options">
         {appearanceKeys.map((key) => {

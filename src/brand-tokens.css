@@ -1,0 +1,11 @@
+/* Generated from src/data/brand.json by npm run branding:generate. */
+:root {
+  --brand-gold: #FFBE35;
+  --brand-orange: #FF793E;
+  --brand-teal: #18C8BC;
+  --brand-navy: #123653;
+  --brand-cream: #FFF5DF;
+  --brand-action: #BC421F;
+  --brand-muted: #52667A;
+  --brand-success: #08756F;
+}
